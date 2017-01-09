@@ -156,4 +156,4 @@ if __name__=='__main__':
 	# plot_validation_tau('Test11AT', 'ranking_model_11atomTypes', 1, 1)
 
 	# plot_training_samples('11ATinit4AT', 'ranking_model_11atomTypes', '3DRobotTrainingSet', 1, 1)
-	plot_validation_funnels('11ATinit4AT', 'ranking_model_11atomTypes', '3DRobotTrainingSet', 10, 10)
+	plot_validation_funnels('11ATinit4AT', 'ranking_model_11atomTypes', '3DRobotTrainingSet', 1, 1)

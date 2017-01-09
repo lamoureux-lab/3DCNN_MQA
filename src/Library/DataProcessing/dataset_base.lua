@@ -10,18 +10,6 @@ end
 
 require 'torch'
 require 'cutorch'
--- local ffi = require 'ffi'
--- ffi.cdef[[
-
--- typedef struct{	char **strings;	size_t len; THFloatTensor **grids4D;} batchInfo;
--- void loadProteinOMP(batchInfo* batch, bool shift, bool rot, float resolution, bool binary);
-
--- batchInfo* createBatchInfo(int batch_size);
--- void deleteBatchInfo(batchInfo* binfo);
--- void pushProteinToBatchInfo(const char* filename, THFloatTensor *grid4D, batchInfo* binfo);
--- void printBatchInfo(batchInfo* binfo);
--- ]]
--- local C = ffi.load'./../Library/build/libload_protein.so'
 local ffi_cuda = require 'ffi'
 ffi_cuda.cdef[[
 typedef struct{	char **strings;	size_t len; size_t ind;} batchInfo;
@@ -49,7 +37,11 @@ cDatasetBase.__index = cDatasetBase
 function cDatasetBase.new(batch_size, input_size, augment_rotate, augment_shift, resolution, binary)
 	local self = setmetatable({}, cDatasetBase)
 	self.__index = self
-	
+	self:init_variables(batch_size, input_size, augment_rotate, augment_shift, resolution, binary)
+	return self
+end
+
+function cDatasetBase.init_variables(self, batch_size, input_size, augment_rotate, augment_shift, resolution, binary)
 	self.batch_size = batch_size
 	self.input_size = input_size
 	if augment_rotate==nil then 
@@ -81,10 +73,7 @@ function cDatasetBase.new(batch_size, input_size, augment_rotate, augment_shift,
 	if self.num_atom_types == 11 then 
 		self.assigner_type = 2
 	end
-
-	return self
 end
-
 function cDatasetBase.load_proteins(self, description_filename)
 	--PROTEINS:
 	--dataset.proteins{
@@ -166,15 +155,11 @@ function cDatasetBase.load_sequential_batch(self, protein_name, num_beg)
 	
 	local batch_info = Cuda.createBatchInfo(num_end - num_beg + 1)
 	for ind = num_beg, num_end do
-		-- C.pushProteinToBatchInfo(self.decoys[protein_name][ind].filename, 
-		-- 						batch[{batch_ind,{},{},{},{}}]:cdata(), batch_info)
 		Cuda.pushProteinToBatchInfo(self.decoys[protein_name][ind].filename, batch_info)
 		
 		self.indexes[batch_ind] = ind
 		batch_ind=batch_ind+1
-		--print(self.decoys[protein_name][ind].filename)
 	end
-	-- C.loadProteinOMP(batch_info, self.shift, self.rotate, self.resolution, self.binary)
 	Cuda.loadProteinCUDA(	cutorch.getState(), batch_info, self.batch:cdata(), 
 							self.shift, self.rotate, self.resolution, 
 							self.assigner_type, self.input_size[2])

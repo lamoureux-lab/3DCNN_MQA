@@ -18,10 +18,10 @@ require 'optim'
 
 requireRel '../Library/DataProcessing/utils'
 requireRel '../Library/DataProcessing/dataset_homogenious'
+requireRel '../Library/LossFunctions/batchRankingLoss'
 requireRel '../Logging/training_logger'
 
 modelName = 'ranking_model_11atomTypes'
--- modelName = 'ranking_model7'
 model, optimization_parameters = dofile('../ModelsDef/'..modelName..'.lua')
 model:initialize_cuda(1)
 
@@ -41,6 +41,8 @@ adamConfig = {	learningRate = optimization_parameters.learningRate,
 local input_size = {	model.input_options.num_channels, model.input_options.input_size, 
 						model.input_options.input_size, model.input_options.input_size}
 
+batchRankingLoss = cBatchRankingLoss.new(0.2, 0.1)
+
 
 function train_epoch(epoch, dataset, logger)
 	model.net:training()
@@ -57,82 +59,41 @@ function train_epoch(epoch, dataset, logger)
 			cbatch, indexes = dataset:load_homo_batch(protein_name)
 			batch_loading_time = torch.tic()-stic
 
-			local batch_weight = 0
-			for i=1, optimization_parameters.batch_size do
-				if indexes[i]>0 then
-					for j=1, optimization_parameters.batch_size do
-						if indexes[j]>0 and (not(i==j)) then
-							local tm_i = dataset.decoys[protein_name][indexes[i]].tm_score
-				 			local tm_j = dataset.decoys[protein_name][indexes[j]].tm_score
-				 			batch_weight = batch_weight + math.max(0, math.abs(tm_i-tm_j) - 0.2)
-				 		end
-				 	end
-				 end
-			end
-			if batch_weight == 0 then 
+			-- Check if there is a need to evaluate the network
+			if batchRankingLoss:get_batch_weight(dataset.decoys[protein_name], indexes) == 0 then 
 				return 0, gradParameters
 			end
 				
 			--Forward pass through batch
 			stic = torch.tic()
-			--local cbatch = batch:cuda()
-			data_2gpu_time = torch.tic()-stic
-			stic = torch.tic()
 			local outputs_gpu = net:forward(cbatch)
-			local table_outputs
 			local outputs_cpu = outputs_gpu:clone():float()
-			local outputs_paired = outputs_cpu:clone():fill(0.0)
-			local df_do = torch.zeros(optimization_parameters.batch_size,1)
-			local f = 0
 			forward_time = torch.tic()-stic
-			--print(outputs_cpu)
 			
+			--saving the outputs for the later analysis
 			for i=1, optimization_parameters.batch_size do
 				if indexes[i]>0 then
 					logger:set_decoy_score(protein_name, dataset.decoys[protein_name][indexes[i]].filename, outputs_cpu[{i,1}])
 				end
 			end
-			local N = 0
-			stic = torch.tic()
-			for i=1, optimization_parameters.batch_size do
-				if indexes[i]>0 then
-					for j=1, optimization_parameters.batch_size do
-						if indexes[j]>0 and (not(i==j)) then
-							N = N + 1
-							local tm_i = dataset.decoys[protein_name][indexes[i]].tm_score
-				 			local tm_j = dataset.decoys[protein_name][indexes[j]].tm_score
-				 			local y_ij = 0
-				 			local gap = 2.0*math.abs(tm_i-tm_j)
-				 			if tm_i>=tm_j then y_ij = 1 end
-				 			if tm_i<tm_j then y_ij = -1 end
-				 			y_ij = y_ij*math.max(tm_i,tm_j)
-				 			local example_weight = math.max(0, math.abs(tm_i-tm_j) - 0.2)
-				 			local dL = example_weight*math.max(0, gap + y_ij*(outputs_cpu[{i,1}] - outputs_cpu[{j,1}]))
-							if dL > 0 then
-			 					df_do[i] = df_do[i] + example_weight*y_ij
-			 					df_do[j] = df_do[j] - example_weight*y_ij
-				 			end
-				 			f = f + dL
-						end
-					end
-				end
-			end
-			if N>0 then
-				df_do = df_do/N
-				f = f/N
-				if df_do:norm()>0 then
-					net:backward(cbatch,df_do:cuda())
-				
-					if optimization_parameters.coefL1 ~= 0 then
-						f = f + optimization_parameters.coefL1 * torch.norm(parameters,1)
-						gradParameters:add( torch.sign(parameters):mul(optimization_parameters.coefL1) )
-					end
-				end	
-				bacward_time = torch.tic()-stic
-				print(epoch, protein_index, #dataset.proteins, protein_name, 1, 1, f, batch_loading_time, data_2gpu_time, forward_time, bacward_time)
-				logger:add_loss_function_value(f)
-			end	
 			
+			stic = torch.tic()
+			--computing loss function value and gradient
+			local f, df_do = batchRankingLoss:evaluate(dataset.decoys[protein_name], indexes, outputs_cpu)
+			logger:add_loss_function_value(f)
+			--if there's no gradient then just skipping the backward pass
+			if df_do:norm()>0 then
+				net:backward(cbatch,df_do:cuda())
+			end	
+			if optimization_parameters.coefL1 ~= 0 then
+				f = f + optimization_parameters.coefL1 * torch.norm(parameters,1)
+				gradParameters:add( torch.sign(parameters):mul(optimization_parameters.coefL1) )
+			end
+			bacward_time = torch.tic()-stic
+			
+			print(epoch, protein_index, #dataset.proteins, protein_name, f, 
+				batch_loading_time, forward_time, bacward_time)
+									
 			return f, gradParameters
 		end
 		optim.adam(feval, parameters, adamConfig)
@@ -181,7 +142,7 @@ end
 ---MAIN
 ------------------------------------
 
-training_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, false, false, model.input_options.resolution)
+training_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, true, true, model.input_options.resolution)
 training_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet/Description','training_set.dat')
 --training_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/CASP/Description','training_set.dat')
 --training_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/3DRobot_set/Description','training_set.dat')
