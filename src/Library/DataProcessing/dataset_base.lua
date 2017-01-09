@@ -9,19 +9,35 @@ end
 
 
 require 'torch'
+require 'cutorch'
+-- local ffi = require 'ffi'
+-- ffi.cdef[[
 
-local ffi = require 'ffi'
-ffi.cdef[[
+-- typedef struct{	char **strings;	size_t len; THFloatTensor **grids4D;} batchInfo;
+-- void loadProteinOMP(batchInfo* batch, bool shift, bool rot, float resolution, bool binary);
 
-typedef struct{	char **strings;	size_t len; THFloatTensor **grids4D;} batchInfo;
-void loadProteinOMP(batchInfo* batch, bool shift, bool rot, float resolution);
-
+-- batchInfo* createBatchInfo(int batch_size);
+-- void deleteBatchInfo(batchInfo* binfo);
+-- void pushProteinToBatchInfo(const char* filename, THFloatTensor *grid4D, batchInfo* binfo);
+-- void printBatchInfo(batchInfo* binfo);
+-- ]]
+-- local C = ffi.load'./../Library/build/libload_protein.so'
+local ffi_cuda = require 'ffi'
+ffi_cuda.cdef[[
+typedef struct{	char **strings;	size_t len; size_t ind;} batchInfo;
 batchInfo* createBatchInfo(int batch_size);
 void deleteBatchInfo(batchInfo* binfo);
-void pushProteinToBatchInfo(const char* filename, THFloatTensor *grid4D, batchInfo* binfo);
+void pushProteinToBatchInfo(const char* filename, batchInfo* binfo);
 void printBatchInfo(batchInfo* binfo);
+
+void loadProteinCUDA(THCState *state,
+					batchInfo* batch, THCudaTensor *batch5D,
+					bool shift, bool rot, float resolution,
+					int assigner_type, int spatial_dim);
+
+
 ]]
-local C = ffi.load'./../Library/build/libload_protein.so'
+local Cuda = ffi_cuda.load'../Library/build/libload_protein_cuda.so'
 
 torch.setdefaulttensortype('torch.FloatTensor')
 
@@ -30,7 +46,7 @@ requireRel('./utils.lua')
 cDatasetBase = {}
 cDatasetBase.__index = cDatasetBase
 
-function cDatasetBase.new(batch_size, input_size, augment_rotate, augment_shift, resolution)
+function cDatasetBase.new(batch_size, input_size, augment_rotate, augment_shift, resolution, binary)
 	local self = setmetatable({}, cDatasetBase)
 	self.__index = self
 	
@@ -48,6 +64,24 @@ function cDatasetBase.new(batch_size, input_size, augment_rotate, augment_shift,
 		resolution = 1.0
 	end
 	self.resolution = resolution
+	if binary==nil then
+		binary = false
+	end
+	self.binary = binary
+
+	self.batch = torch.zeros(self.batch_size, self.input_size[1], 
+		self.input_size[2], self.input_size[3], self.input_size[4]):cuda()
+	self.indexes = torch.zeros(self.batch_size):type('torch.IntTensor')
+
+	self.num_atom_types = self.input_size[1]
+	self.assigner_type = nil
+	if self.num_atom_types == 4 then 
+		self.assigner_type = 1
+	end
+	if self.num_atom_types == 11 then 
+		self.assigner_type = 2
+	end
+
 	return self
 end
 
@@ -124,23 +158,28 @@ function cDatasetBase.shuffle_dataset(self)
 end
 
 function cDatasetBase.load_sequential_batch(self, protein_name, num_beg)
-	local batch = torch.zeros(self.batch_size, self.input_size[1], self.input_size[2], self.input_size[3], self.input_size[4])
-	local indexes = torch.zeros(self.batch_size):type('torch.IntTensor')
+	self.batch:fill(0.0)
+	self.indexes:fill(0)	
 	local num_end = math.min(#self.decoys[protein_name],num_beg+self.batch_size-1)
 		
 	local batch_ind = 1
 	
-	local batch_info = C.createBatchInfo(num_end - num_beg + 1)
+	local batch_info = Cuda.createBatchInfo(num_end - num_beg + 1)
 	for ind = num_beg, num_end do
-		C.pushProteinToBatchInfo(self.decoys[protein_name][ind].filename, 
-								batch[{batch_ind,{},{},{},{}}]:cdata(), batch_info)
-		indexes[batch_ind] = ind
+		-- C.pushProteinToBatchInfo(self.decoys[protein_name][ind].filename, 
+		-- 						batch[{batch_ind,{},{},{},{}}]:cdata(), batch_info)
+		Cuda.pushProteinToBatchInfo(self.decoys[protein_name][ind].filename, batch_info)
+		
+		self.indexes[batch_ind] = ind
 		batch_ind=batch_ind+1
 		--print(self.decoys[protein_name][ind].filename)
 	end
-	C.loadProteinOMP(batch_info, self.shift, self.rotate, self.resolution)
-	C.deleteBatchInfo(batch_info)
+	-- C.loadProteinOMP(batch_info, self.shift, self.rotate, self.resolution, self.binary)
+	Cuda.loadProteinCUDA(	cutorch.getState(), batch_info, self.batch:cdata(), 
+							self.shift, self.rotate, self.resolution, 
+							self.assigner_type, self.input_size[2])
+	Cuda.deleteBatchInfo(batch_info)
 
-	return batch, indexes
+	return self.batch, self.indexes
 end
 

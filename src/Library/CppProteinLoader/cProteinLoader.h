@@ -34,12 +34,16 @@ public:
 	int assignAtomTypes(int assigner_type); // 1 - 4 atom types; 2 - 10 atom types
 	void projectToTensor(THFloatTensor *grid);
 
+	void save_binary(std::string filename);
+	void load_binary(std::string filename);
+
 	void computeBoundingBox();
 
 	void shiftProtein(cVector3 dr);
 	void rotateProtein(cMatrix33 rot);
 	
 	void addToGridExp(int aInd, THFloatTensor *grid);
+	void addToGridBin(int aInd, THFloatTensor *grid);
 
 	int get11AtomType(std::string res_name, std::string atom_name, bool terminal);
 	int get4AtomType(std::string &atom_name);

@@ -101,37 +101,59 @@ def plot_loss_function(loss_function_values, outputFile):
 
 
 
-def plot_validation_funnels(experiment_name, model_name, epoch_start, epoch_end):
+def plot_validation_funnels(experiment_name, model_name, dataset_name, epoch_start, epoch_end):
 	print 'Loading dataset'
-	proteins, decoys = read_dataset_description('/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet/Description','validation_set.dat')
+	proteins, decoys = read_dataset_description('/home/lupoglaz/ProteinsDataset/%s/Description'%dataset_name,'validation_set.dat')
 	
 	for epoch in range(epoch_start, epoch_end+1):
 		print 'Loading scoring ',epoch
-		loss_function_values, decoys_scores = read_epoch_output('../../models/%s_%s_3DRobotTrainingSet/validation/epoch_%d.dat'%
-			(experiment_name, model_name, epoch))
+		loss_function_values, decoys_scores = read_epoch_output('../../models/%s_%s_%s/validation/epoch_%d.dat'%
+			(experiment_name, model_name, dataset_name, epoch))
 		print 'Plotting funnels ',epoch
-		plotFunnels(proteins, decoys, decoys_scores, '../../models/%s_%s_3DRobotTrainingSet/epoch%d_funnels.png'%
-			(experiment_name, model_name, epoch))
+		plotFunnels(proteins, decoys, decoys_scores, '../../models/%s_%s_%s/epoch%d_funnels.png'%
+			(experiment_name, model_name, dataset_name, epoch))
 
-def plot_validation_tau(experiment_name, model_name, epoch_start, epoch_end):
+def plot_validation_tau(experiment_name, model_name, dataset_name, epoch_start, epoch_end):
 	print 'Loading dataset'
-	proteins, decoys = read_dataset_description('/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet/Description','validation_set.dat')
+	proteins, decoys = read_dataset_description('/home/lupoglaz/ProteinsDataset/%s/Description'%dataset_name,'validation_set.dat')
 	taus = []
 	for epoch in range(epoch_start, epoch_end+1):
 		print 'Loading scoring ',epoch
-		loss_function_values, decoys_scores = read_epoch_output('../../models/%s_%s_3DRobotTrainingSet/validation/epoch_%d.dat'%
-			(experiment_name, model_name, epoch))
+		loss_function_values, decoys_scores = read_epoch_output('../../models/%s_%s_%s/validation/epoch_%d.dat'%
+			(experiment_name, model_name, dataset_name, epoch))
 		taus.append(get_kendall(proteins, decoys, decoys_scores))
 
 	from matplotlib import pylab as plt
 	fig = plt.figure(figsize=(20,20))
 	plt.plot(taus)
-	plt.savefig('../../models/%s_%s_3DRobotTrainingSet/kendall_validation.png'%(experiment_name, model_name))
+	plt.savefig('../../models/%s_%s_%s/kendall_validation.png'%(experiment_name, model_name, dataset_name))
 
+def plot_training_samples(experiment_name, model_name, dataset_name, epoch_start, epoch_end):
+	print 'Loading dataset'
+	proteins, decoys = read_dataset_description('/home/lupoglaz/ProteinsDataset/%s/Description'%dataset_name,'training_set.dat')
+	epoch = 1
+	loss_function_values, decoys_scores = read_epoch_output('../../models/%s_%s_%s/training/epoch_%d.dat'%
+			(experiment_name, model_name, dataset_name, epoch))
+	tmscores = []
+	for n,protein in enumerate(proteins):
+		for decoy in decoys[protein]:
+			tmscores.append(decoy[1])
+	from matplotlib import pylab as plt
+	import numpy as np
+	fig = plt.figure(figsize=(20,20))
+	plt.hist(tmscores)
+	plt.savefig('../../models/%s_%s_%s/decoy_sampling.png'%(experiment_name, model_name, dataset_name))
+			
+		
 if __name__=='__main__':
 	
 	# plot_validation_funnels('Test', 'ranking_model7', 26, 60)
 	# plot_validation_tau('Test', 'ranking_model7', 1, 60)
 
-	plot_validation_funnels('Test11AT', 'ranking_model_11atomTypes', 1, 1)
+	# plot_validation_funnels('Test11ATinit4AT', 'ranking_model_11atomTypes', '3DRobot_set', 1, 1)
+	
+	# plot_validation_funnels('Test11ATinit4AT', 'ranking_model7', '3DRobot_set', 1, 1)
 	# plot_validation_tau('Test11AT', 'ranking_model_11atomTypes', 1, 1)
+
+	# plot_training_samples('11ATinit4AT', 'ranking_model_11atomTypes', '3DRobotTrainingSet', 1, 1)
+	plot_validation_funnels('11ATinit4AT', 'ranking_model_11atomTypes', '3DRobotTrainingSet', 10, 10)

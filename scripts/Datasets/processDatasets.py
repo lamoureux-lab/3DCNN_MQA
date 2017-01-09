@@ -41,7 +41,8 @@ def dataset_make_description(dataset_path, description_dir_name='Description',
 							include_native_structures = False, 
 							tmscore_range = (0, 1),
 							gdt_ts_range = (0, 1),
-							exclusion_set = None
+							exclusion_set = None,
+							exclude_wo_decoys = None
 							):
 	"""Generates description of a dataset.
 	It can exclude native structures and structures that have tmscore or gdt_ts outside of the specified ranges"""
@@ -62,6 +63,7 @@ def dataset_make_description(dataset_path, description_dir_name='Description',
 			
 			fDDecoy = open(os.path.join(description_path,'%s.dat'%dName),'w')
 			fDDecoy.write('decoy_path\trmsd\ttm-score\tgdt-ts\tgdt-ha\n')
+			decoys = []
 			for line in lst:
 				lsplit = line.split()
 				decoy_name = lsplit[0]
@@ -86,8 +88,13 @@ def dataset_make_description(dataset_path, description_dir_name='Description',
 					if decoy_path in exclusion_set:
 						print 'Excluding ', decoy_path
 						continue
+				decoys.append('%s\t%f\t%f\t%f\t%f\n'%(decoy_path, rmsd, tmscore, gdt_ts, gdt_ha))
 				fDDecoy.write('%s\t%f\t%f\t%f\t%f\n'%(decoy_path, rmsd, tmscore, gdt_ts, gdt_ha))
 			fDDecoy.close()
+			if not (exclude_wo_decoys is None):
+				if len(decoys)<exclude_wo_decoys: 
+					print 'Excluding ', dName, "Reason: less than 50 decoys: ", len(decoys)
+					continue
 
 			fDData.write(dName+'\n')
 
@@ -138,9 +145,9 @@ def make_train_validation_split(dataset_description_path, description_file='data
 		fValidationSet.close()
 
 		train_set = list(set(prev_train_set)&set(dataset))
-		print('Train set excluded ',set(prev_train_set)-set(dataset))
+		print('Train set excluded ',set(prev_train_set)-set(train_set))
 		validation_set = list(set(prev_valid_set)&set(dataset))
-		print('Valid set excluded ',set(prev_valid_set)-set(dataset))
+		print('Valid set excluded ',set(prev_valid_set)-set(validation_set))
 
 		fTrainSet = open(os.path.join(dataset_description_path, training_set_filename),'w')
 		for name in train_set:
@@ -152,7 +159,6 @@ def make_train_validation_split(dataset_description_path, description_file='data
 			fValidationSet.write(name+'\n')
 		fValidationSet.close()
 
-	
 
 if __name__=='__main__':
 
@@ -160,16 +166,17 @@ if __name__=='__main__':
 	# dataset_make_description('/home/lupoglaz/ProteinsDataset/3DRobot_set')
 	# make_train_validation_split('/home/lupoglaz/ProteinsDataset/3DRobot_set/Description')
 
-	# dataset_make_description('/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet',
-	# 	exclusion_set = set([
-	# 		'/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet/2ad1_A/decoy8_29.pdb',
-	# 		'/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet/1ey4_A/decoy12_40.pdb',
-	# 		'/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet/3llb_A/decoy52_17.pdb']))
+	dataset_make_description('/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet',
+		exclusion_set = set([
+			'/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet/2ad1_A/decoy8_29.pdb',
+			'/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet/1ey4_A/decoy12_40.pdb',
+			'/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet/3llb_A/decoy52_17.pdb']),
+		exclude_wo_decoys = 50)
 
-	# make_train_validation_split('/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet/Description',
-	# 		previous_training_set_filename = '/home/lupoglaz/Dropbox/src/DeepFolder/Data/3DRobot/trainingSet.dat',
-	# 		previous_validation_set_filename = '/home/lupoglaz/Dropbox/src/DeepFolder/Data/3DRobot/validationSet.dat')
+	make_train_validation_split('/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet/Description',
+			previous_training_set_filename = '/home/lupoglaz/Dropbox/src/DeepFolder/Data/3DRobot/trainingSet.dat',
+			previous_validation_set_filename = '/home/lupoglaz/Dropbox/src/DeepFolder/Data/3DRobot/validationSet.dat')
 
 	# dataset_make_lists('/home/lupoglaz/ProteinsDataset/CASP')
 	# dataset_make_description('/home/lupoglaz/ProteinsDataset/CASP')
-	make_train_validation_split('/home/lupoglaz/ProteinsDataset/CASP/Description')
+	# make_train_validation_split('/home/lupoglaz/ProteinsDataset/CASP/Description')

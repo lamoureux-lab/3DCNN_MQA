@@ -10,19 +10,37 @@ end
 requireRel('./dataset_base.lua')
 requireRel('./utils.lua')
 require 'torch'
+require 'cutorch'
 
-local ffi = require 'ffi'
-ffi.cdef[[
+-- local ffi = require 'ffi'
+-- ffi.cdef[[
 
-typedef struct{	char **strings;	size_t len; THFloatTensor **grids4D;} batchInfo;
-void loadProteinOMP(batchInfo* batch, bool shift, bool rot, float resolution);
+-- typedef struct{	char **strings;	size_t len; THFloatTensor **grids4D;} batchInfo;
+-- void loadProteinOMP(batchInfo* batch, bool shift, bool rot, float resolution, bool binary);
 
+-- batchInfo* createBatchInfo(int batch_size);
+-- void deleteBatchInfo(batchInfo* binfo);
+-- void pushProteinToBatchInfo(const char* filename, THFloatTensor *grid4D, batchInfo* binfo);
+-- void printBatchInfo(batchInfo* binfo);
+-- ]]
+-- local C = ffi.load'./../Library/build/libload_protein.so'
+local ffi_cuda = require 'ffi'
+ffi_cuda.cdef[[
+typedef struct{	char **strings;	size_t len; size_t ind;} batchInfo;
 batchInfo* createBatchInfo(int batch_size);
 void deleteBatchInfo(batchInfo* binfo);
-void pushProteinToBatchInfo(const char* filename, THFloatTensor *grid4D, batchInfo* binfo);
+void pushProteinToBatchInfo(const char* filename, batchInfo* binfo);
 void printBatchInfo(batchInfo* binfo);
+
+void loadProteinCUDA(THCState *state,
+					batchInfo* batch, THCudaTensor *batch5D,
+					bool shift, bool rot, float resolution,
+					int assigner_type, int spatial_dim);
+
+
 ]]
-local C = ffi.load'./../Library/build/libload_protein.so'
+local Cuda = ffi_cuda.load'../Library/build/libload_protein_cuda.so'
+
 
 torch.setdefaulttensortype('torch.FloatTensor')
 
@@ -31,7 +49,7 @@ torch.setdefaulttensortype('torch.FloatTensor')
 cDatasetHomo = {}
 setmetatable( cDatasetHomo, {__index=cDatasetBase})
 
-function cDatasetHomo.new(batch_size, input_size, augment_rotate, augment_shift, resolution)
+function cDatasetHomo.new(batch_size, input_size, augment_rotate, augment_shift, resolution, binary)
 	local self = {}
 	setmetatable(self, {__index = cDatasetHomo})
 
@@ -49,6 +67,24 @@ function cDatasetHomo.new(batch_size, input_size, augment_rotate, augment_shift,
 		resolution = 1.0
 	end
 	self.resolution = resolution
+	if binary==nil then
+		binary = false
+	end
+	self.binary = binary
+
+	self.batch = torch.zeros(self.batch_size, self.input_size[1], 
+		self.input_size[2], self.input_size[3], self.input_size[4]):cuda()
+	self.indexes = torch.zeros(self.batch_size):type('torch.IntTensor')
+
+	self.num_atom_types = self.input_size[1]
+	self.assigner_type = nil
+	if self.num_atom_types == 4 then 
+		self.assigner_type = 1
+	end
+	if self.num_atom_types == 11 then 
+		self.assigner_type = 2
+	end
+
 	return self
 end
 
@@ -72,34 +108,43 @@ end
 
 
 function cDatasetHomo.load_homo_batch(self, protein_name)
-	local batch = torch.zeros(self.batch_size, self.input_size[1], self.input_size[2], self.input_size[3], self.input_size[4])
-	local indexes = torch.zeros(self.batch_size):type('torch.IntTensor')
-		
+	--local batch = torch.zeros(self.batch_size, self.input_size[1], self.input_size[2], self.input_size[3], self.input_size[4])
+	--local indexes = torch.zeros(self.batch_size):type('torch.IntTensor')
+	self.batch:fill(0.0)
+	self.indexes:fill(0)	
 	local batch_ind = 1 -- index in the batch
 	local ind = 1		-- bin index from which the decoy is added
 	local decoy_num = 1 -- index in the single bin
 	
-	local batch_info = C.createBatchInfo(self.batch_size)
+	local batch_info = Cuda.createBatchInfo(self.batch_size)
 	while batch_ind <= self.batch_size do
-		if ind >= self.batch_size then 
+		if ind > self.batch_size then 
 			ind = ind%self.batch_size
 			decoy_num = decoy_num + 1
 		end
 		if self.homo_decoys[protein_name][ind] ~= nil then
 			if self.homo_decoys[protein_name][ind][decoy_num] ~= nil then
 				local decoy_idx = self.homo_decoys[protein_name][ind][decoy_num]
-				C.pushProteinToBatchInfo(self.decoys[protein_name][decoy_idx].filename,
-									batch[{batch_ind,{},{},{},{}}]:cdata(), batch_info)
-				indexes[batch_ind] = decoy_idx
+				-- C.pushProteinToBatchInfo(self.decoys[protein_name][decoy_idx].filename,
+				-- 					self.batch[{batch_ind,{},{},{},{}}]:cdata(), batch_info)
+				Cuda.pushProteinToBatchInfo(self.decoys[protein_name][ind].filename, batch_info)
+				self.indexes[batch_ind] = decoy_idx
 				batch_ind = batch_ind + 1
 			end
 		end
 		ind = ind + 1
 	end
-	C.loadProteinOMP(batch_info, self.shift, self.rotate, self.resolution)
-	C.deleteBatchInfo(batch_info)
+	
+	--C.loadProteinOMP(batch_info, self.shift, self.rotate, self.resolution, self.binary)
+	--C.deleteBatchInfo(batch_info)
+	Cuda.loadProteinCUDA(	cutorch.getState(), batch_info, self.batch:cdata(), 
+							self.shift, self.rotate, self.resolution, 
+							self.assigner_type, self.input_size[2])
+	Cuda.deleteBatchInfo(batch_info)
 
-	return batch, indexes
+	
+	
+	return self.batch, self.indexes
 end
 
 function cDatasetHomo.shuffle_dataset(self)

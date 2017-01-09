@@ -86,6 +86,54 @@ int cProteinLoader::assignAtomTypes(int assigner_type){
 	return assigner_type;
 }
 
+
+void cProteinLoader::load_binary(std::string filename){
+	std::ifstream file;
+	file.open(filename, std::ios::in | std::ios::binary);
+	int N;
+	char * int_buffer = new char [sizeof(int)];
+	char * double_buffer = new char [sizeof(double)];
+	file.read(int_buffer,sizeof(int));
+	N = *((int*)int_buffer);
+	file.read(int_buffer,sizeof(int));
+	num_atom_types = *((int*)int_buffer);
+	
+	atomType.resize(0);
+	r.resize(0);
+	
+	for(int i=0; i<N; i++){
+		cVector3 r_i;
+		int type;
+		file.read(double_buffer, sizeof(double));
+		r_i.v[0] = *((double*)double_buffer);
+		file.read(double_buffer, sizeof(double));
+		r_i.v[1] = *((double*)double_buffer);
+		file.read(double_buffer, sizeof(double));
+		r_i.v[2] = *((double*)double_buffer);
+		file.read(int_buffer, sizeof(int));
+		type = *((int*)int_buffer);
+		atomType.push_back(type);
+		r.push_back(r_i);
+	}
+	file.close();
+}
+
+void cProteinLoader::save_binary(std::string filename){
+	std::ofstream file;
+	file.open(filename, std::ios::out | std::ios::binary);
+	int N = r.size();
+	file.write((const char*)&N,sizeof(int));
+	file.write((const char*)&num_atom_types,sizeof(int));
+	for(int i=0; i<N; i++){
+		file.write((const char*)&(r[i].v[0]), sizeof(double));
+		file.write((const char*)&(r[i].v[1]), sizeof(double));
+		file.write((const char*)&(r[i].v[2]), sizeof(double));
+		file.write((const char*)&(atomType[i]), sizeof(int));
+	}
+	file.close();	
+}
+
+
 void cProteinLoader::computeBoundingBox(){
 	b0[0]=std::numeric_limits<float>::infinity(); 
 	b0[1]=std::numeric_limits<float>::infinity(); 
@@ -148,6 +196,24 @@ void cProteinLoader::addToGridExp(int aInd, THFloatTensor *grid)
 	}
 }
 
+void cProteinLoader::addToGridBin(int aInd, THFloatTensor *grid)
+{
+	float tmp;
+	int at = atomType[aInd];
+	if(at<0 or at>grid->size[0]){
+		std::cout<<"atom type = "<<at<<" Wrong grid dimesion 0 = "<<grid->size[0];
+		std::exception p;
+		throw p;
+	}
+	int ix = floor(r[aInd][0]/res);
+	int iy = floor(r[aInd][1]/res);
+	int iz = floor(r[aInd][2]/res);
+	if( (ix>=0 && ix<grid->size[1]) && (iy>=0 && iy<grid->size[2]) && (iz>=0 && iz<grid->size[3]) ){
+		tmp = THFloatTensor_get4d(grid, at, ix, iy, iz);
+		THFloatTensor_set4d(grid, at, ix, iy, iz, tmp + 1.0);
+	}
+}
+
 void cProteinLoader::projectToTensor(THFloatTensor *grid){
 	//float grid_center_x, grid_center_y, grid_center_z;
 	if(!(grid->nDimension == 4)){
@@ -159,6 +225,7 @@ void cProteinLoader::projectToTensor(THFloatTensor *grid){
 	
 	float tmp;
 	for(int i=0;i<atomType.size();i++){
+		//addToGridBin(i, grid);
 		addToGridExp(i, grid);
 	}
 }
