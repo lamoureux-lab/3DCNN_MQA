@@ -159,6 +159,43 @@ def make_train_validation_split(dataset_description_path, description_file='data
 			fValidationSet.write(name+'\n')
 		fValidationSet.close()
 
+def dataset_make_description_natives(dataset_path, description_dir_name='Description', output_name = 'native_set.dat'):
+	"""Generates description of native structures of a dataset."""
+	description_path = os.path.join(dataset_path,description_dir_name)
+	try:
+		os.mkdir(description_path)
+	except:
+		pass
+	fDData = open(os.path.join(description_path,output_name),'w')
+	fDData.write('natives\n')
+	fDData.close()
+	fDDecoy = open(os.path.join(description_path,'natives.dat'),'w')
+	fDDecoy.write('decoy_path\trmsd\ttm-score\tgdt-ts\tgdt-ha\n')
+	for root, dirs, files in os.walk(dataset_path,topdown=False):
+		for dName in dirs:
+			try:
+				lst = open( os.path.join(os.path.join(dataset_path,dName),'list.dat'),'r')
+				lst.readline()
+			except:
+				print 'No list in ',dName
+				continue
+			for line in lst:
+				lsplit = line.split()
+				decoy_name = lsplit[0]
+				rmsd = float(lsplit[1])
+				tmscore = float(lsplit[2])
+				gdt_ts = float(lsplit[3])
+				gdt_ha = float(lsplit[4])
+
+				
+				if (rmsd>0.01 or tmscore<0.99) or (rmsd<-0.5 or tmscore<-0.5):
+					continue
+				decoy_path = os.path.join(os.path.join(dataset_path,dName),decoy_name)
+				fDDecoy.write('%s\t%f\t%f\t%f\t%f\n'%(decoy_path, rmsd, tmscore, gdt_ts, gdt_ha))
+
+	fDDecoy.close()
+	
+
 
 if __name__=='__main__':
 
@@ -166,17 +203,19 @@ if __name__=='__main__':
 	# dataset_make_description('/home/lupoglaz/ProteinsDataset/3DRobot_set')
 	# make_train_validation_split('/home/lupoglaz/ProteinsDataset/3DRobot_set/Description')
 
-	dataset_make_description('/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet',
-		exclusion_set = set([
-			'/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet/2ad1_A/decoy8_29.pdb',
-			'/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet/1ey4_A/decoy12_40.pdb',
-			'/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet/3llb_A/decoy52_17.pdb']),
-		exclude_wo_decoys = 50)
+	# dataset_make_description('/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet',
+	# 	exclusion_set = set([
+	# 		'/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet/2ad1_A/decoy8_29.pdb',
+	# 		'/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet/1ey4_A/decoy12_40.pdb',
+	# 		'/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet/3llb_A/decoy52_17.pdb']),
+	# 	exclude_wo_decoys = 50)
 
-	make_train_validation_split('/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet/Description',
-			previous_training_set_filename = '/home/lupoglaz/Dropbox/src/DeepFolder/Data/3DRobot/trainingSet.dat',
-			previous_validation_set_filename = '/home/lupoglaz/Dropbox/src/DeepFolder/Data/3DRobot/validationSet.dat')
-
+	# make_train_validation_split('/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet/Description',
+	# 		previous_training_set_filename = '/home/lupoglaz/Dropbox/src/DeepFolder/Data/3DRobot/trainingSet.dat',
+	# 		previous_validation_set_filename = '/home/lupoglaz/Dropbox/src/DeepFolder/Data/3DRobot/validationSet.dat')
+	
 	# dataset_make_lists('/home/lupoglaz/ProteinsDataset/CASP')
 	# dataset_make_description('/home/lupoglaz/ProteinsDataset/CASP')
 	# make_train_validation_split('/home/lupoglaz/ProteinsDataset/CASP/Description')
+
+	dataset_make_description_natives('/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet')

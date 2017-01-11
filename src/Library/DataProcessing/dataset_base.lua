@@ -168,3 +168,17 @@ function cDatasetBase.load_sequential_batch(self, protein_name, num_beg)
 	return self.batch, self.indexes
 end
 
+function cDatasetBase.load_batch_repeat(self, decoy_filename)
+	self.batch:fill(0.0)
+	local batch_info = Cuda.createBatchInfo(self.batch_size)
+	for ind = 1, self.batch_size do
+		Cuda.pushProteinToBatchInfo(decoy_filename, batch_info)
+	end
+	Cuda.loadProteinCUDA(	cutorch.getState(), batch_info, self.batch:cdata(), 
+							self.shift, self.rotate, self.resolution, 
+							self.assigner_type, self.input_size[2])
+	Cuda.deleteBatchInfo(batch_info)
+
+	return self.batch
+end
+

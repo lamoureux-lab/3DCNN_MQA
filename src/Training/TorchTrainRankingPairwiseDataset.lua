@@ -17,8 +17,8 @@ require 'gnuplot'
 require 'optim'
 
 requireRel '../Library/DataProcessing/utils'
-requireRel '../Library/DataProcessing/dataset_homogenious'
-requireRel '../Library/LossFunctions/batchRankingLoss'
+requireRel '../Library/DataProcessing/dataset_pairwise'
+requireRel '../Library/LossFunctions/pairwiseRankingLoss'
 requireRel '../Logging/training_logger'
 
 modelName = 'ranking_model_11atomTypes'
@@ -41,7 +41,7 @@ adamConfig = {	learningRate = optimization_parameters.learningRate,
 local input_size = {	model.input_options.num_channels, model.input_options.input_size, 
 						model.input_options.input_size, model.input_options.input_size}
 
-batchRankingLoss = cBatchRankingLoss.new(0.1, optimization_parameters.start_threshold)
+pairwiseRankingLoss = cPairwiseRankingLoss.new()
 
 
 function train_epoch(epoch, dataset, logger)
@@ -49,8 +49,6 @@ function train_epoch(epoch, dataset, logger)
 	local batch_loading_time, forward_time, backward_time;
 	local stic
 	
-	--batchRankingLoss.tmscore_threshold = optimization_parameters.start_threshold - epoch*optimization_parameters.d_threshold
-
 	for protein_index=1, #dataset.proteins do
 		protein_name = dataset.proteins[protein_index]
 									
@@ -58,14 +56,9 @@ function train_epoch(epoch, dataset, logger)
 			gradParameters:zero()
 			
 			stic = torch.tic()
-			cbatch, indexes = dataset:load_homo_batch(protein_name)
+			cbatch, indexes, pairing = dataset:load_pairwise_batch(protein_name)
 			batch_loading_time = torch.tic()-stic
-
-			-- Check if there is a need to evaluate the network
-			if batchRankingLoss:get_batch_weight(dataset.decoys[protein_name], indexes) == 0 then 
-				return 0, gradParameters
-			end
-				
+		
 			--Forward pass through batch
 			stic = torch.tic()
 			local outputs_gpu = model.net:forward(cbatch)
@@ -81,7 +74,8 @@ function train_epoch(epoch, dataset, logger)
 			-- print(torch.norm(parameters,1))
 			stic = torch.tic()
 			--computing loss function value and gradient
-			local f, df_do = batchRankingLoss:evaluate(dataset.decoys[protein_name], indexes, outputs_cpu)
+			local f, df_do = pairwiseRankingLoss:evaluate(	dataset.decoys[protein_name], 
+															indexes, pairing, outputs_cpu)
 			logger:add_loss_function_value(f)
 			--if there's no gradient then just skipping the backward pass
 			local df_do_norm = df_do:norm()
@@ -149,13 +143,13 @@ training_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_si
 training_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet/Description','training_set.dat')
 --training_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/CASP/Description','training_set.dat')
 --training_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/3DRobot_set/Description','training_set.dat')
-training_logger = cTrainingLogger.new('11ATinit4AT', modelName, '3DRobotTrainingSet', 'training')
+training_logger = cTrainingLogger.new('11ATPairwise', modelName, '3DRobotTrainingSet', 'training')
 
 validation_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, false, false, model.input_options.resolution)
 validation_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet/Description','validation_set.dat')
 --validation_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/CASP/Description','validation_set.dat')
 --validation_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/3DRobot_set/Description','validation_set.dat')
-validation_logger = cTrainingLogger.new('11ATinit4AT', modelName, '3DRobotTrainingSet', 'validation')
+validation_logger = cTrainingLogger.new('11ATPairwise', modelName, '3DRobotTrainingSet', 'validation')
 
 local model_backup_dir = training_logger.global_dir..'models/'
 os.execute("mkdir " .. model_backup_dir)

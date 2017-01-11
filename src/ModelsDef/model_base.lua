@@ -27,7 +27,7 @@ end
 function cModelBase.initialize_cuda(self, device_num)
 	self.device_num = device_num
 	self.init_gpu_mem = cutorch.getDeviceProperties(self.device_num)['freeGlobalMem']
-	net = net:cuda()
+	self.net = self.net:cuda()
 	self.gpu_mem = cutorch.getDeviceProperties(self.device_num)['freeGlobalMem']
 end
 

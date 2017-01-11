@@ -12,22 +12,24 @@ torch.setdefaulttensortype('torch.FloatTensor')
 
 optimization_parameters = {
 		batch_size = 10,
-		max_epoch = 100,
+		max_epoch = 150,
 		beta1 = 0.9,
 		beta2 = 0.999,
 		epsilon = 1E-8,		
-		learningRate = 0.001,
+		learningRate = 0.0001,
 		learningRateDecay = 1e-7,
-		weightDecay = 0.000000,
-		coefL1 = 0.0,
-		coefL2 = 0
+		weightDecay = 0.0,
+		coefL1 = 0.00001,
+		coefL2 = 0,
+		start_threshold = 0.3,
+		d_threshold = 0.05
 		}
 
 net_input = {	input_size = 120,
 				num_channels = 11,
 				resolution = 1.0 }
 
-net = nn.Sequential()
+local net = nn.Sequential()
 
 net:add(nn.VolumetricConvolution(net_input.num_channels, 16, 3,3,3))
 net:add(nn.ReLU())
@@ -90,7 +92,7 @@ function init_with_4AT(new_model,dir_path)
 end
 
 
-model = cModelBase:new(net_input, net)
+model = cModelBase:new(net_input, net)	
 init_with_4AT(model, '../../models/data_ranking_model7')
 --model:MSRinit()
 --model:load_model('../../models/data_ranking_model7')

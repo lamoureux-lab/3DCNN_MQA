@@ -62,11 +62,12 @@ function cBatchRankingLoss.evaluate(self, decoys, indexes, outputs_cpu)
 					N = N + 1
 					local tm_i = decoys[indexes[i]].tm_score
 		 			local tm_j = decoys[indexes[j]].tm_score
-		 			local gap = self.gap_weight*math.abs(tm_i-tm_j)
+		 			--local gap = self.gap_weight*math.abs(tm_i-tm_j)
+		 			local gap = 1.0
 		 			local y_ij = 0
 		 			if tm_i>=tm_j then y_ij = 1 end
 		 			if tm_i<tm_j then y_ij = -1 end
-		 			y_ij = y_ij*math.max(tm_i,tm_j)
+		 			--y_ij = y_ij*math.max(tm_i,tm_j)
 		 			local example_weight = math.max(0, math.abs(tm_i-tm_j) - self.tmscore_threshold)
 		 			local dL = example_weight*math.max(0, gap + y_ij*(outputs_cpu[{i,1}] - outputs_cpu[{j,1}]))
 					if dL > 0 then

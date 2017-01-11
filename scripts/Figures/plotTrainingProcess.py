@@ -85,9 +85,12 @@ def get_kendall(proteins, decoys, decoys_scores):
 		scores = []
 		for decoy in decoys[protein]:
 			tmscores.append(decoy[1])
+			# print protein, decoy[0], decoy[1], decoys_scores[protein][decoy[0]]
 			scores.append(decoys_scores[protein][decoy[0]])
 			
 		tau_prot = scipy.stats.kendalltau(tmscores, scores)[0]
+		if tau_prot!=tau_prot:
+			tau_prot = 0.0		
 		tau_av += tau_prot
 	return tau_av/len(proteins)
 	
@@ -153,7 +156,7 @@ if __name__=='__main__':
 	# plot_validation_funnels('Test11ATinit4AT', 'ranking_model_11atomTypes', '3DRobot_set', 1, 1)
 	
 	# plot_validation_funnels('Test11ATinit4AT', 'ranking_model7', '3DRobot_set', 1, 1)
-	# plot_validation_tau('Test11AT', 'ranking_model_11atomTypes', 1, 1)
+	# plot_validation_tau('11ATinit4AT', 'ranking_model_11atomTypes','3DRobotTrainingSet', 1, 3)
 
 	# plot_training_samples('11ATinit4AT', 'ranking_model_11atomTypes', '3DRobotTrainingSet', 1, 1)
 	plot_validation_funnels('11ATinit4AT', 'ranking_model_11atomTypes', '3DRobotTrainingSet', 1, 1)
