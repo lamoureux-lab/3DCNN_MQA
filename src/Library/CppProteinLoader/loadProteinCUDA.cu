@@ -125,7 +125,7 @@ extern "C"{
 	}
 
 	void printBatchInfo(batchInfo* binfo){
-		for(int i=0;i<binfo->len;i++){
+		for(int i=0;i<min(binfo->len,binfo->ind);i++){
 			std::cout<<binfo->strings[i]<<"\n";
 		}
 	}

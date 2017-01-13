@@ -18,7 +18,7 @@ int main(int argc, char** argv)
 	GlutFramework framework;
 		
 	cProteinLoader pL;
-	int res = pL.loadPDB("/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet/1ug4_A/decoy5_4.pdb");
+	int res = pL.loadPDB("/home/lupoglaz/ProteinsDataset/CASP/T0188/T0188TS001_1");
 	pL.assignAtomTypes(2);
 	
 	int size = 120;
@@ -29,9 +29,9 @@ int main(int argc, char** argv)
 	pL.shiftProtein( 0.5*cVector3(size,size,size)*pL.res ); // placing center of the protein to the center of the grid
 	THFloatTensor *grid = THFloatTensor_newWithSize4d(pL.num_atom_types,size,size,size);
 
-	float dx_max = fmax(0, grid->size[0]*pL.res/2.0 - (pL.b1[0]-pL.b0[0])/2.0)*0.5;
-	float dy_max = fmax(0, grid->size[1]*pL.res/2.0 - (pL.b1[1]-pL.b0[1])/2.0)*0.5;
-	float dz_max = fmax(0, grid->size[2]*pL.res/2.0 - (pL.b1[2]-pL.b0[2])/2.0)*0.5;
+	float dx_max = fmax(0, grid->size[1]*pL.res/2.0 - (pL.b1[0]-pL.b0[0])/2.0)*0.5;
+	float dy_max = fmax(0, grid->size[2]*pL.res/2.0 - (pL.b1[1]-pL.b0[1])/2.0)*0.5;
+	float dz_max = fmax(0, grid->size[3]*pL.res/2.0 - (pL.b1[2]-pL.b0[2])/2.0)*0.5;
 	float dx = THRandom_uniform(gen,-dx_max,dx_max);
  	float dy = THRandom_uniform(gen,-dy_max,dy_max);
  	float dz = THRandom_uniform(gen,-dz_max,dz_max);

@@ -98,12 +98,16 @@ function cModelBase.MSRinit(self)
 	local function init(name)
 		for k,v in pairs(self.net:findModules(name)) do
 			local fan_in = 1.0
+			local fan_out = 1.0
 			if name=='nn.VolumetricConvolution' or name=='cunn.VolumetricConvolution' then
 				fan_in = v.kW*v.kH*v.kT*v.nInputPlane
+				fan_out = v.kW*v.kH*v.kT*v.nOutputPlane
 			elseif name == 'nn.Linear' or name == 'cunn.Linear' then
 				fan_in = v.weight:size(1)
+				fan_out = v.weight:size(2)
 			end
-			v.weight:normal(0,math.sqrt(1/(3*fan_in)))
+			--v.weight:normal(0,math.sqrt(1/(3*fan_in)))
+			v.weight:normal(0,math.sqrt(2/fan_out))
 			v.bias:zero()
 		end
 	end

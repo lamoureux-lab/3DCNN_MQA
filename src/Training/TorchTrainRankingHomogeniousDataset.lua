@@ -41,7 +41,7 @@ adamConfig = {	learningRate = optimization_parameters.learningRate,
 local input_size = {	model.input_options.num_channels, model.input_options.input_size, 
 						model.input_options.input_size, model.input_options.input_size}
 
-batchRankingLoss = cBatchRankingLoss.new(0.1, optimization_parameters.start_threshold)
+batchRankingLoss = cBatchRankingLoss.new(0.1, 0.3)
 
 
 function train_epoch(epoch, dataset, logger)
@@ -146,21 +146,22 @@ end
 ------------------------------------
 
 training_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, true, true, model.input_options.resolution)
-training_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet/Description','training_set.dat')
+--training_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet/Description','training_set.dat')
 --training_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/CASP/Description','training_set.dat')
---training_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/3DRobot_set/Description','training_set.dat')
-training_logger = cTrainingLogger.new('11ATinit4AT', modelName, '3DRobotTrainingSet', 'training')
+training_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/3DRobot_set/Description','training_set.dat')
+training_logger = cTrainingLogger.new('BatchRanking', modelName, '3DRobot_set', 'training')
 
 validation_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, false, false, model.input_options.resolution)
-validation_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet/Description','validation_set.dat')
+--validation_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet/Description','validation_set.dat')
 --validation_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/CASP/Description','validation_set.dat')
---validation_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/3DRobot_set/Description','validation_set.dat')
-validation_logger = cTrainingLogger.new('11ATinit4AT', modelName, '3DRobotTrainingSet', 'validation')
+validation_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/3DRobot_set/Description','validation_set.dat')
+validation_logger = cTrainingLogger.new('BatchRanking', modelName, '3DRobot_set', 'validation')
 
 local model_backup_dir = training_logger.global_dir..'models/'
 os.execute("mkdir " .. model_backup_dir)
 
-for epoch = 1, optimization_parameters.max_epoch do
+
+for epoch = 12, optimization_parameters.max_epoch do
 		
 	training_dataset:shuffle_dataset()
 	training_logger:allocate_train_epoch(training_dataset)
@@ -174,7 +175,7 @@ for epoch = 1, optimization_parameters.max_epoch do
 	validate_epoch(epoch, validation_dataset, validation_logger)
 	validation_logger:save_epoch(epoch)
 
-	if epoch%3 == 0 then
+	if epoch%10 == 0 then
 		local epoch_model_backup_dir = model_backup_dir..'epoch'..tostring(epoch)
 		os.execute("mkdir " .. epoch_model_backup_dir)
 		model:save_model(epoch_model_backup_dir)

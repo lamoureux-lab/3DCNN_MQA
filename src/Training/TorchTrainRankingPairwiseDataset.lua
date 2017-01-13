@@ -21,6 +21,7 @@ requireRel '../Library/DataProcessing/dataset_pairwise'
 requireRel '../Library/LossFunctions/pairwiseRankingLoss'
 requireRel '../Logging/training_logger'
 
+--modelName = 'ranking_model7'
 modelName = 'ranking_model_11atomTypes'
 model, optimization_parameters = dofile('../ModelsDef/'..modelName..'.lua')
 model:initialize_cuda(1)
@@ -34,7 +35,8 @@ adamConfig = {	learningRate = optimization_parameters.learningRate,
 				beta1 = optimization_parameters.beta1,
 				beta2 = optimization_parameters.beta2,
 				epsilon = optimization_parameters.epsilon,
-				weightDecay = optimization_parameters.weightDecay
+				weightDecay = optimization_parameters.weightDecay,
+				momentum = optimization_parameters.momentum
 			}
 
 
@@ -53,6 +55,7 @@ function train_epoch(epoch, dataset, logger)
 		protein_name = dataset.proteins[protein_index]
 									
 		local feval = function(x)
+			if x ~= parameters then parameters:copy() end
 			gradParameters:zero()
 			
 			stic = torch.tic()
@@ -82,13 +85,15 @@ function train_epoch(epoch, dataset, logger)
 			if df_do_norm>0 then
 				model.net:backward(cbatch,df_do:cuda())
 			end	
+			local parameters_norm = -1
 			if optimization_parameters.coefL1 ~= 0 then
-				f = f + optimization_parameters.coefL1 * torch.norm(parameters,1)
+				parameters_norm = torch.norm(parameters,1)
+				f = f + optimization_parameters.coefL1 * parameters_norm
 				gradParameters:add( torch.sign(parameters):mul(optimization_parameters.coefL1) )
 			end
 			bacward_time = torch.tic()-stic
 			
-			print(epoch, protein_index, #dataset.proteins, protein_name, f, df_do_norm,  
+			print(epoch, protein_index, #dataset.proteins, protein_name, f, df_do_norm, parameters_norm,  
 				batch_loading_time, forward_time, bacward_time)
 									
 			return f, gradParameters
@@ -139,24 +144,24 @@ end
 ---MAIN
 ------------------------------------
 
-training_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, true, true, model.input_options.resolution)
-training_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet/Description','training_set.dat')
+training_dataset = cDatasetPairwise.new(optimization_parameters.batch_size, input_size, false, false, model.input_options.resolution)
+--training_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet/Description','training_set.dat')
 --training_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/CASP/Description','training_set.dat')
---training_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/3DRobot_set/Description','training_set.dat')
-training_logger = cTrainingLogger.new('11ATPairwise', modelName, '3DRobotTrainingSet', 'training')
+training_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/3DRobot_set/Description','training_set.dat')
+training_logger = cTrainingLogger.new('Pairwise', modelName, '3DRobot_set', 'training')
 
-validation_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, false, false, model.input_options.resolution)
-validation_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet/Description','validation_set.dat')
+validation_dataset = cDatasetPairwise.new(optimization_parameters.batch_size, input_size, false, false, model.input_options.resolution)
+--validation_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet/Description','validation_set.dat')
 --validation_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/CASP/Description','validation_set.dat')
---validation_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/3DRobot_set/Description','validation_set.dat')
-validation_logger = cTrainingLogger.new('11ATPairwise', modelName, '3DRobotTrainingSet', 'validation')
+validation_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/3DRobot_set/Description','validation_set.dat')
+validation_logger = cTrainingLogger.new('Pairwise', modelName, '3DRobot_set', 'validation')
 
 local model_backup_dir = training_logger.global_dir..'models/'
 os.execute("mkdir " .. model_backup_dir)
 
 for epoch = 1, optimization_parameters.max_epoch do
 		
-	training_dataset:shuffle_dataset()
+	--training_dataset:shuffle_dataset()
 	training_logger:allocate_train_epoch(training_dataset)
 	local ticTotal = torch.Timer()
 	train_epoch(epoch, training_dataset, training_logger)

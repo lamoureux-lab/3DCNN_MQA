@@ -18,9 +18,10 @@ optimization_parameters = {
 		epsilon = 1E-8,		
 		learningRate = 0.001,
 		learningRateDecay = 1e-7,
-		weightDecay = 0.000000,
-		coefL1 = 0.0,
-		coefL2 = 0
+		weightDecay = 0.0005,
+		coefL1 = 0.0001,
+		coefL2 = 0,
+		momentum = 0.9
 		}
 
 net_input = {	input_size = 120,
@@ -63,7 +64,8 @@ net:add(nn.ReLU())
 net:add(nn.Linear(128, 1))
 
 model = cModelBase:new(net_input, net)
-model:load_model('../../models/data_ranking_model7')
+model:MSRinit()
+--model:load_model('../../models/data_ranking_model7')
 --model:load_model('../../models/Test_ranking_model7_3DRobotTrainingSet/models/epoch1')
 model:print_model()
 return model, optimization_parameters

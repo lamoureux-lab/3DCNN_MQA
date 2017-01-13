@@ -29,21 +29,22 @@ function cPairwiseRankingLoss.evaluate(self, decoys, indexes, pair, outputs_cpu)
 	local A = outputs_cpu:clone()
 	local batch_labels = torch.zeros(batch_size, 1)
 	
-	for i=1,opt.batch_size do
-		A[i] = outputs[pair[i]]
-		local rmsd_1 = decoys[indexes[i]].tm_score
-		local rmsd_2 = decoys[indexes[pair[i]]].tm_score
-		if rmsd_1>rmsd2 then
+	for i=1,batch_size do
+		A[i] = outputs_cpu[pair[i]]
+		local rmsd_1 = decoys[indexes[i]].rmsd
+		local rmsd_2 = decoys[indexes[pair[i]]].rmsd
+
+		if rmsd_1>rmsd_2 then
 			batch_labels[i] = 1
 		else
 			batch_labels[i] =-1
 		end	
 	end
 	--Constructing table of unpermuted outputs and permuted outputs
-	table_outputs = {outputs,A}
-
-	local f = criterion:forward(table_outputs, outputs_cpu)
-	local df_do = criterion:backward(table_outputs,batch_labels)
+	table_outputs = {outputs_cpu,A}
 	
-	return f/N, df_do[1]/N
+	local f = self.criterion:forward(table_outputs, batch_labels)
+	local df_do = self.criterion:backward(table_outputs, batch_labels)
+	
+	return f, df_do[1]
 end

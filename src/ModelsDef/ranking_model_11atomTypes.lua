@@ -12,17 +12,14 @@ torch.setdefaulttensortype('torch.FloatTensor')
 
 optimization_parameters = {
 		batch_size = 10,
-		max_epoch = 150,
+		max_epoch = 300,
 		beta1 = 0.9,
 		beta2 = 0.999,
 		epsilon = 1E-8,		
-		learningRate = 0.0001,
+		learningRate = 0.0001, 
 		learningRateDecay = 1e-7,
 		weightDecay = 0.0,
 		coefL1 = 0.00001,
-		coefL2 = 0,
-		start_threshold = 0.3,
-		d_threshold = 0.05
 		}
 
 net_input = {	input_size = 120,
@@ -93,9 +90,12 @@ end
 
 
 model = cModelBase:new(net_input, net)	
-init_with_4AT(model, '../../models/data_ranking_model7')
+--init_with_4AT(model, '../../models/data_ranking_model7')
 --model:MSRinit()
 --model:load_model('../../models/data_ranking_model7')
 --model:load_model('../../models/Test_ranking_model7_3DRobotTrainingSet/models/epoch1')
+--model:load_model('../../models/11ATinit4AT_ranking_model_11atomTypes_3DRobotTrainingSet/models/epoch45')
+model:load_model('../../models/BatchRanking_ranking_model_11atomTypes_3DRobot_set/models/epoch12')
+
 model:print_model()
 return model, optimization_parameters

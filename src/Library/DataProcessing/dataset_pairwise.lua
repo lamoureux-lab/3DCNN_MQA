@@ -45,7 +45,7 @@ end
 
 function cDatasetPairwise.findRMSD(self, protName, rmsd_low, rmsd_high)
 	for i=1,#self.decoys[protName] do
-		if self.decoys[protName][i][2]>=rmsd_low and self.decoys[protName][i][2]<rmsd_high then
+		if self.decoys[protName][i].rmsd>=rmsd_low and self.decoys[protName][i].rmsd<rmsd_high then
 			return i 
 		end
 	end
@@ -53,21 +53,22 @@ end
 function cDatasetPairwise.generatePairsList(self, protName)
 	local selectedFilenames = {}
 	local selectedRMSDs = {}
-	local pairing = torch.Tensor(self.trainingOptions.batch_size)
+	local pairing = torch.Tensor(self.batch_size)
 
 	
-	local rmsd_pairs = { 
-						{{0.1, 1.0}, {1.0,3.0}, 1}, --native vs near native, pairs
-						{{0.1, 2.0}, {6.0,20.0}, 2}, -- near native vs non-native
-						{{3.0,5.0},  {7.0,20.0}, 2} -- non-native vs non-native
-						}
+	-- local rmsd_pairs = { 
+	-- 					{{0.0, 2.0}, {3.0,6.0}, 3}, --native vs near native, pairs
+	-- 					{{0.0, 2.0}, {6.0,20.0}, 3}, -- near native vs non-native
+	-- 					{{3.0,6.0},  {6.0,20.0}, 2} -- non-native vs non-native
+	-- 					}
+	local rmsd_pairs = { {{0.0, 6.0}, {6.0,20.0}, self.batch_size/2}} --native vs near native, pairs 
+
 	local ind  = 1
-	for i=1,3 do
+	for i=1,#rmsd_pairs do
 		for j=1,rmsd_pairs[i][3] do
 			shuffleTable(self.decoys[protName])
 			local decoy_ind1 = self:findRMSD(protName,rmsd_pairs[i][1][1],rmsd_pairs[i][1][2])
 			local decoy_ind2 = self:findRMSD(protName,rmsd_pairs[i][2][1],rmsd_pairs[i][2][2])
-			--print(ind1, ind2)
 			if decoy_ind1==nil or decoy_ind2==nil then
 				decoy_ind1 = self:findRMSD(protName,0,1)
 				decoy_ind2 = self:findRMSD(protName,1,12)
@@ -82,14 +83,14 @@ function cDatasetPairwise.generatePairsList(self, protName)
 	return pairing
 end
 
-function cDatasetCpp.load_pairwise_batch(self, protein_name)
+function cDatasetPairwise.load_pairwise_batch(self, protein_name)
 	local pairing = self:generatePairsList(protein_name)
 	
 	local batch_info = Cuda.createBatchInfo(self.batch_size)
 	for i=1, self.batch_size do		
 		local decoy_idx = self.indexes[i]
 		Cuda.pushProteinToBatchInfo(self.decoys[protein_name][decoy_idx].filename, batch_info)
-		self.indexes[i] = decoy_idx
+		--Cuda.printBatchInfo(batch_info)
 	end
 
 	Cuda.loadProteinCUDA(	cutorch.getState(), batch_info, self.batch:cdata(), 
