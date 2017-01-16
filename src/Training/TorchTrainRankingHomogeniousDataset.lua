@@ -21,36 +21,12 @@ requireRel '../Library/DataProcessing/dataset_homogenious'
 requireRel '../Library/LossFunctions/batchRankingLoss'
 requireRel '../Logging/training_logger'
 
-modelName = 'ranking_model_11atomTypes'
-model, optimization_parameters = dofile('../ModelsDef/'..modelName..'.lua')
-model:initialize_cuda(1)
 
-parameters, gradParameters = model.net:getParameters()
-
-math.randomseed( 42 )
-
-adamConfig = {	learningRate = optimization_parameters.learningRate,
-				learningRateDecay = optimization_parameters.learningRateDecay,
-				beta1 = optimization_parameters.beta1,
-				beta2 = optimization_parameters.beta2,
-				epsilon = optimization_parameters.epsilon,
-				weightDecay = optimization_parameters.weightDecay
-			}
-
-
-local input_size = {	model.input_options.num_channels, model.input_options.input_size, 
-						model.input_options.input_size, model.input_options.input_size}
-
-batchRankingLoss = cBatchRankingLoss.new(0.1, 0.3)
-
-
-function train_epoch(epoch, dataset, logger)
+function train_epoch(epoch, dataset, model, batchRankingLoss, logger, adamConfig, parameters, gradParameters)
 	model.net:training()
 	local batch_loading_time, forward_time, backward_time;
 	local stic
 	
-	--batchRankingLoss.tmscore_threshold = optimization_parameters.start_threshold - epoch*optimization_parameters.d_threshold
-
 	for protein_index=1, #dataset.proteins do
 		protein_name = dataset.proteins[protein_index]
 									
@@ -73,7 +49,7 @@ function train_epoch(epoch, dataset, logger)
 			forward_time = torch.tic()-stic
 			
 			--saving the outputs for the later analysis
-			for i=1, optimization_parameters.batch_size do
+			for i=1, adamConfig.batch_size do
 				if indexes[i]>0 then
 					logger:set_decoy_score(protein_name, dataset.decoys[protein_name][indexes[i]].filename, outputs_cpu[{i,1}])
 				end
@@ -88,9 +64,9 @@ function train_epoch(epoch, dataset, logger)
 			if df_do_norm>0 then
 				model.net:backward(cbatch,df_do:cuda())
 			end	
-			if optimization_parameters.coefL1 ~= 0 then
-				f = f + optimization_parameters.coefL1 * torch.norm(parameters,1)
-				gradParameters:add( torch.sign(parameters):mul(optimization_parameters.coefL1) )
+			if adamConfig.coefL1 ~= 0 then
+				f = f + adamConfig.coefL1 * torch.norm(parameters,1)
+				gradParameters:add( torch.sign(parameters):mul(adamConfig.coefL1) )
 			end
 			bacward_time = torch.tic()-stic
 			
@@ -103,7 +79,7 @@ function train_epoch(epoch, dataset, logger)
 	end --protein
 end
 
-function validate_epoch(epoch, dataset, logger)
+function validate_epoch(epoch, dataset, model, logger, adamConfig)
 	model.net:evaluate()
 	
 	for protein_index=1, #dataset.proteins do
@@ -111,8 +87,8 @@ function validate_epoch(epoch, dataset, logger)
 		local num_end = 1
 		protein_name = dataset.proteins[protein_index]
 
-		local numBatches = math.floor(#dataset.decoys[protein_name]/optimization_parameters.batch_size) + 1
-		if ((numBatches-1)*optimization_parameters.batch_size)==(#dataset.decoys[protein_name]) then
+		local numBatches = math.floor(#dataset.decoys[protein_name]/adamConfig.batch_size) + 1
+		if ((numBatches-1)*adamConfig.batch_size)==(#dataset.decoys[protein_name]) then
 			numBatches = numBatches - 1
 		end
 
@@ -121,7 +97,7 @@ function validate_epoch(epoch, dataset, logger)
 			local N = 0
 			local stic = torch.tic()
 			cbatch, indexes = dataset:load_sequential_batch(protein_name, num_beg)
-			num_beg = num_beg + optimization_parameters.batch_size
+			num_beg = num_beg + adamConfig.batch_size
 			local batch_loading_time = torch.tic()-stic
 			
 			--Forward pass through batch
@@ -130,7 +106,7 @@ function validate_epoch(epoch, dataset, logger)
 			local outputs_cpu = outputs_gpu:clone():float()
 			local forward_time = torch.tic()-stic
 									
-			for i=1, optimization_parameters.batch_size do
+			for i=1, adamConfig.batch_size do
 				if indexes[i]>0 then
 					logger:set_decoy_score(protein_name, dataset.decoys[protein_name][indexes[i]].filename, outputs_cpu[{i,1}])
 				end
@@ -144,38 +120,90 @@ end
 ------------------------------------
 ---MAIN
 ------------------------------------
+cmd = torch.CmdLine()
+cmd:text()
+cmd:text()
+cmd:text('Training a simple network')
+cmd:text()
+cmd:text('Options')
+cmd:option('-model_name','ranking_model_11atomTypes', 'cnn model name')
+cmd:option('-dataset_name','3DRobot_set', 'dataset name')
+cmd:option('-experiment_name','BatchRankingRepeat2', 'experiment name')
 
-training_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, true, true, model.input_options.resolution)
---training_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet/Description','training_set.dat')
---training_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/CASP/Description','training_set.dat')
-training_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/3DRobot_set/Description','training_set.dat')
-training_logger = cTrainingLogger.new('BatchRanking', modelName, '3DRobot_set', 'training')
+cmd:option('-learning_rate', 0.0001, 'adam optimizer learning rate')
+cmd:option('-l1_coef', 0.00001, 'L1-regularization coefficient')
 
-validation_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, false, false, model.input_options.resolution)
---validation_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet/Description','validation_set.dat')
---validation_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/CASP/Description','validation_set.dat')
-validation_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/3DRobot_set/Description','validation_set.dat')
-validation_logger = cTrainingLogger.new('BatchRanking', modelName, '3DRobot_set', 'validation')
+cmd:option('-tm_score_threshold', 0.3, 'threshold for batch ranking')
+cmd:option('-gap_weight', 0.1, 'gap weight for batch ranking')
+
+cmd:option('-validation_period', 5, 'period of validation iteration')
+cmd:option('-model_save_period', 10, 'period of saving the model')
+cmd:option('-max_epoch', 50, 'numer of epoch to train')
+cmd:option('-do_validation0',false,'whether to perform validation on initialized model')
+cmd:text()
+
+params = cmd:parse(arg)
+
+
+local modelName = params.model_name
+local model, optimization_parameters = dofile('../ModelsDef/'..modelName..'.lua')
+model:initialize_cuda(1)
+local parameters, gradParameters = model.net:getParameters()
+math.randomseed( 42 )
+
+local adamConfig = {	learningRate = params.learning_rate,
+						learningRateDecay = optimization_parameters.learningRateDecay,
+						beta1 = optimization_parameters.beta1,
+						beta2 = optimization_parameters.beta2,
+						epsilon = optimization_parameters.epsilon,
+						weightDecay = optimization_parameters.weightDecay,
+						coefL1 = params.l1_coef,
+						batch_size = optimization_parameters.batch_size,
+						max_epoch = params.max_epoch
+					}
+
+
+local input_size = {	model.input_options.num_channels, model.input_options.input_size, 
+						model.input_options.input_size, model.input_options.input_size}
+
+local batchRankingLoss = cBatchRankingLoss.new(params.gap_weight, params.tm_score_threshold)
+
+local training_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, true, true, model.input_options.resolution)
+training_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/'..params.dataset_name..'/Description','training_set.dat')
+local training_logger = cTrainingLogger.new(params.experiment_name, modelName, params.dataset_name, 'training')
+
+local validation_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, false, false, model.input_options.resolution)
+validation_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/'..params.dataset_name..'/Description','validation_set.dat')
+local validation_logger = cTrainingLogger.new(params.experiment_name, modelName, params.dataset_name, 'validation')
 
 local model_backup_dir = training_logger.global_dir..'models/'
 os.execute("mkdir " .. model_backup_dir)
 
+training_logger:make_description({adamConfig,params},'Parameters scan')
 
-for epoch = 12, optimization_parameters.max_epoch do
+local epoch = 0
+if params.do_validation0 then
+	validation_logger:allocate_train_epoch(validation_dataset)
+	validate_epoch(epoch, validation_dataset, validation_logger, adamConfig)
+	validation_logger:save_epoch(epoch)
+end
+
+for epoch = 1, adamConfig.max_epoch do
 		
 	training_dataset:shuffle_dataset()
 	training_logger:allocate_train_epoch(training_dataset)
 	local ticTotal = torch.Timer()
-	train_epoch(epoch, training_dataset, training_logger)
+	train_epoch(epoch, training_dataset, model, batchRankingLoss, training_logger, adamConfig, parameters, gradParameters)
 	timeTotal = ticTotal:time().real
 	print('Time per epoch: '..timeTotal)
 	training_logger:save_epoch(epoch)
 
-	validation_logger:allocate_train_epoch(validation_dataset)
-	validate_epoch(epoch, validation_dataset, validation_logger)
-	validation_logger:save_epoch(epoch)
-
-	if epoch%10 == 0 then
+	if epoch%params.validation_period == 0 then
+		validation_logger:allocate_train_epoch(validation_dataset)
+		validate_epoch(epoch, validation_dataset, model, validation_logger, adamConfig)
+		validation_logger:save_epoch(epoch)
+	end
+	if epoch%params.model_save_period == 0 then
 		local epoch_model_backup_dir = model_backup_dir..'epoch'..tostring(epoch)
 		os.execute("mkdir " .. epoch_model_backup_dir)
 		model:save_model(epoch_model_backup_dir)

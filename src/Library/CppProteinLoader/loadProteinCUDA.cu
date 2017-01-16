@@ -36,14 +36,16 @@
 	}
 
 extern "C"{
-	void loadProtein(const char* proteinPath, 
+	int loadProtein(const char* proteinPath, 
 					bool shift, bool rot, float resolution, 
 					int assigner_type, int spatial_dim, THGenerator *gen, 
 					float** data_pointer, int* n_atoms){
 
 		cProteinLoader pL;
 		pL.loadPDB(proteinPath);
-		pL.assignAtomTypes(assigner_type);
+		if(pL.assignAtomTypes(assigner_type)<0){
+			return -1;
+		}
 		
 		pL.res = resolution;
 		pL.computeBoundingBox();
@@ -83,6 +85,7 @@ extern "C"{
 			for(int j=0; j<coords.size();j++)
 				coords_plain[j]=coords[j];
 		}
+		return 1;
 	}
 
 	typedef struct{
@@ -131,7 +134,7 @@ extern "C"{
 	}
 	
 
-	void loadProteinCUDA(THCState *state,
+	int loadProteinCUDA(THCState *state,
 						 batchInfo* batch, THCudaTensor *batch5D,
 						 bool shift, bool rot, float resolution,
 						 int assigner_type, int spatial_dim){
@@ -145,11 +148,30 @@ extern "C"{
  		float **data_array = new float*[(batch->len)*num_atom_types];
  		int *n_atoms = new int[(batch->len)*num_atom_types];
  		size_t *offsets = new size_t[(batch->len)*num_atom_types];
- 		 		
+ 		
+ 		std::vector<int> flags;
+ 		flags.resize(batch->len);
 		#pragma omp parallel for num_threads(10)
 		for(int i=0; i<batch->len; i++){
-			loadProtein(batch->strings[i], shift, rot, resolution, assigner_type, spatial_dim, gen, 
+			int res = loadProtein(batch->strings[i], shift, rot, resolution, assigner_type, spatial_dim, gen, 
 				data_array + i*num_atom_types, n_atoms + i*num_atom_types);
+			flags[i] = res;
+		}
+
+		for(int i=0; i<batch->len; i++){
+			if(flags[i]<0){
+				std::cout<<"Corrupt file detected\n";
+				for(int j=0;j<batch->len;j++){
+					if(flags[j]>0)
+						for(int k=0;k<num_atom_types;k++)
+							delete[] data_array[k+j*num_atom_types];	
+				}
+				delete[] data_array;
+				delete[] n_atoms;
+				delete[] offsets;
+				THGenerator_free(gen);
+				return -1;
+			}
 		}
 
 		size_t total_size = 0;
@@ -206,5 +228,6 @@ extern "C"{
 		cudaFree(d_flat_data);
 		cudaFree(d_offsets);
 		THGenerator_free(gen);
+		return 1;
 	}
 }

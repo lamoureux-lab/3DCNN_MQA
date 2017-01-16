@@ -18,7 +18,7 @@ void deleteBatchInfo(batchInfo* binfo);
 void pushProteinToBatchInfo(const char* filename, batchInfo* binfo);
 void printBatchInfo(batchInfo* binfo);
 
-void loadProteinCUDA(THCState *state,
+int loadProteinCUDA(THCState *state,
 					batchInfo* batch, THCudaTensor *batch5D,
 					bool shift, bool rot, float resolution,
 					int assigner_type, int spatial_dim);
@@ -160,9 +160,13 @@ function cDatasetBase.load_sequential_batch(self, protein_name, num_beg)
 		self.indexes[batch_ind] = ind
 		batch_ind=batch_ind+1
 	end
-	Cuda.loadProteinCUDA(	cutorch.getState(), batch_info, self.batch:cdata(), 
+	local res = Cuda.loadProteinCUDA(	cutorch.getState(), batch_info, self.batch:cdata(), 
 							self.shift, self.rotate, self.resolution, 
 							self.assigner_type, self.input_size[2])
+	if res<0 then 
+		print('Throwing error')
+		error() 
+	end
 	Cuda.deleteBatchInfo(batch_info)
 
 	return self.batch, self.indexes
@@ -174,9 +178,10 @@ function cDatasetBase.load_batch_repeat(self, decoy_filename)
 	for ind = 1, self.batch_size do
 		Cuda.pushProteinToBatchInfo(decoy_filename, batch_info)
 	end
-	Cuda.loadProteinCUDA(	cutorch.getState(), batch_info, self.batch:cdata(), 
+	local res = Cuda.loadProteinCUDA(	cutorch.getState(), batch_info, self.batch:cdata(), 
 							self.shift, self.rotate, self.resolution, 
 							self.assigner_type, self.input_size[2])
+	if res<0 then error() end
 	Cuda.deleteBatchInfo(batch_info)
 
 	return self.batch

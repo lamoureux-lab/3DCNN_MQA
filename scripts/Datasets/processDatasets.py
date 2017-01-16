@@ -105,12 +105,20 @@ def make_train_validation_split(dataset_description_path, description_file='data
 								training_set_filename = 'training_set.dat',
 								previous_training_set_filename = None,
 								validation_set_filename = 'validation_set.dat',
-								previous_validation_set_filename = None):
+								previous_validation_set_filename = None,
+								tagets_range = None):
 	
 	fDData = open(os.path.join(dataset_description_path, description_file),'r')
 	dataset = []
 	for line in fDData:
-		dataset.append(line.split()[0])
+		target_name = line.split()[0]
+		#skipping targets outside target range
+		if not(tagets_range is None):
+			target_num = int(target_name[1:])
+			if not(target_num>= tagets_range[0] and target_num<=tagets_range[1]):
+				continue
+
+		dataset.append(target_name)
 	fDData.close()
 
 	if (previous_validation_set_filename is None) and (previous_training_set_filename is None):
@@ -158,6 +166,23 @@ def make_train_validation_split(dataset_description_path, description_file='data
 		for name in validation_set:
 			fValidationSet.write(name+'\n')
 		fValidationSet.close()
+
+def make_test_set(	dataset_description_path, 
+					description_file='datasetDescription.dat',
+					test_set_filename = 'test_set.dat',
+					tagets_range = None):
+	fDData = open(os.path.join(dataset_description_path, description_file),'r')
+	fTestSet = open(os.path.join(dataset_description_path, test_set_filename),'w')
+	for line in fDData:
+		target_name = line.split()[0]
+		#skipping targets outside target range
+		if not(tagets_range is None):
+			target_num = int(target_name[1:])
+			if not(target_num>= tagets_range[0] and target_num<=tagets_range[1]):
+				continue
+		fTestSet.write(target_name+'\n')
+	fDData.close()
+	fTestSet.close()
 
 def dataset_make_description_natives(dataset_path, description_dir_name='Description', output_name = 'native_set.dat'):
 	"""Generates description of native structures of a dataset."""
@@ -214,8 +239,22 @@ if __name__=='__main__':
 	# 		previous_training_set_filename = '/home/lupoglaz/Dropbox/src/DeepFolder/Data/3DRobot/trainingSet.dat',
 	# 		previous_validation_set_filename = '/home/lupoglaz/Dropbox/src/DeepFolder/Data/3DRobot/validationSet.dat')
 	
-	# dataset_make_lists('/home/lupoglaz/ProteinsDataset/CASP')
-	# dataset_make_description('/home/lupoglaz/ProteinsDataset/CASP')
-	# make_train_validation_split('/home/lupoglaz/ProteinsDataset/CASP/Description')
+	# dataset_make_description_natives('/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet')
 
-	dataset_make_description_natives('/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet')
+
+	#CASP processing
+
+	# dataset_make_lists('/home/lupoglaz/ProteinsDataset/CASP')
+	f=open('casp_corrupted_list.dat','r')
+	casp_excl_set = []
+	for line in f:
+		casp_excl_set.append(line.split()[0])
+	f.close()
+	dataset_make_description('/home/lupoglaz/ProteinsDataset/CASP',
+		exclusion_set = set(casp_excl_set),
+		exclude_wo_decoys = 50)
+	make_train_validation_split('/home/lupoglaz/ProteinsDataset/CASP/Description',
+								validation_fraction = 0.08,
+								tagets_range=(283,759)) #starting with CASP7
+	make_test_set(	'/home/lupoglaz/ProteinsDataset/CASP/Description',
+					tagets_range=(759,859))

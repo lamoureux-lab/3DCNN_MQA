@@ -8,6 +8,7 @@ elseif ... then
 end
 
 --requireRel '../Library/DataProcessing/dataset_base'
+requireRel('../Library/DataProcessing/utils.lua')
 
 cTrainingLogger = {}
 cTrainingLogger.__index = cTrainingLogger
@@ -60,4 +61,11 @@ function cTrainingLogger.save_epoch(self, epoch)
 	self.data = {}
 	self.loss_function_values = {}
 	collectgarbage()
+end
+
+function cTrainingLogger.make_description(self, optimization_parameters, message)
+	local file = io.open(self.global_dir..'description.txt','w')
+	file:write(message..'\n\n')
+	file:write(table.tostring(optimization_parameters))
+	file:close()
 end

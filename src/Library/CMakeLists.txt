@@ -77,8 +77,8 @@ add_executable(Test_TensorMathUtils Math/Test_TensorMathUtils.cpp)
 target_link_libraries (Test_TensorMathUtils TH TH_MATH)
 
 #External function to visualize a tensor and a protein from lua
-#ADD_LIBRARY(visualizeTensorAndProtein SHARED VolumeVisualization/visualizeTensorAndProtein.cpp)
-#target_link_libraries(visualizeTensorAndProtein TH GLFRAMEWORK PROTEINLOADER TENSORVIS TH_MATH)
+ADD_LIBRARY(visualizeTensorAndProtein SHARED VolumeVisualization/visualizeTensorAndProtein.cpp)
+target_link_libraries(visualizeTensorAndProtein TH GLFRAMEWORK PROTEINLOADER TENSORVIS TH_MATH)
 
 
 #ADD_LIBRARY(test_lua_bindings SHARED CppProteinLoader/testLuaBindings.cpp)
@@ -97,3 +97,6 @@ TARGET_LINK_LIBRARIES(load_protein_cuda TH THC PROTEINLOADER)
 
 cuda_add_executable(volume_render VolumeVisualization/cudaVolumeRender.cpp VolumeVisualization/volume_render_kernel.cu)
 TARGET_LINK_LIBRARIES(volume_render TH THC GLFRAMEWORK /home/lupoglaz/NVIDIA_CUDA-7.5_Samples/common/lib/linux/x86_64/libGLEW.a)
+
+CUDA_ADD_EXECUTABLE(dummy_load_protein_cuda CppProteinLoader/dummyProteinLoadCuda.cu)
+TARGET_LINK_LIBRARIES(dummy_load_protein_cuda PROTEINLOADER THC)
