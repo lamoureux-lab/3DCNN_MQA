@@ -3,7 +3,7 @@ import sys
 import numpy as np
 from scipy.stats import pearsonr, spearmanr
 
-def read_dataset_description(dataset_description_dir, dataset_description_filename):
+def read_dataset_description(dataset_description_dir, dataset_description_filename, decoy_ranging = 'tm-score'):
 	description_path= os.path.join(dataset_description_dir,dataset_description_filename)
 	fin = open(description_path, 'r')
 	proteins = []
@@ -15,11 +15,22 @@ def read_dataset_description(dataset_description_dir, dataset_description_filena
 	for protein in proteins:
 		decoys_description_path = os.path.join(dataset_description_dir,protein+'.dat')
 		fin = open(decoys_description_path,'r')
-		fin.readline()
+		description_line = fin.readline()
+
+		decoy_path_idx = None
+		decoy_range_idx = None
+		for n,name in enumerate(description_line.split()):
+			if name=='decoy_path':
+				decoy_path_idx = n
+			elif name==decoy_ranging:
+				decoy_range_idx = n
+
+		# print 'Decoys ranging column number = ', decoy_range_idx
+
 		decoys[protein]=[]
 		for line in fin:
 			sline = line.split()
-			decoys[protein].append((sline[0], float(sline[2])))
+			decoys[protein].append((sline[decoy_path_idx], float(sline[decoy_range_idx])))
 		fin.close()
 	return proteins, decoys
 
@@ -71,7 +82,7 @@ def plotFunnels(proteins, decoys, decoys_scores, outputFile):
 			
 		grid[n].plot(tmscores,scores,'.')
 		
-		plt.xlim(-0.1, max(tmscores)+1)
+		plt.xlim(-0.1, max(tmscores)+0.1)
 		plt.ylim(min(scores)-1, max(scores)+1)
 		
 		grid[n].set_title(protein)
@@ -121,7 +132,7 @@ def plot_loss_function(loss_function_values, outputFile):
 
 
 
-def plot_validation_funnels(experiment_name, model_name, dataset_name, epoch_start=0, epoch_end=100):
+def plot_validation_funnels(experiment_name, model_name, dataset_name, epoch_start=0, epoch_end=200):
 	print 'Loading dataset'
 	proteins, decoys = read_dataset_description('/home/lupoglaz/ProteinsDataset/%s/Description'%dataset_name,'validation_set.dat')
 	
@@ -134,7 +145,7 @@ def plot_validation_funnels(experiment_name, model_name, dataset_name, epoch_sta
 			print 'Plotting funnels ',epoch
 			plotFunnels(proteins, decoys, decoys_scores, output_path)
 
-def plot_validation_correlations(experiment_name, model_name, dataset_name, epoch_start=0, epoch_end=100):
+def plot_validation_correlations(experiment_name, model_name, dataset_name, epoch_start=0, epoch_end=200):
 	print 'Loading dataset'
 	proteins, decoys = read_dataset_description('/home/lupoglaz/ProteinsDataset/%s/Description'%dataset_name,'validation_set.dat')
 	epochs = []

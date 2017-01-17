@@ -19,14 +19,11 @@ requireRel '../Library/DataProcessing/dataset_homogenious'
 requireRel '../Library/LossFunctions/batchRankingLoss'
 requireRel '../Logging/training_logger'
 local modelName = 'ranking_model_11atomTypes'
-local dataset_name = 'CASP'
+
 local model, optimization_parameters = dofile('../ModelsDef/'..modelName..'.lua')
 
 local input_size = {	model.input_options.num_channels, model.input_options.input_size, 
 						model.input_options.input_size, model.input_options.input_size}
-
-local training_dataset = cDatasetHomo.new(1, input_size, true, true, model.input_options.resolution)
-training_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/'..dataset_name..'/Description','datasetDescription.dat')
 
 -- local validation_dataset = cDatasetHomo.new(1, input_size, true, true, model.input_options.resolution)
 -- training_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/'..dataset_name..'/Description','validation_set.dat')
@@ -41,7 +38,7 @@ training_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/'..dataset_name..'
 -- end
 
 
-function check_training_set(dataset, init_p_index, init_batch_index)
+function check_training_set(dataset, init_p_index, init_batch_index, filename)
 	print(#dataset.proteins)
 	for protein_index=init_p_index, #dataset.proteins do
 		protein_name = dataset.proteins[protein_index]
@@ -52,7 +49,7 @@ function check_training_set(dataset, init_p_index, init_batch_index)
 				print(protein_index, batch_index)	
 			else 
 				print(dataset.decoys[protein_name][batch_index].filename)
-				local file = io.open('corrupted_list.dat','a')
+				local file = io.open(filename,'a')
 				file:write(dataset.decoys[protein_name][batch_index].filename..'\n')
 				file:close()
 			end
@@ -60,7 +57,16 @@ function check_training_set(dataset, init_p_index, init_batch_index)
 	end
 end
 
-local file = io.open('corrupted_list.dat','w')
+local dataset_name = 'CASP11Stage1'
+local training_dataset1 = cDatasetHomo.new(1, input_size, true, true, model.input_options.resolution)
+training_dataset1:load_dataset('/home/lupoglaz/ProteinsDataset/'..dataset_name..'/Description','datasetDescription.dat')
+local file = io.open('Casp11Stage1_corrupted_list.dat','w')
 file:close()
+check_training_set(training_dataset1, 1, 1, 'Casp11Stage1_corrupted_list.dat')
 
-check_training_set(training_dataset, 1, 1)
+dataset_name = 'CASP11Stage2'
+local training_dataset2 = cDatasetHomo.new(1, input_size, true, true, model.input_options.resolution)
+training_dataset2:load_dataset('/home/lupoglaz/ProteinsDataset/'..dataset_name..'/Description','datasetDescription.dat')
+local file = io.open('Casp11Stage2_corrupted_list.dat','w')
+file:close()
+check_training_set(training_dataset2, 1, 1, 'Casp11Stage2_corrupted_list.dat')
