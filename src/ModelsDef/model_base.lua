@@ -88,6 +88,12 @@ function cModelBase.print_model(self)
 			input_size = {input_size[1], output_x, output_y, output_z}
 			print('MaxPool\t\t'..tostring(input_size[1]).."x"..tostring(input_size[2]).."x"..tostring(input_size[3]).."x"..tostring(input_size[4]))
 		end
+		-- if tostring(layer) == 'nn.VolumetricBatchNormalization' then
+		-- 	print('BatchNorm')
+		-- end
+		-- if tostring(layer) == 'nn.ReLU' then
+		-- 	print('ReLU')
+		-- end
 		if not( string.find(tostring(layer),'nn.Linear') == nil ) then
 			print('Linear\t\t'..layer.weight:size()[2]..'->'..layer.weight:size()[1])
 		end

@@ -135,6 +135,7 @@ cmd:option('-l1_coef', 0.00001, 'L1-regularization coefficient')
 
 cmd:option('-tm_score_threshold', 0.3, 'threshold for batch ranking')
 cmd:option('-gap_weight', 0.1, 'gap weight for batch ranking')
+cmd:option('-decoys_ranking_mode', 'tm-score', 'the criterion of decoy quality: {tm-score, gdt-ts}')
 
 cmd:option('-validation_period', 5, 'period of validation iteration')
 cmd:option('-model_save_period', 10, 'period of saving the model')
@@ -169,7 +170,7 @@ local input_size = {	model.input_options.num_channels, model.input_options.input
 local batchRankingLoss = cBatchRankingLoss.new(params.gap_weight, params.tm_score_threshold)
 
 local training_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, true, true, model.input_options.resolution)
-training_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/'..params.dataset_name..'/Description','training_set.dat')
+training_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/'..params.dataset_name..'/Description','training_set.dat', params.decoys_ranking_mode)
 local training_logger = cTrainingLogger.new(params.experiment_name, modelName, params.dataset_name, 'training')
 
 local validation_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, false, false, model.input_options.resolution)

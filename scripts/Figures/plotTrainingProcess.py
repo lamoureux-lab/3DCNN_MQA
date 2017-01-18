@@ -210,7 +210,12 @@ if __name__=='__main__':
 	# plot_validation_funnels(exp_name, 'ranking_model_11atomTypes', '3DRobot_set', 30, 30)
 
 
-	exp_name = 'QA'
-	taus, pears = plot_validation_correlations(exp_name, 'ranking_model_11atomTypes', 'CASP')
+	# exp_name = 'QA'
+	# taus, pears = plot_validation_correlations(exp_name, 'ranking_model_11atomTypes', 'CASP')
+	# print 'Default: ', taus[-1], pears[-1]
+	# plot_validation_funnels(exp_name, 'ranking_model_11atomTypes', 'CASP')
+
+	exp_name = 'batchNormTest'
+	taus, pears = plot_validation_correlations(exp_name, 'ranking_model_11AT_batchNorm', '3DRobot_set')
 	print 'Default: ', taus[-1], pears[-1]
-	plot_validation_funnels(exp_name, 'ranking_model_11atomTypes', 'CASP')
+	plot_validation_funnels(exp_name, 'ranking_model_11AT_batchNorm', '3DRobot_set')
