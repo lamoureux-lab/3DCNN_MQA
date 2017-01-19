@@ -1,11 +1,12 @@
 th TorchTrainRankingHomogeniousDataset.lua \
--model_name ranking_model_11atomTypes \
--dataset_name CASP \
--experiment_name QA \
+-model_name ranking_model_11AT_batchNorm \
+-dataset_name 3DRobot_set \
+-experiment_name GDT_TS_test \
 -learning_rate 0.0001 \
 -l1_coef 0.00001 \
 -tm_score_threshold 0.2 \
 -gap_weight 0.1 \
 -validation_period 1 \
 -model_save_period 10 \
--max_epoch 150 
+-max_epoch 30 \
+-decoys_ranking_mode gdt-ts

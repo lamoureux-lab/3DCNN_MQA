@@ -19,16 +19,20 @@ cBatchRankingLoss = {}
 cBatchRankingLoss.__index = cBatchRankingLoss
 
 
-function cBatchRankingLoss.new(gap_weight, tmscore_threshold)
+function cBatchRankingLoss.new(gap_weight, tmscore_threshold, decoys_ranking_mode)
 	local self = setmetatable({}, cBatchRankingLoss)
-	if gap_weight~=nil then
+	if gap_weight==nil then
 		gap_weight = 2.0
 	end
-	if tmscore_threshold~=nil then
+	if tmscore_threshold==nil then
 		tmscore_threshold = 0.2
+	end
+	if decoys_ranking_mode==nil then
+		decoys_ranking_mode = 'tm-score'
 	end
 	self.gap_weight = gap_weight
 	self.tmscore_threshold = tmscore_threshold
+	self.decoys_ranking_mode = decoys_ranking_mode
 	return self
 end
 
@@ -39,8 +43,14 @@ function cBatchRankingLoss.get_batch_weight(self, decoys, indexes)
 		if indexes[i]>0 then
 			for j=1, batch_size do
 				if indexes[j]>0 and (not(i==j)) then
-					local tm_i = decoys[indexes[i]].tm_score
-		 			local tm_j = decoys[indexes[j]].tm_score
+					local tm_i,tm_j
+					if self.decoys_ranking_mode == 'tm-score' then 
+						tm_i = decoys[indexes[i]].tm_score
+		 				tm_j = decoys[indexes[j]].tm_score
+					elseif self.decoys_ranking_mode == 'gdt-ts' then 
+						tm_i = decoys[indexes[i]].gdt_ts
+		 				tm_j = decoys[indexes[j]].gdt_ts
+					end
 		 			batch_weight = batch_weight + math.max(0, math.abs(tm_i-tm_j) - self.tmscore_threshold)
 		 		end
 		 	end
@@ -60,8 +70,14 @@ function cBatchRankingLoss.evaluate(self, decoys, indexes, outputs_cpu)
 			for j=1, batch_size do
 				if indexes[j]>0 and (not(i==j)) then
 					N = N + 1
-					local tm_i = decoys[indexes[i]].tm_score
-		 			local tm_j = decoys[indexes[j]].tm_score
+					local tm_i,tm_j
+					if self.decoys_ranking_mode == 'tm-score' then 
+						tm_i = decoys[indexes[i]].tm_score
+		 				tm_j = decoys[indexes[j]].tm_score
+					elseif self.decoys_ranking_mode == 'gdt-ts' then 
+						tm_i = decoys[indexes[i]].gdt_ts
+		 				tm_j = decoys[indexes[j]].gdt_ts
+					end
 		 			--local gap = self.gap_weight*math.abs(tm_i-tm_j)
 		 			local gap = 1.0
 		 			local y_ij = 0

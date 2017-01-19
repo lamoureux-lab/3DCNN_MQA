@@ -36,9 +36,10 @@ function train_epoch(epoch, dataset, model, batchRankingLoss, logger, adamConfig
 			stic = torch.tic()
 			cbatch, indexes = dataset:load_homo_batch(protein_name)
 			batch_loading_time = torch.tic()-stic
-
+			
 			-- Check if there is a need to evaluate the network
 			if batchRankingLoss:get_batch_weight(dataset.decoys[protein_name], indexes) == 0 then 
+				print(epoch, protein_index, #dataset.proteins, protein_name, 'skip')
 				return 0, gradParameters
 			end
 				
@@ -133,7 +134,7 @@ cmd:option('-experiment_name','BatchRankingRepeat2', 'experiment name')
 cmd:option('-learning_rate', 0.0001, 'adam optimizer learning rate')
 cmd:option('-l1_coef', 0.00001, 'L1-regularization coefficient')
 
-cmd:option('-tm_score_threshold', 0.3, 'threshold for batch ranking')
+cmd:option('-tm_score_threshold', 0.2, 'threshold for batch ranking')
 cmd:option('-gap_weight', 0.1, 'gap weight for batch ranking')
 cmd:option('-decoys_ranking_mode', 'tm-score', 'the criterion of decoy quality: {tm-score, gdt-ts}')
 
@@ -167,7 +168,7 @@ local adamConfig = {	learningRate = params.learning_rate,
 local input_size = {	model.input_options.num_channels, model.input_options.input_size, 
 						model.input_options.input_size, model.input_options.input_size}
 
-local batchRankingLoss = cBatchRankingLoss.new(params.gap_weight, params.tm_score_threshold)
+local batchRankingLoss = cBatchRankingLoss.new(params.gap_weight, params.tm_score_threshold, params.decoys_ranking_mode)
 
 local training_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, true, true, model.input_options.resolution)
 training_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/'..params.dataset_name..'/Description','training_set.dat', params.decoys_ranking_mode)
@@ -190,7 +191,7 @@ if params.do_validation0 then
 end
 
 for epoch = 1, adamConfig.max_epoch do
-		
+
 	training_dataset:shuffle_dataset()
 	training_logger:allocate_train_epoch(training_dataset)
 	local ticTotal = torch.Timer()

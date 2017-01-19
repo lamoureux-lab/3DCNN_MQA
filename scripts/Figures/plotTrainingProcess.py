@@ -205,17 +205,26 @@ if __name__=='__main__':
 	# 	plot_validation_funnels(exp_name, 'ranking_model_11atomTypes', '3DRobot_set')
 
 	# exp_name = 'BatchRankingRepeat2'
-	# taus, pears = plot_validation_correlations(exp_name, 'ranking_model_11atomTypes', '3DRobot_set', 30, 30)
-	# print 'Default: ', taus[0], pears[0]
-	# plot_validation_funnels(exp_name, 'ranking_model_11atomTypes', '3DRobot_set', 30, 30)
-
+	# taus, pears = plot_validation_correlations(exp_name, 'ranking_model_11atomTypes', '3DRobot_set')
+	# print 'Default: ', taus[-1], pears[-1]
+	# plot_validation_funnels(exp_name, 'ranking_model_11atomTypes', '3DRobot_set')
 
 	# exp_name = 'QA'
 	# taus, pears = plot_validation_correlations(exp_name, 'ranking_model_11atomTypes', 'CASP')
 	# print 'Default: ', taus[-1], pears[-1]
 	# plot_validation_funnels(exp_name, 'ranking_model_11atomTypes', 'CASP')
 
-	exp_name = 'batchNormTest'
-	taus, pears = plot_validation_correlations(exp_name, 'ranking_model_11AT_batchNorm', '3DRobot_set')
-	print 'Default: ', taus[-1], pears[-1]
-	plot_validation_funnels(exp_name, 'ranking_model_11AT_batchNorm', '3DRobot_set')
+	# exp_name = 'batchNormTest'
+	# taus, pears = plot_validation_correlations(exp_name, 'ranking_model_11AT_batchNorm', '3DRobot_set')
+	# print '%s: '%exp_name, taus[-1], pears[-1]
+	# plot_validation_funnels(exp_name, 'ranking_model_11AT_batchNorm', '3DRobot_set')
+
+	# exp_name = 'GDT_TS_test'
+	# taus, pears = plot_validation_correlations(exp_name, 'ranking_model_11AT_batchNorm', '3DRobot_set')
+	# print '%s: '%exp_name, taus[-1], pears[-1]
+	# plot_validation_funnels(exp_name, 'ranking_model_11AT_batchNorm', '3DRobot_set')
+
+	exp_name = 'QA_bn_gdt_ts'
+	taus, pears = plot_validation_correlations(exp_name, 'ranking_model_11AT_batchNorm', 'CASP')
+	print '%s: '%exp_name, taus[-1], pears[-1]
+	plot_validation_funnels(exp_name, 'ranking_model_11AT_batchNorm', 'CASP')

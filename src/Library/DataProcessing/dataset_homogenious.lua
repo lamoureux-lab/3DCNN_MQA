@@ -47,16 +47,17 @@ end
 function cDatasetHomo.load_dataset(self, description_directory, description_filename, decoys_ranking_mode)
 	cDatasetBase.load_dataset(self, description_directory, description_filename)
 
-	print('Load called')
+	
 	if decoys_ranking_mode==nil then
-		self.decoys_ranking_mode = 'tmscore'
+		self.decoys_ranking_mode = 'tm-score'
 	else 
 		self.decoys_ranking_mode = decoys_ranking_mode
 	end
+	print('Load called', self.decoys_ranking_mode)
 	self.homo_decoys = {}
 	for i,protName in pairs(self.proteins) do
 		self.homo_decoys[protName] = {} 
-		if self.decoys_ranking_mode == 'tmscore' then
+		if self.decoys_ranking_mode == 'tm-score' then
 			for j=1,#self.decoys[protName] do
 				local bin_idx = math.floor(self.decoys[protName][j].tm_score*self.batch_size) + 1
 				if self.homo_decoys[protName][bin_idx] == nil then
@@ -71,12 +72,13 @@ function cDatasetHomo.load_dataset(self, description_directory, description_file
 				if self.decoys[protName][j].gdt_ts < min_gdtts then 
 					min_gdtts = self.decoys[protName][j].gdt_ts
 				end
-				if self.decoys[protName][j].gdt_ts > min_gdtts then 
+				if self.decoys[protName][j].gdt_ts > max_gdtts then 
 					max_gdtts = self.decoys[protName][j].gdt_ts
 				end
 			end
+			-- print(protName, min_gdtts, max_gdtts)
 			for j=1,#self.decoys[protName] do
-				local bin_idx = math.floor( (self.decoys[protName][j].gdt_ts - min_gdtts)*self.batch_size/(max_gdtts-min_gdtts) ) + 1
+				local bin_idx = math.floor( (self.decoys[protName][j].gdt_ts - min_gdtts)*self.batch_size/(max_gdtts-min_gdtts) ) + 1	
 				if self.homo_decoys[protName][bin_idx] == nil then
 					self.homo_decoys[protName][bin_idx] = {}
 				end
@@ -93,7 +95,7 @@ function cDatasetHomo.load_homo_batch(self, protein_name)
 	local batch_ind = 1 -- index in the batch
 	local ind = 1		-- bin index from which the decoy is added
 	local decoy_num = 1 -- index in the single bin
-	
+
 	local batch_info = Cuda.createBatchInfo(self.batch_size)
 	while batch_ind <= self.batch_size do
 		if ind > self.batch_size then 
