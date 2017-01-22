@@ -224,7 +224,7 @@ if __name__=='__main__':
 	# print '%s: '%exp_name, taus[-1], pears[-1]
 	# plot_validation_funnels(exp_name, 'ranking_model_11AT_batchNorm', '3DRobot_set')
 
-	exp_name = 'QA_bn_gdt_ts'
+	exp_name = 'QA_bn_gdt_ts_3'
 	taus, pears = plot_validation_correlations(exp_name, 'ranking_model_11AT_batchNorm', 'CASP')
 	print '%s: '%exp_name, taus[-1], pears[-1]
 	plot_validation_funnels(exp_name, 'ranking_model_11AT_batchNorm', 'CASP')

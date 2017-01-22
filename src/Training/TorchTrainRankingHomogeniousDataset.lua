@@ -192,6 +192,19 @@ end
 
 for epoch = 1, adamConfig.max_epoch do
 
+	if epoch == 1 then
+		batchRankingLoss.tmscore_threshold = 0.3 
+	end
+	if epoch == 20 then
+		batchRankingLoss.tmscore_threshold = 0.2 
+	end
+	if epoch == 40 then 
+		batchRankingLoss.tmscore_threshold = 0.1
+	end
+	if epoch == 80 then 
+		batchRankingLoss.tmscore_threshold = 0.05
+	end
+
 	training_dataset:shuffle_dataset()
 	training_logger:allocate_train_epoch(training_dataset)
 	local ticTotal = torch.Timer()
@@ -199,6 +212,7 @@ for epoch = 1, adamConfig.max_epoch do
 	timeTotal = ticTotal:time().real
 	print('Time per epoch: '..timeTotal)
 	training_logger:save_epoch(epoch)
+	
 
 	if epoch%params.validation_period == 0 then
 		validation_logger:allocate_train_epoch(validation_dataset)

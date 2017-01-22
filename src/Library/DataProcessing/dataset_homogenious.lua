@@ -78,7 +78,7 @@ function cDatasetHomo.load_dataset(self, description_directory, description_file
 			end
 			-- print(protName, min_gdtts, max_gdtts)
 			for j=1,#self.decoys[protName] do
-				local bin_idx = math.floor( (self.decoys[protName][j].gdt_ts - min_gdtts)*self.batch_size/(max_gdtts-min_gdtts) ) + 1	
+				local bin_idx = math.floor( (max_gdtts - self.decoys[protName][j].gdt_ts)*self.batch_size/(max_gdtts-min_gdtts) ) + 1	
 				if self.homo_decoys[protName][bin_idx] == nil then
 					self.homo_decoys[protName][bin_idx] = {}
 				end

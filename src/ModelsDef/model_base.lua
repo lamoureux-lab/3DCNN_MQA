@@ -40,12 +40,16 @@ function cModelBase.load_model(self, dir_path)
 	for i=1,self.net:size() do
 		local layer = self.net:get(i)
 		if tostring(layer) == 'nn.VolumetricConvolution' then
-			layer.weight = torch.load(dir_path..'/VC'..tostring(i)..'W.dat')
-			layer.bias = torch.load(dir_path..'/VC'..tostring(i)..'B.dat')
+			layer.weight:copy(torch.load(dir_path..'/VC'..tostring(i)..'W.dat'))
+			layer.bias:copy(torch.load(dir_path..'/VC'..tostring(i)..'B.dat'))
 		end
 		if not( string.find(tostring(layer),'nn.Linear') == nil ) then
-			layer.weight = torch.load(dir_path..'/FC'..tostring(i)..'W.dat')
-			layer.bias = torch.load(dir_path..'/FC'..tostring(i)..'B.dat')
+			layer.weight:copy(torch.load(dir_path..'/FC'..tostring(i)..'W.dat'))
+			layer.bias:copy(torch.load(dir_path..'/FC'..tostring(i)..'B.dat'))
+		end
+		if not( string.find(tostring(layer),'nn.VolumetricBatchNormalization') == nil ) then
+			layer.weight:copy(torch.load(dir_path..'/BN'..tostring(i)..'W.dat'))
+			layer.bias:copy(torch.load(dir_path..'/BN'..tostring(i)..'B.dat'))
 		end
 	end
 end
@@ -60,6 +64,10 @@ function cModelBase.save_model(self, dir_path)
 		if not( string.find(tostring(layer),'nn.Linear') == nil ) then
 			torch.save(dir_path..'/FC'..tostring(i)..'W.dat', layer.weight)
 			torch.save(dir_path..'/FC'..tostring(i)..'B.dat', layer.bias)
+		end
+		if not( string.find(tostring(layer),'nn.VolumetricBatchNormalization') == nil ) then
+			torch.save(dir_path..'/BN'..tostring(i)..'W.dat', layer.weight)
+			torch.save(dir_path..'/BN'..tostring(i)..'B.dat', layer.bias)
 		end
 	end
 end

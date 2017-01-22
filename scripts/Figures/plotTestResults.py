@@ -105,14 +105,14 @@ def plot_test_results(	experiment_name = 'QA',
 
 if __name__=='__main__':
 	
-	plot_test_results(	experiment_name = 'QA',
-						model_name = 'ranking_model_11atomTypes',
-						trainig_dataset_name = 'CASP',
-						test_dataset_name = 'CASP11Stage1',
-						decoy_ranging_column = 'gdt-ts')
+	# plot_test_results(	experiment_name = 'QA_bn_gdt_ts_2',
+	# 					model_name = 'ranking_model_11AT_batchNorm',
+	# 					trainig_dataset_name = 'CASP',
+	# 					test_dataset_name = 'CASP11Stage1',
+	# 					decoy_ranging_column = 'gdt-ts')
 
-	plot_test_results(	experiment_name = 'QA',
-						model_name = 'ranking_model_11atomTypes',
+	plot_test_results(	experiment_name = 'QA_bn_gdt_ts_2',
+						model_name = 'ranking_model_11AT_batchNorm',
 						trainig_dataset_name = 'CASP',
 						test_dataset_name = 'CASP11Stage2',
 						decoy_ranging_column = 'gdt-ts')

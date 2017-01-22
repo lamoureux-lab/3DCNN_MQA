@@ -69,12 +69,12 @@ cmd:text()
 cmd:text('Testing a network')
 cmd:text()
 cmd:text('Options')
-cmd:option('-experiment_name','QA', 'training experiment name')
-cmd:option('-training_model_name','ranking_model_11atomTypes', 'cnn model name during training')
+cmd:option('-experiment_name','QA_bn_gdt_ts_2', 'training experiment name')
+cmd:option('-training_model_name','ranking_model_11AT_batchNorm', 'cnn model name during training')
 cmd:option('-training_dataset_name','CASP', 'training dataset name')
 
-cmd:option('-test_model_name','ranking_model_11atomTypes', 'cnn model name during testing')
-cmd:option('-test_dataset_name','CASP11Stage1', 'test dataset name')
+cmd:option('-test_model_name','ranking_model_11AT_batchNorm', 'cnn model name during testing')
+cmd:option('-test_dataset_name','CASP11Stage2', 'test dataset name')
 
 cmd:text()
 
