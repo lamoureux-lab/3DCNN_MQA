@@ -263,3 +263,8 @@ if __name__=='__main__':
 	# dataset_make_lists('/home/lupoglaz/ProteinsDataset/CASP11Stage2')
 	# dataset_make_description('/home/lupoglaz/ProteinsDataset/CASP11Stage1')
 	# dataset_make_description('/home/lupoglaz/ProteinsDataset/CASP11Stage2')
+
+	# dataset_make_lists('/home/lupoglaz/ProteinsDataset/CASP11Stage1_SCWRL')
+	# dataset_make_description('/home/lupoglaz/ProteinsDataset/CASP11Stage1_SCWRL')
+	dataset_make_lists('/home/lupoglaz/ProteinsDataset/CASP11Stage2_SCWRL')
+	dataset_make_description('/home/lupoglaz/ProteinsDataset/CASP11Stage2_SCWRL')

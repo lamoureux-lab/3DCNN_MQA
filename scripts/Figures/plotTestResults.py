@@ -73,6 +73,7 @@ def plot_test_results(	experiment_name = 'QA',
 						model_name = 'ranking_model_11atomTypes',
 						trainig_dataset_name = 'CASP',
 						test_dataset_name = 'CASP11Stage1',
+						test_dataset_subset = 'datasetDescription.dat',
 						decoy_ranging_column = 'gdt-ts'):
 	"""
 	Outputs:
@@ -83,7 +84,7 @@ def plot_test_results(	experiment_name = 'QA',
 	print "Test dataset: ", test_dataset_name
 
 	proteins, decoys = read_dataset_description('/home/lupoglaz/ProteinsDataset/%s/Description'%test_dataset_name,
-												'datasetDescription.dat', decoy_ranging=decoy_ranging_column)
+												test_dataset_subset, decoy_ranging=decoy_ranging_column)
 	
 	input_path = '../../models/%s_%s_%s/%s/epoch_0.dat'%(	experiment_name, model_name, trainig_dataset_name,
 															test_dataset_name)
@@ -104,15 +105,21 @@ def plot_test_results(	experiment_name = 'QA',
 	plotFunnels(proteins, decoys, decoys_scores, output_path)
 
 if __name__=='__main__':
-	
-	# plot_test_results(	experiment_name = 'QA_bn_gdt_ts_2',
+	# plot_test_results(	experiment_name = 'QA_bn_gdt_ts_3',
 	# 					model_name = 'ranking_model_11AT_batchNorm',
 	# 					trainig_dataset_name = 'CASP',
-	# 					test_dataset_name = 'CASP11Stage1',
+	# 					test_dataset_name = '3DRobot_set',
+	# 					test_dataset_subset = 'validation_set.dat',
+	# 					decoy_ranging_column = 'gdt-ts')
+	
+	# plot_test_results(	experiment_name = 'QA_bn_gdt_ts_3',
+	# 					model_name = 'ranking_model_11AT_batchNorm',
+	# 					trainig_dataset_name = 'CASP',
+	# 					test_dataset_name = 'CASP11Stage1_SCWRL',
 	# 					decoy_ranging_column = 'gdt-ts')
 
-	plot_test_results(	experiment_name = 'QA_bn_gdt_ts_2',
-						model_name = 'ranking_model_11AT_batchNorm',
-						trainig_dataset_name = 'CASP',
-						test_dataset_name = 'CASP11Stage2',
-						decoy_ranging_column = 'gdt-ts')
+	# plot_test_results(	experiment_name = 'QA_bn_gdt_ts_3',
+	# 					model_name = 'ranking_model_11AT_batchNorm',
+	# 					trainig_dataset_name = 'CASP',
+	# 					test_dataset_name = 'CASP11Stage2_SCWRL',
+	# 					decoy_ranging_column = 'gdt-ts')
