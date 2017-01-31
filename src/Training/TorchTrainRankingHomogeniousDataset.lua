@@ -129,6 +129,7 @@ cmd:text()
 cmd:text('Options')
 cmd:option('-model_name','ranking_model_11atomTypes', 'cnn model name')
 cmd:option('-dataset_name','3DRobot_set', 'dataset name')
+cmd:option('-datasets_dir','/scratch/ukg-030-aa/lupoglaz/', 'Directory containing all the datasets. Should end with /')
 cmd:option('-experiment_name','BatchRankingRepeat2', 'experiment name')
 
 cmd:option('-learning_rate', 0.0001, 'adam optimizer learning rate')
@@ -141,6 +142,7 @@ cmd:option('-decoys_ranking_mode', 'tm-score', 'the criterion of decoy quality: 
 cmd:option('-validation_period', 5, 'period of validation iteration')
 cmd:option('-model_save_period', 10, 'period of saving the model')
 cmd:option('-max_epoch', 50, 'numer of epoch to train')
+cmd:option('-gpu_num',0,'gpu number')
 cmd:option('-do_init_validation',false,'whether to perform validation on initialized model')
 cmd:text()
 
@@ -149,7 +151,7 @@ params = cmd:parse(arg)
 
 local modelName = params.model_name
 local model, optimization_parameters = dofile('../ModelsDef/'..modelName..'.lua')
-model:initialize_cuda(1)
+model:initialize_cuda(params.gpu_num)
 local parameters, gradParameters = model.net:getParameters()
 math.randomseed( 42 )
 
@@ -171,11 +173,11 @@ local input_size = {	model.input_options.num_channels, model.input_options.input
 local batchRankingLoss = cBatchRankingLoss.new(params.gap_weight, params.tm_score_threshold, params.decoys_ranking_mode)
 
 local training_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, true, true, model.input_options.resolution)
-training_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/'..params.dataset_name..'/Description','training_set.dat', params.decoys_ranking_mode)
+training_dataset:load_dataset(params.datasets_dir..params.dataset_name..'/Description','training_set.dat', params.decoys_ranking_mode)
 local training_logger = cTrainingLogger.new(params.experiment_name, modelName, params.dataset_name, 'training')
 
 local validation_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, false, false, model.input_options.resolution)
-validation_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/'..params.dataset_name..'/Description','validation_set.dat')
+validation_dataset:load_dataset(params.datasets_dir..params.dataset_name..'/Description','validation_set.dat')
 local validation_logger = cTrainingLogger.new(params.experiment_name, modelName, params.dataset_name, 'validation')
 
 local model_backup_dir = training_logger.global_dir..'models/'
