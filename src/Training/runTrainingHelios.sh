@@ -10,7 +10,7 @@ cd "${SCRATCH}/lupoglaz/deep_folder/src/Training"
 nvidia-smi
 top
 
-CUDA_VISIBLE_DEVICES=1 th TorchTrainRankingHomogeniousDataset.lua \
+CUDA_VISIBLE_DEVICES=0 th TorchTrainRankingHomogeniousDataset.lua \
 -model_name ranking_model_8 \
 -dataset_name CASP_SCWRL \
 -experiment_name LearningRate_1em2 \
@@ -25,7 +25,7 @@ CUDA_VISIBLE_DEVICES=1 th TorchTrainRankingHomogeniousDataset.lua \
 -decoys_ranking_mode gdt-ts \
 -gpu_num 1 > output &
 
-CUDA_VISIBLE_DEVICES=2 th TorchTrainRankingHomogeniousDataset.lua \
+CUDA_VISIBLE_DEVICES=1 th TorchTrainRankingHomogeniousDataset.lua \
 -model_name ranking_model_8 \
 -dataset_name CASP_SCWRL \
 -experiment_name LearningRate_1em3 \
@@ -38,9 +38,9 @@ CUDA_VISIBLE_DEVICES=2 th TorchTrainRankingHomogeniousDataset.lua \
 -model_save_period 1 \
 -max_epoch 150 \
 -decoys_ranking_mode gdt-ts \
--gpu_num 2 > output &
+-gpu_num 1 > output &
 
-CUDA_VISIBLE_DEVICES=3 th TorchTrainRankingHomogeniousDataset.lua \
+CUDA_VISIBLE_DEVICES=2 th TorchTrainRankingHomogeniousDataset.lua \
 -model_name ranking_model_8 \
 -dataset_name CASP_SCWRL \
 -experiment_name LearningRate_1em4 \
@@ -53,9 +53,9 @@ CUDA_VISIBLE_DEVICES=3 th TorchTrainRankingHomogeniousDataset.lua \
 -model_save_period 1 \
 -max_epoch 150 \
 -decoys_ranking_mode gdt-ts \
--gpu_num 3 > output &
+-gpu_num 1 > output &
 
-CUDA_VISIBLE_DEVICES=4 th TorchTrainRankingHomogeniousDataset.lua \
+CUDA_VISIBLE_DEVICES=3 th TorchTrainRankingHomogeniousDataset.lua \
 -model_name ranking_model_8 \
 -dataset_name CASP_SCWRL \
 -experiment_name LearningRate_1em5 \
@@ -68,6 +68,6 @@ CUDA_VISIBLE_DEVICES=4 th TorchTrainRankingHomogeniousDataset.lua \
 -model_save_period 1 \
 -max_epoch 150 \
 -decoys_ranking_mode gdt-ts \
--gpu_num 4 > output &
+-gpu_num 1 > output &
 
 wait
