@@ -48,8 +48,12 @@ function cModelBase.load_model(self, dir_path)
 			layer.bias:copy(torch.load(dir_path..'/FC'..tostring(i)..'B.dat'))
 		end
 		if not( string.find(tostring(layer),'nn.VolumetricBatchNormalization') == nil ) then
-			layer.weight:copy(torch.load(dir_path..'/BN'..tostring(i)..'W.dat'))
-			layer.bias:copy(torch.load(dir_path..'/BN'..tostring(i)..'B.dat'))
+			if layer.affine then
+				layer.weight:copy(torch.load(dir_path..'/BN'..tostring(i)..'W.dat'))
+				layer.bias:copy(torch.load(dir_path..'/BN'..tostring(i)..'B.dat'))
+				layer.running_mean:copy(torch.load(dir_path..'/BN'..tostring(i)..'RM.dat'))
+				layer.running_std:copy(torch.load(dir_path..'/BN'..tostring(i)..'RS.dat'))
+			end
 		end
 	end
 end
@@ -66,8 +70,12 @@ function cModelBase.save_model(self, dir_path)
 			torch.save(dir_path..'/FC'..tostring(i)..'B.dat', layer.bias)
 		end
 		if not( string.find(tostring(layer),'nn.VolumetricBatchNormalization') == nil ) then
-			torch.save(dir_path..'/BN'..tostring(i)..'W.dat', layer.weight)
-			torch.save(dir_path..'/BN'..tostring(i)..'B.dat', layer.bias)
+			if layer.affine then
+				torch.save(dir_path..'/BN'..tostring(i)..'W.dat', layer.weight)
+				torch.save(dir_path..'/BN'..tostring(i)..'B.dat', layer.bias)
+				torch.save(dir_path..'/BN'..tostring(i)..'RM.dat', layer.running_mean)
+				torch.save(dir_path..'/BN'..tostring(i)..'RS.dat', layer.running_std)
+			end
 		end
 	end
 end

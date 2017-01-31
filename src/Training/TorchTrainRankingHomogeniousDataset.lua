@@ -27,7 +27,7 @@ function train_epoch(epoch, dataset, model, batchRankingLoss, logger, adamConfig
 	local batch_loading_time, forward_time, backward_time;
 	local stic
 	
-	for protein_index=1, #dataset.proteins do
+	for protein_index= 1, #dataset.proteins do
 		protein_name = dataset.proteins[protein_index]
 									
 		local feval = function(x)
@@ -141,7 +141,7 @@ cmd:option('-decoys_ranking_mode', 'tm-score', 'the criterion of decoy quality: 
 cmd:option('-validation_period', 5, 'period of validation iteration')
 cmd:option('-model_save_period', 10, 'period of saving the model')
 cmd:option('-max_epoch', 50, 'numer of epoch to train')
-cmd:option('-do_validation0',false,'whether to perform validation on initialized model')
+cmd:option('-do_init_validation',false,'whether to perform validation on initialized model')
 cmd:text()
 
 params = cmd:parse(arg)
@@ -184,26 +184,13 @@ os.execute("mkdir " .. model_backup_dir)
 training_logger:make_description({adamConfig,params},'Parameters scan')
 
 local epoch = 0
-if params.do_validation0 then
+if params.do_init_validation then
 	validation_logger:allocate_train_epoch(validation_dataset)
-	validate_epoch(epoch, validation_dataset, validation_logger, adamConfig)
+	validate_epoch(epoch, validation_dataset, model, validation_logger, adamConfig)
 	validation_logger:save_epoch(epoch)
 end
 
 for epoch = 1, adamConfig.max_epoch do
-
-	if epoch == 1 then
-		batchRankingLoss.tmscore_threshold = 0.3 
-	end
-	if epoch == 20 then
-		batchRankingLoss.tmscore_threshold = 0.2 
-	end
-	if epoch == 40 then 
-		batchRankingLoss.tmscore_threshold = 0.1
-	end
-	if epoch == 80 then 
-		batchRankingLoss.tmscore_threshold = 0.05
-	end
 
 	training_dataset:shuffle_dataset()
 	training_logger:allocate_train_epoch(training_dataset)
@@ -215,9 +202,12 @@ for epoch = 1, adamConfig.max_epoch do
 	
 
 	if epoch%params.validation_period == 0 then
+		local ticTotal = torch.Timer()
 		validation_logger:allocate_train_epoch(validation_dataset)
 		validate_epoch(epoch, validation_dataset, model, validation_logger, adamConfig)
 		validation_logger:save_epoch(epoch)
+		timeTotal = ticTotal:time().real
+		print('Time per validation: '..timeTotal)
 	end
 	if epoch%params.model_save_period == 0 then
 		local epoch_model_backup_dir = model_backup_dir..'epoch'..tostring(epoch)

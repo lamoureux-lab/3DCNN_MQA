@@ -18,7 +18,6 @@ require 'optim'
 
 requireRel '../Library/DataProcessing/utils'
 requireRel '../Library/DataProcessing/dataset_homogenious'
-requireRel '../Library/LossFunctions/batchRankingLoss'
 requireRel '../Logging/training_logger'
 
 
@@ -69,13 +68,14 @@ cmd:text()
 cmd:text('Testing a network')
 cmd:text()
 cmd:text('Options')
-cmd:option('-experiment_name','QA_bn_gdt_ts_3', 'training experiment name')
-cmd:option('-training_model_name','ranking_model_11AT_batchNorm', 'cnn model name during training')
-cmd:option('-training_dataset_name','CASP', 'training dataset name')
+cmd:option('-experiment_name','QA_5', 'training experiment name')
+cmd:option('-training_model_name','ranking_model_8', 'cnn model name during training')
+cmd:option('-training_dataset_name','CASP_SCWRL', 'training dataset name')
 
-cmd:option('-test_model_name','ranking_model_11AT_batchNorm', 'cnn model name during testing')
+cmd:option('-test_model_name','ranking_model_8', 'cnn model name during testing')
 cmd:option('-test_dataset_name','CASP11Stage2_SCWRL', 'test dataset name')
 cmd:option('-test_dataset_subset','datasetDescription.dat', 'test dataset subset')
+-- cmd:option('-test_dataset_subset','validation_set.dat', 'test dataset subset')
 
 cmd:text()
 
@@ -93,8 +93,8 @@ local adamConfig = {batch_size = optimization_parameters.batch_size	}
 local input_size = {	model.input_options.num_channels, model.input_options.input_size, 
 						model.input_options.input_size, model.input_options.input_size}
 
-local test_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, true, true, model.input_options.resolution)
-test_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/'..params.test_dataset_name..'/Description', params.test_dataset_subset)
+local test_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, false, false, model.input_options.resolution)
+test_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/'..params.test_dataset_name..'/Description', params.test_dataset_subset, 'tm-score')
 local test_logger = cTrainingLogger.new(params.experiment_name, params.training_model_name, params.training_dataset_name, 
 										params.test_dataset_name)
 

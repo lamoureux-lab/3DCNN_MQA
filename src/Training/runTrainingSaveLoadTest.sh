@@ -1,0 +1,13 @@
+th TorchTrainRankingHomogeniousDataset.lua \
+-model_name ranking_model_8_nobn \
+-dataset_name CASP_SCWRL \
+-experiment_name train_load_test \
+-learning_rate 0.0001 \
+-l1_coef 0.00001 \
+-tm_score_threshold 0.1 \
+-gap_weight 0.1 \
+-validation_period 1 \
+-model_save_period 1 \
+-max_epoch 1 \
+-decoys_ranking_mode gdt-ts \
+-do_init_validation

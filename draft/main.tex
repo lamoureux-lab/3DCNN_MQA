@@ -42,7 +42,15 @@ Deep learning methods were also applied in the field of structure quality assess
 contact maps of the decoys and compress them using PCA. The vectors from PCA are then fed into an autoencoder to predict the score of the decoy. The authors that apply the 
 deep learning methods use them as the ordinary 'shallow' classifiers. Therefore they do not get all the advantages these new techniques offer.
 
-In this paper we show, that deep convolutional networks with the raw atomic density input can outperform conventional methods that mainly rely on the feature engineering.
+The are three major components that made deep learning from the raw data possible: increasing computational power and GPU acceleration, increased amount of 
+training data and improved optimization techniques such as Dropout \cite{}, batch normalization \cite{} and new stochastic gradient optimizers, such as Adam \cite{}.
+Usually, it is assumed that the amount of data is the bottleneck in the computational structural biology. In this paper we explore if this is indeed the case. We also show 
+that the model training from the raw atomic densities is competitive with the state-of-art methods, that either rely on meta-models or on the heavily engineered features.
+We also show that in certain cases deep learning model outperforms the conventional approach.
+
+Another obstackle that prevents wide adoption of DL methods is the lack of transparency of the models. Here we argue, that although we can not break the final score of 
+the model by contributions, as is done in ProQ2 QA assessment algorithm \cite{}, we can inspect the representations of proteins the model learns. We also look into local 
+features that contribute to the score. Finally, we demonstrate that the model we propose, unlike the conventional approaches, can fold proteins using the gradient descent.
 
 \section{Materials and Methods}
 \subsection{Datasets}

@@ -148,9 +148,9 @@ def plot_validation_funnels(experiment_name, model_name, dataset_name, epoch_sta
 def plot_validation_correlations(experiment_name, model_name, dataset_name, epoch_start=0, epoch_end=200):
 	print 'Loading dataset'
 	proteins, decoys = read_dataset_description('/home/lupoglaz/ProteinsDataset/%s/Description'%dataset_name,'validation_set.dat')
-	epochs = []
-	taus = []
-	pearsons = []
+	epochs = [0]
+	taus = [0]
+	pearsons = [0]
 	for epoch in range(epoch_start, epoch_end+1):
 		#print 'Loading scoring ',epoch
 		input_path = '../../models/%s_%s_%s/validation/epoch_%d.dat'%(experiment_name, model_name, dataset_name, epoch)
@@ -224,7 +224,7 @@ if __name__=='__main__':
 	# print '%s: '%exp_name, taus[-1], pears[-1]
 	# plot_validation_funnels(exp_name, 'ranking_model_11AT_batchNorm', '3DRobot_set')
 
-	exp_name = 'QA_bn_gdt_ts_3'
-	taus, pears = plot_validation_correlations(exp_name, 'ranking_model_11AT_batchNorm', 'CASP')
+	exp_name = 'QA_5'
+	taus, pears = plot_validation_correlations(exp_name, 'ranking_model_8', 'CASP_SCWRL')
 	print '%s: '%exp_name, taus[-1], pears[-1]
-	plot_validation_funnels(exp_name, 'ranking_model_11AT_batchNorm', 'CASP')
+	plot_validation_funnels(exp_name, 'ranking_model_8', 'CASP_SCWRL')

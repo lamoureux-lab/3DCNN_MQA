@@ -18,7 +18,7 @@ requireRel '../Library/DataProcessing/utils'
 requireRel '../Library/DataProcessing/dataset_homogenious'
 requireRel '../Library/LossFunctions/batchRankingLoss'
 requireRel '../Logging/training_logger'
-local modelName = 'ranking_model_11atomTypes'
+local modelName = 'ranking_model_8'
 
 local model, optimization_parameters = dofile('../ModelsDef/'..modelName..'.lua')
 
@@ -57,16 +57,23 @@ function check_training_set(dataset, init_p_index, init_batch_index, filename)
 	end
 end
 
-local dataset_name = 'CASP11Stage1'
+local dataset_name = 'CASP_SCWRL'
 local training_dataset1 = cDatasetHomo.new(1, input_size, true, true, model.input_options.resolution)
 training_dataset1:load_dataset('/home/lupoglaz/ProteinsDataset/'..dataset_name..'/Description','datasetDescription.dat')
-local file = io.open('Casp11Stage1_corrupted_list.dat','w')
+local file = io.open('CASP_SCWRL_corrupted_list.dat','w')
 file:close()
-check_training_set(training_dataset1, 1, 1, 'Casp11Stage1_corrupted_list.dat')
+check_training_set(training_dataset1, 1, 1, 'CASP_SCWRL_corrupted_list.dat')
 
-dataset_name = 'CASP11Stage2'
+local dataset_name = 'CASP11Stage1_SCWRL'
+local training_dataset1 = cDatasetHomo.new(1, input_size, true, true, model.input_options.resolution)
+training_dataset1:load_dataset('/home/lupoglaz/ProteinsDataset/'..dataset_name..'/Description','datasetDescription.dat')
+local file = io.open('Casp11Stage1_SCWRL_corrupted_list.dat','w')
+file:close()
+check_training_set(training_dataset1, 1, 1, 'Casp11Stage1_SCWRL_corrupted_list.dat')
+
+dataset_name = 'CASP11Stage2_SCWRL'
 local training_dataset2 = cDatasetHomo.new(1, input_size, true, true, model.input_options.resolution)
 training_dataset2:load_dataset('/home/lupoglaz/ProteinsDataset/'..dataset_name..'/Description','datasetDescription.dat')
-local file = io.open('Casp11Stage2_corrupted_list.dat','w')
+local file = io.open('Casp11Stage2_SCWRL_corrupted_list.dat','w')
 file:close()
-check_training_set(training_dataset2, 1, 1, 'Casp11Stage2_corrupted_list.dat')
+check_training_set(training_dataset2, 1, 1, 'Casp11Stage2_SCWRL_corrupted_list.dat')

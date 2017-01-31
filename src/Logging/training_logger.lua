@@ -24,11 +24,14 @@ end
 
 function cTrainingLogger.allocate_train_epoch(self, dataset)
 	self.data = {}
+	self.activations = {}
 	self.loss_function_values = {}
 	for i=1, #dataset.proteins do 
 		self.data[dataset.proteins[i]] = {}
+		self.activations[dataset.proteins[i]] = {}
 		for j=1, #dataset.decoys[dataset.proteins[i]] do
 			self.data[dataset.proteins[i]][dataset.decoys[dataset.proteins[i]][j].filename] = nil
+			self.activations[dataset.proteins[i]][dataset.decoys[dataset.proteins[i]][j].filename] = nil
 		end
 	end
 	collectgarbage()
@@ -36,6 +39,10 @@ end
 
 function cTrainingLogger.set_decoy_score(self, protein_name, decoy_filename, score)
 	self.data[protein_name][decoy_filename] = score
+end
+
+function cTrainingLogger.set_decoy_activations(self, protein_name, decoy_filename, activations)
+	self.activations[protein_name][decoy_filename] = activations
 end
 
 function cTrainingLogger.add_loss_function_value(self, value)
@@ -56,6 +63,17 @@ function cTrainingLogger.save_epoch(self, epoch)
 	file:write('Loss function values:\n')
 	for index, loss in pairs(self.loss_function_values) do
 		file:write(tostring(index)..'\t'..tostring(loss)..'\n')
+	end
+	file:write('Decoys activations:\n')
+	for protein, decoys in pairs(self.activations) do
+		for decoy, activation in pairs(decoys) do
+			file:write(protein..'\t'..decoy..'\t')
+			print(activation:size())
+			for i=1, activation:size()[1]-1 do 
+				file:write(tostring(activation[i])..', ')
+			end
+			file:write(tostring(activation[activation:size()[1]])..'\n')
+		end
 	end
 	file:close()
 	self.data = {}

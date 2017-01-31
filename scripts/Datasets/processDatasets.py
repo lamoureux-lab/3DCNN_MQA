@@ -243,19 +243,19 @@ if __name__=='__main__':
 
 
 	#CASP dataset
-	# dataset_make_lists('/home/lupoglaz/ProteinsDataset/CASP')
+	# dataset_make_lists('/home/lupoglaz/ProteinsDataset/CASP_SCWRL')
 	# f=open('casp_corrupted_list.dat','r')
 	# casp_excl_set = []
 	# for line in f:
 	# 	casp_excl_set.append(line.split()[0])
 	# f.close()
-	# dataset_make_description('/home/lupoglaz/ProteinsDataset/CASP',
+	# dataset_make_description('/home/lupoglaz/ProteinsDataset/CASP_SCWRL',
 	# 	exclusion_set = set(casp_excl_set),
 	# 	exclude_wo_decoys = 50)
-	# make_train_validation_split('/home/lupoglaz/ProteinsDataset/CASP/Description',
+	# make_train_validation_split('/home/lupoglaz/ProteinsDataset/CASP_SCWRL/Description',
 	# 							validation_fraction = 0.08,
 	# 							tagets_range=(283,759)) #starting with CASP7
-	# make_test_set('/home/lupoglaz/ProteinsDataset/CASP/Description',
+	# make_test_set('/home/lupoglaz/ProteinsDataset/CASP_SCWRL/Description',
 	# 				tagets_range=(759,859))
 
 	#CASP11 Stage1 and Stage2 datasets
@@ -266,5 +266,8 @@ if __name__=='__main__':
 
 	# dataset_make_lists('/home/lupoglaz/ProteinsDataset/CASP11Stage1_SCWRL')
 	# dataset_make_description('/home/lupoglaz/ProteinsDataset/CASP11Stage1_SCWRL')
-	dataset_make_lists('/home/lupoglaz/ProteinsDataset/CASP11Stage2_SCWRL')
-	dataset_make_description('/home/lupoglaz/ProteinsDataset/CASP11Stage2_SCWRL')
+	# dataset_make_lists('/home/lupoglaz/ProteinsDataset/CASP11Stage2_SCWRL')
+	# dataset_make_description('/home/lupoglaz/ProteinsDataset/CASP11Stage2_SCWRL')
+
+	dataset_make_description_natives('/home/lupoglaz/ProteinsDataset/CASP11Stage1_SCWRL')
+	dataset_make_description_natives('/home/lupoglaz/ProteinsDataset/CASP11Stage2_SCWRL')
