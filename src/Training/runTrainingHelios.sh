@@ -8,6 +8,7 @@
 cd "${SCRATCH}/lupoglaz/deep_folder/src/Training"
 
 nvidia-smi
+top
 
 th TorchTrainRankingHomogeniousDataset.lua \
 -model_name ranking_model_8 \
@@ -22,7 +23,7 @@ th TorchTrainRankingHomogeniousDataset.lua \
 -model_save_period 1 \
 -max_epoch 150 \
 -decoys_ranking_mode gdt-ts \
--gpu_num 1
+-gpu_num 1 > output &
 
 th TorchTrainRankingHomogeniousDataset.lua \
 -model_name ranking_model_8 \
@@ -37,7 +38,7 @@ th TorchTrainRankingHomogeniousDataset.lua \
 -model_save_period 1 \
 -max_epoch 150 \
 -decoys_ranking_mode gdt-ts \
--gpu_num 2
+-gpu_num 2 > output &
 
 th TorchTrainRankingHomogeniousDataset.lua \
 -model_name ranking_model_8 \
@@ -52,7 +53,7 @@ th TorchTrainRankingHomogeniousDataset.lua \
 -model_save_period 1 \
 -max_epoch 150 \
 -decoys_ranking_mode gdt-ts \
--gpu_num 3
+-gpu_num 3 > output &
 
 th TorchTrainRankingHomogeniousDataset.lua \
 -model_name ranking_model_8 \
@@ -67,5 +68,6 @@ th TorchTrainRankingHomogeniousDataset.lua \
 -model_save_period 1 \
 -max_epoch 150 \
 -decoys_ranking_mode gdt-ts \
--gpu_num 4
+-gpu_num 4 > output &
 
+wait
