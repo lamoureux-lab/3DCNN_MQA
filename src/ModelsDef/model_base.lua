@@ -39,7 +39,7 @@ end
 function cModelBase.load_model(self, dir_path)	
 	for i=1,self.net:size() do
 		local layer = self.net:get(i)
-		if tostring(layer) == 'nn.VolumetricConvolution' then
+		if not( string.find(tostring(layer),'nn.VolumetricConvolution')==nil) then
 			layer.weight:copy(torch.load(dir_path..'/VC'..tostring(i)..'W.dat'))
 			layer.bias:copy(torch.load(dir_path..'/VC'..tostring(i)..'B.dat'))
 		end
@@ -47,7 +47,7 @@ function cModelBase.load_model(self, dir_path)
 			layer.weight:copy(torch.load(dir_path..'/FC'..tostring(i)..'W.dat'))
 			layer.bias:copy(torch.load(dir_path..'/FC'..tostring(i)..'B.dat'))
 		end
-		if not( string.find(tostring(layer),'nn.VolumetricBatchNormalization') == nil ) then
+		if not( string.find(tostring(layer),'nn.VolumetricBatchNormalizationMy') == nil ) then
 			if layer.affine then
 				layer.weight:copy(torch.load(dir_path..'/BN'..tostring(i)..'W.dat'))
 				layer.bias:copy(torch.load(dir_path..'/BN'..tostring(i)..'B.dat'))
@@ -61,7 +61,7 @@ end
 function cModelBase.save_model(self, dir_path)
 	for i=1,self.net:size() do
 		local layer = self.net:get(i)
-		if tostring(layer) == 'nn.VolumetricConvolution' then
+		if not( string.find(tostring(layer),'nn.VolumetricConvolution')==nil) then
 			torch.save(dir_path..'/VC'..tostring(i)..'W.dat', layer.weight)
 			torch.save(dir_path..'/VC'..tostring(i)..'B.dat', layer.bias)
 		end
@@ -69,7 +69,7 @@ function cModelBase.save_model(self, dir_path)
 			torch.save(dir_path..'/FC'..tostring(i)..'W.dat', layer.weight)
 			torch.save(dir_path..'/FC'..tostring(i)..'B.dat', layer.bias)
 		end
-		if not( string.find(tostring(layer),'nn.VolumetricBatchNormalization') == nil ) then
+		if not( string.find(tostring(layer),'nn.VolumetricBatchNormalizationMy') == nil ) then
 			if layer.affine then
 				torch.save(dir_path..'/BN'..tostring(i)..'W.dat', layer.weight)
 				torch.save(dir_path..'/BN'..tostring(i)..'B.dat', layer.bias)
@@ -89,7 +89,8 @@ function cModelBase.print_model(self)
 	local output_size = input_size
 	for i=1,self.net:size() do
 		local layer = self.net:get(i)
-		if tostring(layer) == 'nn.VolumetricConvolution' then
+		print(tostring(layer))
+		if not( string.find(tostring(layer), 'nn.VolumetricConvolution')==nil) then
 			local output_x = math.floor((input_size[2] + 2*layer.padT - layer.kT) / layer.dT + 1)
 			local output_y = math.floor((input_size[3] + 2*layer.padW - layer.kW) / layer.dW + 1)
 			local output_z = math.floor((input_size[4] + 2*layer.padH - layer.kH) / layer.dH + 1)
@@ -97,7 +98,7 @@ function cModelBase.print_model(self)
 			input_size = {layer.nOutputPlane, output_x, output_y, output_z}
 			print('VolConv\t\t'..tostring(input_size[1]).."x"..tostring(input_size[2]).."x"..tostring(input_size[3]).."x"..tostring(input_size[4]))
 		end
-		if tostring(layer) == 'nn.VolumetricMaxPooling' then
+		if not( string.find(tostring(layer), 'nn.VolumetricMaxPooling')==nil) then
 			local output_x = math.floor((input_size[2] + 2*layer.padT - layer.kT) / layer.dT + 1)
 			local output_y = math.floor((input_size[3] + 2*layer.padW - layer.kW) / layer.dW + 1)
 			local output_z = math.floor((input_size[4] + 2*layer.padH - layer.kH) / layer.dH + 1)

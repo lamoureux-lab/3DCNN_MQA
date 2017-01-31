@@ -3,8 +3,11 @@
 #PBS -A ukg-030-aa
 #PBS -l walltime=300
 #PBS -l nodes=1:gpus=1
+#PBS -l feature=k80
 #PBS -r n
-cd "${SCRATCH}/deep_folder/src/Training"
+cd "${SCRATCH}/lupoglaz/deep_folder/src/Training"
+
+nvidia-smi
 
 th TorchTrainRankingHomogeniousDataset.lua \
 -model_name ranking_model_8 \
@@ -13,10 +16,10 @@ th TorchTrainRankingHomogeniousDataset.lua \
 -datasets_dir /scratch/ukg-030-aa/lupoglaz/ \
 -learning_rate 0.0001 \
 -l1_coef 0.00001 \
--tm_score_threshold 0.05 \
+-tm_score_threshold 0.01 \
 -gap_weight 0.1 \
 -validation_period 10 \
 -model_save_period 10 \
 -max_epoch 150 \
 -decoys_ranking_mode gdt-ts \
--gpu_num 0
+-gpu_num 1

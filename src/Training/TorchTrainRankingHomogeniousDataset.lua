@@ -71,12 +71,14 @@ function train_epoch(epoch, dataset, model, batchRankingLoss, logger, adamConfig
 			end
 			bacward_time = torch.tic()-stic
 			
-			print(epoch, protein_index, #dataset.proteins, protein_name, f, df_do_norm,  
-				batch_loading_time, forward_time, bacward_time)
+			--print(epoch, protein_index, #dataset.proteins, protein_name, f, df_do_norm,  
+			--	batch_loading_time, forward_time, bacward_time)
 									
 			return f, gradParameters
 		end
 		optim.adam(feval, parameters, adamConfig)
+		collectgarbage()
+		collectgarbage()		
 	end --protein
 end
 
@@ -112,8 +114,10 @@ function validate_epoch(epoch, dataset, model, logger, adamConfig)
 					logger:set_decoy_score(protein_name, dataset.decoys[protein_name][indexes[i]].filename, outputs_cpu[{i,1}])
 				end
 			end
-			print(epoch, protein_index, #dataset.proteins, protein_name, batch_index, numBatches, batch_loading_time, forward_time)
+			--print(epoch, protein_index, #dataset.proteins, protein_name, batch_index, numBatches, batch_loading_time, forward_time)
 			logger:add_loss_function_value(f)
+			collectgarbage()
+			collectgarbage()			
 		end --batch
 	end --protein
 end
@@ -193,7 +197,7 @@ if params.do_init_validation then
 end
 
 for epoch = 1, adamConfig.max_epoch do
-
+	print('Epoch '..tostring(epoch))
 	training_dataset:shuffle_dataset()
 	training_logger:allocate_train_epoch(training_dataset)
 	local ticTotal = torch.Timer()

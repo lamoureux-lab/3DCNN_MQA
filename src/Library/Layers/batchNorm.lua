@@ -31,7 +31,7 @@ require 'cunn'
    In test time, this running mean/std is used to normalize.
 
 ]]--
-local BN,parent = torch.class('nn.VolumetricBatchNormalization', 'nn.Module')
+local BN,parent = torch.class('nn.VolumetricBatchNormalizationMy', 'nn.Module')
 
 function BN:__init(nFeature, eps, momentum, affine)
    parent.__init(self)
