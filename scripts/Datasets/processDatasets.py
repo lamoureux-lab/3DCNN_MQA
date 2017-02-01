@@ -269,5 +269,13 @@ if __name__=='__main__':
 	# dataset_make_lists('/home/lupoglaz/ProteinsDataset/CASP11Stage2_SCWRL')
 	# dataset_make_description('/home/lupoglaz/ProteinsDataset/CASP11Stage2_SCWRL')
 
-	dataset_make_description_natives('/home/lupoglaz/ProteinsDataset/CASP11Stage1_SCWRL')
-	dataset_make_description_natives('/home/lupoglaz/ProteinsDataset/CASP11Stage2_SCWRL')
+	# dataset_make_description_natives('/home/lupoglaz/ProteinsDataset/CASP11Stage1_SCWRL')
+	# dataset_make_description_natives('/home/lupoglaz/ProteinsDataset/CASP11Stage2_SCWRL')
+
+
+	dataset_make_lists('/home/lupoglaz/ProteinsDataset/on_I-TASSER_set',native_fixed_name='native.pdb')
+	dataset_make_description('/home/lupoglaz/ProteinsDataset/on_I-TASSER_set')
+	dataset_make_lists('/home/lupoglaz/ProteinsDataset/on_modeller_set',native_fixed_name='native.pdb')
+	dataset_make_description('/home/lupoglaz/ProteinsDataset/on_modeller_set')
+	dataset_make_lists('/home/lupoglaz/ProteinsDataset/on_rosetta_set',native_fixed_name='native.pdb')
+	dataset_make_description('/home/lupoglaz/ProteinsDataset/on_rosetta_set')

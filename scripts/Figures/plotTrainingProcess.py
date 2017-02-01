@@ -55,7 +55,10 @@ def read_epoch_output(filename):
 
 	for line in f:
 		sline = line.split()
-		loss_function_values.append( float(sline[1]) )
+		try:
+			loss_function_values.append( float(sline[1]) )
+		except:
+			break
 
 	return loss_function_values, decoys_scores
 
@@ -183,7 +186,33 @@ def plot_training_samples(experiment_name, model_name, dataset_name, epoch_start
 	plt.hist(tmscores)
 	plt.savefig('../../models/%s_%s_%s/decoy_sampling.png'%(experiment_name, model_name, dataset_name))
 			
-		
+def changeDataPath( decoys_scores_path, dataset_path):
+	"""
+	Changes path to the decoys according to the new directory of the dataset
+	"""
+	initial_file = []
+	with open(decoys_scores_path, 'r') as f:
+		for line in f:
+			initial_file.append(line)
+
+	with open(decoys_scores_path, 'w') as f:
+		for line in initial_file:
+			if line.find("Decoys scores")!=-1 or line.find("Loss function values")!=-1 or line.find("Decoys activations")!=-1:
+				f.write(line)
+				continue 
+			sline = line.split()
+			target_name = sline[0]
+			old_path = sline[1]
+			i0 = old_path.find('/'+target_name+'/')
+			if i0 != -1:
+				i1 = len(old_path)
+				new_path = os.path.join(dataset_path,old_path[i0+1:i1])
+				new_line = target_name + '\t' + new_path + '\t' + sline[2] + '\n'
+			else:
+				new_line = line
+			f.write(new_line)
+	return
+
 if __name__=='__main__':
 	
 	# for n,lr in enumerate([0.0005, 0.0002, 0.00005, 0.00001]):
@@ -224,7 +253,26 @@ if __name__=='__main__':
 	# print '%s: '%exp_name, taus[-1], pears[-1]
 	# plot_validation_funnels(exp_name, 'ranking_model_11AT_batchNorm', '3DRobot_set')
 
-	exp_name = 'QA_5'
-	taus, pears = plot_validation_correlations(exp_name, 'ranking_model_8', 'CASP_SCWRL')
-	print '%s: '%exp_name, taus[-1], pears[-1]
-	plot_validation_funnels(exp_name, 'ranking_model_8', 'CASP_SCWRL')
+	# exp_name = 'QA_5'
+	# taus, pears = plot_validation_correlations(exp_name, 'ranking_model_8', 'CASP_SCWRL')
+	# print '%s: '%exp_name, taus[-1], pears[-1]
+	# plot_validation_funnels(exp_name, 'ranking_model_8', 'CASP_SCWRL')
+
+	exp_names = ['LearningRate_1em2',
+				'LearningRate_05em2',
+				'LearningRate_03em2',
+				'LearningRate_1em3',
+				'LearningRate_05em3',
+				'LearningRate_1em4',
+				'LearningRate_05em4',
+				'LearningRate_1em5']
+	model_name = 'ranking_model_8'
+	dataset_name = 'CASP_SCWRL'
+	epoch = 10
+	# exp_name = exp_names[0]
+	for exp_name in exp_names:
+		changeDataPath(	'../../models/%s_%s_%s/validation/epoch_%d.dat'%(exp_name, model_name, dataset_name, epoch),
+						'/home/lupoglaz/ProteinsDataset/%s'%dataset_name)
+		taus, pears = plot_validation_correlations(exp_name, model_name, dataset_name)
+		print '%s: '%exp_name, taus[-1], pears[-1]
+		# plot_validation_funnels(exp_name, 'ranking_model_8', 'CASP_SCWRL')

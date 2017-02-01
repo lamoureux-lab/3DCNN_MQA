@@ -71,8 +71,8 @@ function train_epoch(epoch, dataset, model, batchRankingLoss, logger, adamConfig
 			end
 			bacward_time = torch.tic()-stic
 			
-			--print(epoch, protein_index, #dataset.proteins, protein_name, f, df_do_norm,  
-			--	batch_loading_time, forward_time, bacward_time)
+			print(epoch, protein_index, #dataset.proteins, protein_name, f, df_do_norm,  
+				batch_loading_time, forward_time, bacward_time)
 									
 			return f, gradParameters
 		end
@@ -114,7 +114,7 @@ function validate_epoch(epoch, dataset, model, logger, adamConfig)
 					logger:set_decoy_score(protein_name, dataset.decoys[protein_name][indexes[i]].filename, outputs_cpu[{i,1}])
 				end
 			end
-			--print(epoch, protein_index, #dataset.proteins, protein_name, batch_index, numBatches, batch_loading_time, forward_time)
+			print(epoch, protein_index, #dataset.proteins, protein_name, batch_index, numBatches, batch_loading_time, forward_time)
 			logger:add_loss_function_value(f)
 			collectgarbage()
 			collectgarbage()			
@@ -174,7 +174,7 @@ local batchRankingLoss = cBatchRankingLoss.new(params.gap_weight, params.tm_scor
 
 --Initializing datasets
 local training_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, true, true, model.input_options.resolution)
-training_dataset:load_dataset(params.datasets_dir..params.dataset_name..'/Description','training_set.dat', params.decoys_ranking_mode)
+training_dataset:load_dataset(params.datasets_dir..params.dataset_name..'/Description','datasetDescription.dat', params.decoys_ranking_mode)
 local training_logger = cTrainingLogger.new(params.experiment_name, modelName, params.dataset_name, 'training')
 
 local validation_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, false, false, model.input_options.resolution)
