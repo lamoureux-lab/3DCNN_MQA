@@ -148,17 +148,14 @@ cmd:option('-model_save_period', 10, 'period of saving the model')
 cmd:option('-max_epoch', 50, 'numer of epoch to train')
 cmd:option('-gpu_num',0,'gpu number')
 cmd:option('-do_init_validation',false,'whether to perform validation on initialized model')
+cmd:option('-restart', false, 'restart from the last saved model')
 cmd:text()
 
 params = cmd:parse(arg)
 
-
+--Loading model and initializing parameters
 local modelName = params.model_name
 local model, optimization_parameters = dofile('../ModelsDef/'..modelName..'.lua')
-model:initialize_cuda(params.gpu_num)
-local parameters, gradParameters = model.net:getParameters()
-math.randomseed( 42 )
-
 local adamConfig = {	learningRate = params.learning_rate,
 						learningRateDecay = optimization_parameters.learningRateDecay,
 						beta1 = optimization_parameters.beta1,
@@ -169,13 +166,13 @@ local adamConfig = {	learningRate = params.learning_rate,
 						batch_size = optimization_parameters.batch_size,
 						max_epoch = params.max_epoch
 					}
-
-
 local input_size = {	model.input_options.num_channels, model.input_options.input_size, 
 						model.input_options.input_size, model.input_options.input_size}
 
+
 local batchRankingLoss = cBatchRankingLoss.new(params.gap_weight, params.tm_score_threshold, params.decoys_ranking_mode)
 
+--Initializing datasets
 local training_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, true, true, model.input_options.resolution)
 training_dataset:load_dataset(params.datasets_dir..params.dataset_name..'/Description','training_set.dat', params.decoys_ranking_mode)
 local training_logger = cTrainingLogger.new(params.experiment_name, modelName, params.dataset_name, 'training')
@@ -189,6 +186,24 @@ os.execute("mkdir " .. model_backup_dir)
 
 training_logger:make_description({adamConfig,params},'Parameters scan')
 
+--Restarting from the last model if necessary
+local start_epoch = 1
+if params.restart then
+	for i=params.max_epoch, 1, -1 do 
+		local epoch_model_backup_dir = model_backup_dir..'epoch'..tostring(i)
+		if file_exists(epoch_model_backup_dir) then 
+			model:load_model(epoch_model_backup_dir)
+			start_epoch = i
+			break
+		end
+	end
+end
+--Loading model onto GPU
+model:initialize_cuda(params.gpu_num)
+local parameters, gradParameters = model.net:getParameters()
+math.randomseed( 42 )
+
+
 local epoch = 0
 if params.do_init_validation then
 	validation_logger:allocate_train_epoch(validation_dataset)
@@ -196,7 +211,7 @@ if params.do_init_validation then
 	validation_logger:save_epoch(epoch)
 end
 
-for epoch = 1, adamConfig.max_epoch do
+for epoch = start_epoch, adamConfig.max_epoch do
 	print('Epoch '..tostring(epoch))
 	training_dataset:shuffle_dataset()
 	training_logger:allocate_train_epoch(training_dataset)
@@ -206,7 +221,6 @@ for epoch = 1, adamConfig.max_epoch do
 	print('Time per epoch: '..timeTotal)
 	training_logger:save_epoch(epoch)
 	
-
 	if epoch%params.validation_period == 0 then
 		local ticTotal = torch.Timer()
 		validation_logger:allocate_train_epoch(validation_dataset)
