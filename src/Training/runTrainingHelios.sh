@@ -19,11 +19,11 @@ CUDA_VISIBLE_DEVICES=0 th TorchTrainRankingHomogeniousDataset.lua \
 -l1_coef 0.00001 \
 -tm_score_threshold 0.01 \
 -gap_weight 0.1 \
--validation_period 100 \
--model_save_period 1 \
--max_epoch 150 \
+-validation_period 10 \
+-model_save_period 10 \
+-max_epoch 70 \
 -decoys_ranking_mode gdt-ts \
--gpu_num 1 > output &
+-gpu_num 1 > output1 &
 
 CUDA_VISIBLE_DEVICES=1 th TorchTrainRankingHomogeniousDataset.lua \
 -model_name ranking_model_8 \
@@ -34,11 +34,11 @@ CUDA_VISIBLE_DEVICES=1 th TorchTrainRankingHomogeniousDataset.lua \
 -l1_coef 0.00001 \
 -tm_score_threshold 0.01 \
 -gap_weight 0.1 \
--validation_period 100 \
--model_save_period 1 \
--max_epoch 150 \
+-validation_period 10 \
+-model_save_period 10 \
+-max_epoch 70 \
 -decoys_ranking_mode gdt-ts \
--gpu_num 1 > output &
+-gpu_num 1 > output2 &
 
 CUDA_VISIBLE_DEVICES=2 th TorchTrainRankingHomogeniousDataset.lua \
 -model_name ranking_model_8 \
@@ -49,11 +49,11 @@ CUDA_VISIBLE_DEVICES=2 th TorchTrainRankingHomogeniousDataset.lua \
 -l1_coef 0.00001 \
 -tm_score_threshold 0.01 \
 -gap_weight 0.1 \
--validation_period 100 \
--model_save_period 1 \
--max_epoch 150 \
+-validation_period 10 \
+-model_save_period 10 \
+-max_epoch 70 \
 -decoys_ranking_mode gdt-ts \
--gpu_num 1 > output &
+-gpu_num 1 > output3 &
 
 CUDA_VISIBLE_DEVICES=3 th TorchTrainRankingHomogeniousDataset.lua \
 -model_name ranking_model_8 \
@@ -64,10 +64,10 @@ CUDA_VISIBLE_DEVICES=3 th TorchTrainRankingHomogeniousDataset.lua \
 -l1_coef 0.00001 \
 -tm_score_threshold 0.01 \
 -gap_weight 0.1 \
--validation_period 100 \
--model_save_period 1 \
--max_epoch 150 \
+-validation_period 10 \
+-model_save_period 10 \
+-max_epoch 70 \
 -decoys_ranking_mode gdt-ts \
--gpu_num 1 > output &
+-gpu_num 1 > output4 &
 
 wait
