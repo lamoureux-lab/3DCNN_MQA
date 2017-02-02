@@ -15,6 +15,9 @@ import numpy as Math
 import matplotlib.pylab as plt
 import cPickle as pkl
 import sys
+import os
+import argparse
+
 
 def Hbeta(D = Math.array([]), beta = 1.0):
 	"""Compute the perplexity and the P-row for a specific value of the precision of a Gaussian distribution."""
@@ -165,125 +168,71 @@ def tsne(X = Math.array([]), no_dims = 2, initial_dims = 50, perplexity = 30.0):
 	# Return solution
 	return Y;
 
+def parse_activations_file(filename):
+	X = None
+	start=False
+	with open(filename, 'r') as f:
+		for line in f:
+			if start:
+				sline = line.split()
+				group_name = sline[0]
+				protein_path = sline[1]
+
+				vec = Math.zeros( (1,len(sline)-2) )
+				for n,digit in enumerate(sline[2:-1]):
+					vec[0,n] = float(digit[:-1])
+				vec[0,-1] = float(sline[-1])
+
+				if X is None:
+					X = vec
+				else:
+					X = Math.append(X,vec,axis=0)
+
+			if line.find("Decoys activations:")!=-1:
+				start = True
+	return X
+
 if __name__ == "__main__":
-	print "Run Y = tsne.tsne(X, no_dims, perplexity) to perform t-SNE on your dataset."
-	print "Running example on 2,500 MNIST digits..."
-	directory = sys.argv[1]
+		
+	parser = argparse.ArgumentParser(prog='Tsne', 
+									formatter_class=argparse.RawDescriptionHelpFormatter,
+									description="""\
+									Processes the activations written in a file and embeds them in 2D.
+									""")
+	parser.add_argument('--experiment_name', metavar='experiment_name', type=str, 
+                   help='Experiment name', default='QA_5')
+	parser.add_argument('--training_dataset_name', metavar='training_dataset_name', type=str, 
+                   help='Dataset name used for training', default='CASP_SCWRL')
+	parser.add_argument('--training_model_name', metavar='training_model_name', type=str, 
+                   help='Model used for training', default='ranking_model_8')
+	parser.add_argument('--embed_dataset_name', metavar='embed_dataset_name', type=str, 
+                   help='Dataset used for embedding', default='CASP11Stage2_SCWRL')
+	parser.add_argument('--embed_name', metavar='embed_name', type=str, 
+                   help='Additional label for embedding', default='_native_activations')
+	parser.add_argument('-generate', metavar='generate', type=bool, 
+                   help='Generate embedding', default=False)
+	parser.add_argument('-visualize', metavar='visualize', type=bool, 
+                   help='Visualize embedding', default=False)
+	args = parser.parse_args()
+
+	experiment_dir = "../../models/%s_%s_%s"%(args.experiment_name, args.training_model_name, args.training_dataset_name)
+	activations_file = os.path.join(experiment_dir,args.embed_dataset_name + args.embed_name,'epoch_0.dat')
+	figure_output_file = os.path.join(experiment_dir, args.embed_dataset_name + args.embed_name+'.png')
+	raw_output_file = os.path.join(experiment_dir, args.embed_dataset_name + args.embed_name+'.pkl')
+		
+	if args.generate:
+		X = parse_activations_file(activations_file)	
+		Y = tsne(X, 2, X.shape[1], 10.0)
+		
+		with open(raw_output_file,"w") as out:
+			pkl.dump(Y,out)
 	
-	if len(sys.argv)>2: # sys.argv[2]=='generate':
-		if sys.argv[2]=='generate':
-			X = Math.loadtxt(directory+"/tSneVectors.dat")
-			Y = tsne(X, 2, 128, 20.0);
+	if args.visualize:
+		with open(raw_output_file,"r") as inp:
+			Y = pkl.load(inp)
 
-			fout = open(directory+"/tsne_output.pkl","w")
-			pkl.dump(Y,fout)
-			fout.close()
-		if sys.argv[2]=='scop':
-			names = readNames(directory+"/tSneNames.dat")
-			print names
-			getFold(names[0])
-			#sys.exit()
-			folds = []
-			classes = []
-			families = []
-			for n,name in enumerate(names):
-				fol, cla, fam = getFold(name)
-				print n, ' out of ',len(names),' : ', fol, ' : ', cla, ' : ', fam
-				folds.append(fol)
-				classes.append(cla)
-				families.append(fam)
-
-			fout = open("tsne_folds_and_classes.pkl","w")
-			pkl.dump((folds,classes, families),fout)
-			fout.close()
-
-		if sys.argv[2]=='protlen':
-			filenames = readFileNames(directory+"/tSneFileNames.dat")
-			bboxes = []
-			for filename in filenames:
-				bboxes.append(getPDBBoundingBox(filename))
-			fout = open("tsne_bboxes.pkl","w")
-			pkl.dump(bboxes,fout)
-			fout.close()			
-
-
-	else:
-		fin = open(directory+"/tsne_output.pkl","r")
-		Y = pkl.load(fin)
-		fin.close()
-
-		fin = open("tsne_folds_and_classes.pkl","r")
-		folds,classes,families = pkl.load(fin)
-		fin.close()
-
-		foldSet = list(set(folds))
-		#print foldSet
-		folLabels = []
-		for fol in folds:
-			folLabels.append(foldSet.index(fol))
-
-		fig = plt.figure(figsize=(20,20))
-		plt.scatter(Y[:,0], Y[:,1], 40, folLabels);
-		# for i, txt in enumerate(classes):
-		# 	plt.annotate(txt, (Y[i,0],Y[i,1]),size=6)
-		plt.savefig(directory+"/fol-t-sne.svg")
-
-
-		fin = open("tsne_bboxes.pkl","r")
-		bboxes = pkl.load(fin)
-		fin.close()
-
-		fig = plt.figure(figsize=(20,20))
-		plt.scatter(Y[:,0], Y[:,1], 100, bboxes);
-		plt.colorbar()
-		plt.savefig(directory+"/bbox-t-sne.svg")
-
-		
-
-		x=[]
-		y=[]
-		filteredClasses = []
-		for n,clas in enumerate(classes):
-			if len(clas)>0:
-				x.append(Y[n,0])
-				y.append(Y[n,1])
-				filteredClasses.append(clas)
-
-		classes = filteredClasses		
-
-		classSet = list(set(classes))
-		print classSet
-		colors = ['b', 'c', 'y', 'm', 'r','g','k','#bcbcbc','#FBC15E','#009E73']
-		fig = plt.figure(figsize=(20,20))
-		scatters = []
-		for i,claLabel in enumerate(classSet):
-			# if i!=2 and i!=3 and i!=0:
-			# 	continue
-			x_tmp = []
-			y_tmp = []
-			for n,clas in enumerate(classes):
-				if clas == claLabel:
-					x_tmp.append(x[n])
-					y_tmp.append(y[n])
-			print i, colors[i]
-			scatters.append(plt.scatter(x_tmp, y_tmp, 100, colors[i]))
-
-		plt.legend(tuple(scatters),
-		   tuple(classSet),
-		   fontsize=8)
-		plt.savefig(directory+"/cla-t-sne.svg")
-
-		
-
-
-		famSet = list(set(families))
-		#print famSet
-		famLabels = []
-		for fam in families:
-			famLabels.append(famSet.index(fam))
-
-		fig = plt.figure(figsize=(20,20))
-		plt.scatter(Y[:,0], Y[:,1], 40, famLabels);
-		plt.savefig(directory+"/fam-t-sne.svg")
+		fig = plt.figure(figsize=(10,10))
+		plt.scatter(Y[:,0], Y[:,1])
+		plt.savefig(figure_output_file)
 
 	

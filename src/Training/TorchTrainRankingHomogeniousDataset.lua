@@ -203,7 +203,6 @@ model:initialize_cuda(params.gpu_num)
 local parameters, gradParameters = model.net:getParameters()
 math.randomseed( 42 )
 
-
 local epoch = 0
 if params.do_init_validation then
 	validation_logger:allocate_train_epoch(validation_dataset)
