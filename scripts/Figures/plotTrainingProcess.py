@@ -268,11 +268,10 @@ if __name__=='__main__':
 	# 			'LearningRate_1em5']
 	# model_name = 'ranking_model_8'
 	# dataset_name = 'CASP_SCWRL'
-	# epoch = 10
-	# # exp_name = exp_names[0]
 	# for exp_name in exp_names:
-	# 	changeDataPath(	'../../models/%s_%s_%s/validation/epoch_%d.dat'%(exp_name, model_name, dataset_name, epoch),
-	# 					'/home/lupoglaz/ProteinsDataset/%s'%dataset_name)
+	# 	for epoch in [10, 20, 30]:
+	# 		changeDataPath(	'../../models/%s_%s_%s/validation/epoch_%d.dat'%(exp_name, model_name, dataset_name, epoch),
+	# 						'/home/lupoglaz/ProteinsDataset/%s'%dataset_name)
 	# 	taus, pears = plot_validation_correlations(exp_name, model_name, dataset_name)
 	# 	print '%s: '%exp_name, taus[-1], pears[-1]
 	# 	# plot_validation_funnels(exp_name, 'ranking_model_8', 'CASP_SCWRL')

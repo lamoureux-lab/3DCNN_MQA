@@ -13,6 +13,17 @@
 #include <string>
 #include "cProteinLoader.h"
 #include <algorithm>
+#include <memory>
+#include <cstdio>
+
+template<typename ... Args>
+std::string string_format( const std::string& format, Args ... args )
+{
+    size_t size = snprintf( nullptr, 0, format.c_str(), args ... ) + 1; // Extra space for '\0'
+    std::unique_ptr<char[]> buf( new char[ size ] ); 
+    std::snprintf( buf.get(), size, format.c_str(), args ... );
+    return std::string( buf.get(), buf.get() + size - 1 ); // We don't want the '\0' inside
+}
 
 cProteinLoader::cProteinLoader() {
 	num_atom_types = -1;
@@ -41,6 +52,22 @@ int cProteinLoader::loadPDB(std::string filename){
 			lines.push_back(line);
 		}
 	}
+	return 0;
+}
+
+int cProteinLoader::savePDB(std::string filename){
+	std::ofstream pfile(filename);
+	if(dr.size() != lines.size()){
+		for(int i=0; i<lines.size(); i++){
+			pfile<<lines[i].substr(0, lines[i].length()-1)+string_format("%6.2f%6.2f%6.2f\n",dr[i].v[0],dr[i].v[1],dr[i].v[2]);
+		}
+	}else{
+		for(int i=0; i<lines.size(); i++){
+			pfile<<lines[i];
+		}
+	}
+	return 0;
+	
 }
 
 int cProteinLoader::assignAtomTypes(int assigner_type){

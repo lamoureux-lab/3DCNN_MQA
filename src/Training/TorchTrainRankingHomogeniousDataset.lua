@@ -193,7 +193,7 @@ if params.restart then
 		local epoch_model_backup_dir = model_backup_dir..'epoch'..tostring(i)
 		if file_exists(epoch_model_backup_dir) then 
 			model:load_model(epoch_model_backup_dir)
-			start_epoch = i
+			start_epoch = i + 1
 			break
 		end
 	end

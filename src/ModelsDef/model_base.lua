@@ -89,7 +89,7 @@ function cModelBase.print_model(self)
 	local output_size = input_size
 	for i=1,self.net:size() do
 		local layer = self.net:get(i)
-		print(tostring(layer))
+		-- print(tostring(layer))
 		if not( string.find(tostring(layer), 'nn.VolumetricConvolution')==nil) then
 			local output_x = math.floor((input_size[2] + 2*layer.padT - layer.kT) / layer.dT + 1)
 			local output_y = math.floor((input_size[3] + 2*layer.padW - layer.kW) / layer.dW + 1)

@@ -20,6 +20,7 @@ public:
 	std::vector<int> atomType;
 	std::vector<cVector3> r;
 	std::vector<std::string> lines;
+	std::vector<cVector3> dr;
 	std::string filename;
 	//bounding box
 	cVector3 b0, b1;
@@ -31,6 +32,8 @@ public:
 	void print(int num);
 
 	int loadPDB(std::string filename);
+	int savePDB(std::string filename);
+	
 	int assignAtomTypes(int assigner_type); // 1 - 4 atom types; 2 - 10 atom types
 	void projectToTensor(THFloatTensor *grid);
 

@@ -11,4 +11,5 @@ CUDA_VISIBLE_DEVICES=0 th TorchTrainRankingHomogeniousDataset.lua \
 -model_save_period 10 \
 -max_epoch 150 \
 -decoys_ranking_mode gdt-ts \
--gpu_num 1
+-gpu_num 1 \
+-restart
