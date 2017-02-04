@@ -76,7 +76,11 @@ function get_gradient(dataset, model, logger, adamConfig)
 		        Cuda.pushProteinToBatchInfo(dataset.decoys[protein_name][glob_index].filename, batch_info)
 	        end
             --Projecting gradient onto atoms and saving the result
-			local res = Cuda.getGradientsCUDA(  cutorch.getState(), batch_info, layer.gradInput:cdata(), 
+            --copying data to cbatch to ensure that the memory is contigious
+            for i=1, adamConfig.batch_size do 
+                cbatch[i] = layer.gradInput[i]:copy()
+            end
+			local res = Cuda.getGradientsCUDA(  cutorch.getState(), batch_info, cbatch:cdata(), 
 							                    self.resolution, self.assigner_type, self.input_size[2])
             Cuda.deleteBatchInfo(batch_info)
             

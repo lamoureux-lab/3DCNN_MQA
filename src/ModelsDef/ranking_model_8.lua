@@ -18,7 +18,7 @@ optimization_parameters = {
 		beta2 = 0.999,
 		epsilon = 1E-8,		
 		learningRate = 0.0001, 
-		learningRateDecay = 1e-7,
+		learningRateDecay = 0.0,
 		weightDecay = 0.0,
 		coefL1 = 0.00001,
 		}

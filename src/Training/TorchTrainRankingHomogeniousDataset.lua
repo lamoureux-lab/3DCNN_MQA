@@ -22,7 +22,7 @@ requireRel '../Library/LossFunctions/batchRankingLoss'
 requireRel '../Logging/training_logger'
 
 
-function train_epoch(epoch, dataset, model, batchRankingLoss, logger, adamConfig, parameters, gradParameters)
+function train_epoch(epoch, dataset, model, batchRankingLoss, logger, adamConfig, adamState, parameters, gradParameters)
 	model.net:training()
 	local batch_loading_time, forward_time, backward_time;
 	local stic
@@ -65,10 +65,6 @@ function train_epoch(epoch, dataset, model, batchRankingLoss, logger, adamConfig
 			if df_do_norm>0 then
 				model.net:backward(cbatch,df_do:cuda())
 			end	
-			if adamConfig.coefL1 ~= 0 then
-				f = f + adamConfig.coefL1 * torch.norm(parameters,1)
-				gradParameters:add( torch.sign(parameters):mul(adamConfig.coefL1) )
-			end
 			bacward_time = torch.tic()-stic
 			
 			print(epoch, protein_index, #dataset.proteins, protein_name, f, df_do_norm,  
@@ -76,13 +72,13 @@ function train_epoch(epoch, dataset, model, batchRankingLoss, logger, adamConfig
 									
 			return f, gradParameters
 		end
-		optim.adam(feval, parameters, adamConfig)
+		optim.adam(feval, parameters, adamConfig, adamState)
 		collectgarbage()
 		collectgarbage()		
 	end --protein
 end
 
-function validate_epoch(epoch, dataset, model, logger, adamConfig)
+function validate_epoch(epoch, dataset, model, logger, adamConfig, adamState)
 	model.net:evaluate()
 	
 	for protein_index=1, #dataset.proteins do
@@ -137,7 +133,8 @@ cmd:option('-datasets_dir','/scratch/ukg-030-aa/lupoglaz/', 'Directory containin
 cmd:option('-experiment_name','BatchRankingRepeat2', 'experiment name')
 
 cmd:option('-learning_rate', 0.0001, 'adam optimizer learning rate')
-cmd:option('-l1_coef', 0.00001, 'L1-regularization coefficient')
+cmd:option('-learning_rate_decay', 0.0001, 'adam optimizer learning rate')
+cmd:option('-l2_coef', 0.0, 'L2-regularization coefficient')
 
 cmd:option('-tm_score_threshold', 0.2, 'threshold for batch ranking')
 cmd:option('-gap_weight', 0.1, 'gap weight for batch ranking')
@@ -157,15 +154,15 @@ params = cmd:parse(arg)
 local modelName = params.model_name
 local model, optimization_parameters = dofile('../ModelsDef/'..modelName..'.lua')
 local adamConfig = {	learningRate = params.learning_rate,
-						learningRateDecay = optimization_parameters.learningRateDecay,
+						learningRateDecay = params.learning_rate_decay,
 						beta1 = optimization_parameters.beta1,
 						beta2 = optimization_parameters.beta2,
 						epsilon = optimization_parameters.epsilon,
-						weightDecay = optimization_parameters.weightDecay,
-						coefL1 = params.l1_coef,
+						weightDecay = params.l2_coef,
 						batch_size = optimization_parameters.batch_size,
 						max_epoch = params.max_epoch
 					}
+local adamState = adamConfig
 local input_size = {	model.input_options.num_channels, model.input_options.input_size, 
 						model.input_options.input_size, model.input_options.input_size}
 
@@ -174,11 +171,11 @@ local batchRankingLoss = cBatchRankingLoss.new(params.gap_weight, params.tm_scor
 
 --Initializing datasets
 local training_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, true, true, model.input_options.resolution)
-training_dataset:load_dataset(params.datasets_dir..params.dataset_name..'/Description','datasetDescription.dat', params.decoys_ranking_mode)
+training_dataset:load_dataset(params.datasets_dir..params.dataset_name..'/Description','training_set1.dat', params.decoys_ranking_mode)
 local training_logger = cTrainingLogger.new(params.experiment_name, modelName, params.dataset_name, 'training')
 
 local validation_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, false, false, model.input_options.resolution)
-validation_dataset:load_dataset(params.datasets_dir..params.dataset_name..'/Description','validation_set.dat')
+validation_dataset:load_dataset(params.datasets_dir..params.dataset_name..'/Description','validation_set1.dat')
 local validation_logger = cTrainingLogger.new(params.experiment_name, modelName, params.dataset_name, 'validation')
 
 local model_backup_dir = training_logger.global_dir..'models/'
@@ -191,8 +188,10 @@ local start_epoch = 1
 if params.restart then
 	for i=params.max_epoch, 1, -1 do 
 		local epoch_model_backup_dir = model_backup_dir..'epoch'..tostring(i)
+		local adam_state_backup = model_backup_dir..'adam_epoch'..tostring(epoch)..'.t7'
 		if file_exists(epoch_model_backup_dir) then 
 			model:load_model(epoch_model_backup_dir)
+			adamState = torch.load(adam_state_backup)
 			start_epoch = i + 1
 			break
 		end
@@ -215,7 +214,7 @@ for epoch = start_epoch, adamConfig.max_epoch do
 	training_dataset:shuffle_dataset()
 	training_logger:allocate_train_epoch(training_dataset)
 	local ticTotal = torch.Timer()
-	train_epoch(epoch, training_dataset, model, batchRankingLoss, training_logger, adamConfig, parameters, gradParameters)
+	train_epoch(epoch, training_dataset, model, batchRankingLoss, training_logger, adamConfig, adamState, parameters, gradParameters)
 	timeTotal = ticTotal:time().real
 	print('Time per epoch: '..timeTotal)
 	training_logger:save_epoch(epoch)
@@ -230,7 +229,9 @@ for epoch = start_epoch, adamConfig.max_epoch do
 	end
 	if epoch%params.model_save_period == 0 then
 		local epoch_model_backup_dir = model_backup_dir..'epoch'..tostring(epoch)
+		local adam_state_backup = model_backup_dir..'adam_epoch'..tostring(epoch)..'.t7'
 		os.execute("mkdir " .. epoch_model_backup_dir)
 		model:save_model(epoch_model_backup_dir)
+		torch.save(adam_state_backup, adamState)
 	end
 end
