@@ -2,7 +2,7 @@
 #PBS -N TestDeepFolder
 #PBS -A ukg-030-aa
 #PBS -l walltime=43000
-#PBS -l nodes=1:gpus=7
+#PBS -l nodes=1:gpus=8
 #PBS -l feature=k80
 #PBS -r n
 cd "${SCRATCH}/lupoglaz/deep_folder/src/Training"
@@ -121,5 +121,21 @@ CUDA_VISIBLE_DEVICES=6 th TorchTrainRankingHomogeniousDataset.lua \
 -model_save_period 5 \
 -max_epoch 100 \
 -gpu_num 1 > output7 &
+
+CUDA_VISIBLE_DEVICES=7 th TorchTrainRankingHomogeniousDataset.lua \
+-model_name ranking_model_8 \
+-dataset_name CASP_SCWRL \
+-datasets_dir /scratch/ukg-030-aa/lupoglaz/ \
+-experiment_name LR_025em2 \
+-learning_rate 0.0025 \
+-learning_rate_decay 0.01 \
+-l2_coef 0.00001 \
+-tm_score_threshold 0.01 \
+-gap_weight 0.1 \
+-decoys_ranking_mode gdt-ts \
+-validation_period 5 \
+-model_save_period 5 \
+-max_epoch 100 \
+-gpu_num 1 > output8 &
 
 wait
