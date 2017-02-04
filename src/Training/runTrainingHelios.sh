@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -N TestDeepFolder
 #PBS -A ukg-030-aa
-#PBS -l walltime=43000
+#PBS -l walltime=21600
 #PBS -l nodes=1:gpus=8
 #PBS -l feature=k80
 #PBS -r n
@@ -24,7 +24,8 @@ CUDA_VISIBLE_DEVICES=0 th TorchTrainRankingHomogeniousDataset.lua \
 -validation_period 5 \
 -model_save_period 5 \
 -max_epoch 100 \
--gpu_num 1 > output1 &
+-gpu_num 1 \
+-restart > output1 &
 
 CUDA_VISIBLE_DEVICES=1 th TorchTrainRankingHomogeniousDataset.lua \
 -model_name ranking_model_8 \
@@ -40,7 +41,8 @@ CUDA_VISIBLE_DEVICES=1 th TorchTrainRankingHomogeniousDataset.lua \
 -validation_period 5 \
 -model_save_period 5 \
 -max_epoch 100 \
--gpu_num 1 > output2 &
+-gpu_num 1 \
+-restart > output2 &
 
 CUDA_VISIBLE_DEVICES=2 th TorchTrainRankingHomogeniousDataset.lua \
 -model_name ranking_model_8 \
@@ -56,7 +58,8 @@ CUDA_VISIBLE_DEVICES=2 th TorchTrainRankingHomogeniousDataset.lua \
 -validation_period 5 \
 -model_save_period 5 \
 -max_epoch 100 \
--gpu_num 1 > output3 &
+-gpu_num 1 \
+-restart > output3 &
 
 CUDA_VISIBLE_DEVICES=3 th TorchTrainRankingHomogeniousDataset.lua \
 -model_name ranking_model_8 \
@@ -72,7 +75,8 @@ CUDA_VISIBLE_DEVICES=3 th TorchTrainRankingHomogeniousDataset.lua \
 -validation_period 5 \
 -model_save_period 5 \
 -max_epoch 100 \
--gpu_num 1 > output4 &
+-gpu_num 1 \
+-restart > output4 &
 
 CUDA_VISIBLE_DEVICES=4 th TorchTrainRankingHomogeniousDataset.lua \
 -model_name ranking_model_8 \
@@ -88,7 +92,8 @@ CUDA_VISIBLE_DEVICES=4 th TorchTrainRankingHomogeniousDataset.lua \
 -validation_period 5 \
 -model_save_period 5 \
 -max_epoch 100 \
--gpu_num 1 > output5 &
+-gpu_num 1 \
+-restart > output5 &
 
 CUDA_VISIBLE_DEVICES=5 th TorchTrainRankingHomogeniousDataset.lua \
 -model_name ranking_model_8 \
@@ -104,7 +109,8 @@ CUDA_VISIBLE_DEVICES=5 th TorchTrainRankingHomogeniousDataset.lua \
 -validation_period 5 \
 -model_save_period 5 \
 -max_epoch 100 \
--gpu_num 1 > output6 &
+-gpu_num 1 \
+-restart > output6 &
 
 CUDA_VISIBLE_DEVICES=6 th TorchTrainRankingHomogeniousDataset.lua \
 -model_name ranking_model_8 \
@@ -120,7 +126,8 @@ CUDA_VISIBLE_DEVICES=6 th TorchTrainRankingHomogeniousDataset.lua \
 -validation_period 5 \
 -model_save_period 5 \
 -max_epoch 100 \
--gpu_num 1 > output7 &
+-gpu_num 1 \
+-restart > output7 &
 
 CUDA_VISIBLE_DEVICES=7 th TorchTrainRankingHomogeniousDataset.lua \
 -model_name ranking_model_8 \
@@ -136,6 +143,7 @@ CUDA_VISIBLE_DEVICES=7 th TorchTrainRankingHomogeniousDataset.lua \
 -validation_period 5 \
 -model_save_period 5 \
 -max_epoch 100 \
--gpu_num 1 > output8 &
+-gpu_num 1 \
+-restart > output8 &
 
 wait
