@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -N TestDeepFolder
 #PBS -A ukg-030-aa
-#PBS -l walltime=21600
+#PBS -l walltime=43200
 #PBS -l nodes=1:gpus=8
 #PBS -l feature=k80
 #PBS -r n
