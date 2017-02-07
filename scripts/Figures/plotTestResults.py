@@ -211,9 +211,9 @@ def protein_size_filter(test_dataset_name = 'CASP11Stage1_SCWRL',
 
 if __name__=='__main__':
 	construct_protein_size_subsets = False
-	inspect_protein_size_subsets = False
+	inspect_protein_size_subsets = True
 	inspect_best_and_worst = False
-	inspect_monomers = True
+	inspect_monomers = False
 
 	# plot_test_results(	experiment_name = 'QA_bn_gdt_ts_4',
 	# 					model_name = 'ranking_model_8',
@@ -228,9 +228,9 @@ if __name__=='__main__':
 	# 					test_dataset_name = 'CASP11Stage1_SCWRL',
 	# 					decoy_ranging_column = 'gdt-ts')
 
-	# plot_test_results(	experiment_name = 'QA_5',
+	# plot_test_results(	experiment_name = 'QA',
 	# 					model_name = 'ranking_model_8',
-	# 					trainig_dataset_name = 'CASP_SCWRL',
+	# 					trainig_dataset_name = 'AgregateDataset',
 	# 					test_dataset_name = 'CASP11Stage2_SCWRL',
 	# 					decoy_ranging_column = 'gdt-ts')
 	if inspect_monomers:
@@ -243,28 +243,28 @@ if __name__=='__main__':
 			'T0844','T0845','T0846','T0848','T0850','T0853','T0854','T0855','T0856',
 			'T0857','T0858'
 		]
-		plot_test_results(	experiment_name = 'QA_5',
+		plot_test_results(	experiment_name = 'QA',
 								model_name = 'ranking_model_8',
-								trainig_dataset_name = 'CASP_SCWRL',
+								trainig_dataset_name = 'AgregateDataset',
 								test_dataset_name = 'CASP11Stage1_SCWRL',
 								decoy_ranging_column = 'gdt-ts',
 								subset = monomer_subset)
-		plot_test_results(	experiment_name = 'QA_5',
+		plot_test_results(	experiment_name = 'QA',
 							model_name = 'ranking_model_8',
-							trainig_dataset_name = 'CASP_SCWRL',
+							trainig_dataset_name = 'AgregateDataset',
 							test_dataset_name = 'CASP11Stage2_SCWRL',
 							decoy_ranging_column = 'gdt-ts',
 							subset = monomer_subset)
 
 	if inspect_best_and_worst:
-		get_best_and_worst_proteins(	experiment_name = 'QA_5',
+		get_best_and_worst_proteins(	experiment_name = 'QA',
 						model_name = 'ranking_model_8',
-						trainig_dataset_name = 'CASP_SCWRL',
+						trainig_dataset_name = 'AgregateDataset',
 						test_dataset_name = 'CASP11Stage1_SCWRL',
 						decoy_ranging_column = 'gdt-ts')
-		get_best_and_worst_proteins(	experiment_name = 'QA_5',
+		get_best_and_worst_proteins(	experiment_name = 'QA',
 						model_name = 'ranking_model_8',
-						trainig_dataset_name = 'CASP_SCWRL',
+						trainig_dataset_name = 'AgregateDataset',
 						test_dataset_name = 'CASP11Stage2_SCWRL',
 						decoy_ranging_column = 'gdt-ts')
 
@@ -300,15 +300,15 @@ if __name__=='__main__':
 		
 		for protein_subset in [protein_subset_0_60, protein_subset_60_90, protein_subset_90_1000]:
 			print 'Subset size = ', len(protein_subset)
-			plot_test_results(	experiment_name = 'QA_5',
+			plot_test_results(	experiment_name = 'QA',
 								model_name = 'ranking_model_8',
-								trainig_dataset_name = 'CASP_SCWRL',
+								trainig_dataset_name = 'AgregateDataset',
 								test_dataset_name = 'CASP11Stage1_SCWRL',
 								decoy_ranging_column = 'gdt-ts',
 								subset = protein_subset)
-			plot_test_results(	experiment_name = 'QA_5',
+			plot_test_results(	experiment_name = 'QA',
 								model_name = 'ranking_model_8',
-								trainig_dataset_name = 'CASP_SCWRL',
+								trainig_dataset_name = 'AgregateDataset',
 								test_dataset_name = 'CASP11Stage2_SCWRL',
 								decoy_ranging_column = 'gdt-ts',
 								subset = protein_subset)

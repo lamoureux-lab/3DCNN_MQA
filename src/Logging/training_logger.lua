@@ -68,7 +68,7 @@ function cTrainingLogger.save_epoch(self, epoch)
 	for protein, decoys in pairs(self.activations) do
 		for decoy, activation in pairs(decoys) do
 			file:write(protein..'\t'..decoy..'\t')
-			print(activation:size())
+			-- print(activation:size())
 			for i=1, activation:size()[1]-1 do 
 				file:write(tostring(activation[i])..', ')
 			end

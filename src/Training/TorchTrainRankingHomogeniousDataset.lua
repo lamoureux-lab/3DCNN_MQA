@@ -188,7 +188,7 @@ local start_epoch = 1
 if params.restart then
 	for i=params.max_epoch, 1, -1 do 
 		local epoch_model_backup_dir = model_backup_dir..'epoch'..tostring(i)
-		local adam_state_backup = model_backup_dir..'adam_epoch'..tostring(epoch)..'.t7'
+		local adam_state_backup = model_backup_dir..'adam_epoch'..tostring(i)..'.t7'
 		if file_exists(epoch_model_backup_dir) then 
 			model:load_model(epoch_model_backup_dir)
 			adamState = torch.load(adam_state_backup)

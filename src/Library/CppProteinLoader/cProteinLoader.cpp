@@ -57,13 +57,13 @@ int cProteinLoader::loadPDB(std::string filename){
 
 int cProteinLoader::savePDB(std::string filename){
 	std::ofstream pfile(filename);
-	if(dr.size() != lines.size()){
+	if(dr.size() == lines.size()){
 		for(int i=0; i<lines.size(); i++){
 			pfile<<lines[i].substr(0, lines[i].length()-1)+string_format("%6.2f%6.2f%6.2f\n",dr[i].v[0],dr[i].v[1],dr[i].v[2]);
 		}
 	}else{
 		for(int i=0; i<lines.size(); i++){
-			pfile<<lines[i];
+			pfile<<lines[i]<<"\n";
 		}
 	}
 	return 0;

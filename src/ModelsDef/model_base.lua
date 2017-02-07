@@ -96,14 +96,14 @@ function cModelBase.print_model(self)
 			local output_z = math.floor((input_size[4] + 2*layer.padH - layer.kH) / layer.dH + 1)
 			
 			input_size = {layer.nOutputPlane, output_x, output_y, output_z}
-			print('VolConv\t\t'..tostring(input_size[1]).."x"..tostring(input_size[2]).."x"..tostring(input_size[3]).."x"..tostring(input_size[4]))
+			print(tostring(i)..':VolConv\t\t'..tostring(input_size[1]).."x"..tostring(input_size[2]).."x"..tostring(input_size[3]).."x"..tostring(input_size[4]))
 		end
 		if not( string.find(tostring(layer), 'nn.VolumetricMaxPooling')==nil) then
 			local output_x = math.floor((input_size[2] + 2*layer.padT - layer.kT) / layer.dT + 1)
 			local output_y = math.floor((input_size[3] + 2*layer.padW - layer.kW) / layer.dW + 1)
 			local output_z = math.floor((input_size[4] + 2*layer.padH - layer.kH) / layer.dH + 1)
 			input_size = {input_size[1], output_x, output_y, output_z}
-			print('MaxPool\t\t'..tostring(input_size[1]).."x"..tostring(input_size[2]).."x"..tostring(input_size[3]).."x"..tostring(input_size[4]))
+			print(tostring(i)..':MaxPool\t\t'..tostring(input_size[1]).."x"..tostring(input_size[2]).."x"..tostring(input_size[3]).."x"..tostring(input_size[4]))
 		end
 		-- if tostring(layer) == 'nn.VolumetricBatchNormalization' then
 		-- 	print('BatchNorm')
@@ -112,7 +112,7 @@ function cModelBase.print_model(self)
 		-- 	print('ReLU')
 		-- end
 		if not( string.find(tostring(layer),'nn.Linear') == nil ) then
-			print('Linear\t\t'..layer.weight:size()[2]..'->'..layer.weight:size()[1])
+			print(tostring(i)..':Linear\t\t'..layer.weight:size()[2]..'->'..layer.weight:size()[1])
 		end
 	end
 end

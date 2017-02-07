@@ -39,7 +39,7 @@ local Cuda = ffi_cuda.load'../Library/build/libget_gradient_cuda.so'
 
 
 function get_gradient(dataset, model, logger, adamConfig)
-	model.net:evaluate()
+	model.net:training()
 	
 	for protein_index=1, #dataset.proteins do
 		local num_beg = 1
@@ -69,19 +69,23 @@ function get_gradient(dataset, model, logger, adamConfig)
 	        df_do:fill(1.0)
 	        model.net:backward(cbatch, df_do:cuda())
             local layer = model.net:get(1)
-
-			local batch_info = Cuda.createBatchInfo(num_end - num_beg + 1)
+			-- print('Backwards')
+			local batch_info = Cuda.createBatchInfo(adamConfig.batch_size)
             for ind = 1, adamConfig.batch_size do
                 local glob_index = indexes[ind]
 		        Cuda.pushProteinToBatchInfo(dataset.decoys[protein_name][glob_index].filename, batch_info)
 	        end
             --Projecting gradient onto atoms and saving the result
             --copying data to cbatch to ensure that the memory is contigious
-            for i=1, adamConfig.batch_size do 
-                cbatch[i] = layer.gradInput[i]:copy()
-            end
-			local res = Cuda.getGradientsCUDA(  cutorch.getState(), batch_info, cbatch:cdata(), 
-							                    self.resolution, self.assigner_type, self.input_size[2])
+			layer = model.net:get(1)
+			print(layer)
+            -- for i=1, adamConfig.batch_size do 
+			-- 	print(layer.gradInput:size())
+            --     cbatch[i] = layer.gradInput[i]:copy()
+            -- end
+			print(layer.gradInput:isContiguous())
+			local res = Cuda.getGradientsCUDA(  cutorch.getState(), batch_info, layer.gradInput:cdata(), 
+							                    dataset.resolution, dataset.assigner_type, dataset.input_size[2])
             Cuda.deleteBatchInfo(batch_info)
             
             print(protein_index, #dataset.proteins, protein_name, batch_index, numBatches, batch_loading_time, forward_time)
@@ -99,13 +103,13 @@ cmd:text()
 cmd:text('Testing a network')
 cmd:text()
 cmd:text('Options')
-cmd:option('-experiment_name','QA_5', 'training experiment name')
+cmd:option('-experiment_name','QA', 'training experiment name')
 cmd:option('-training_model_name','ranking_model_8', 'cnn model name during training')
-cmd:option('-training_dataset_name','CASP_SCWRL', 'training dataset name')
+cmd:option('-training_dataset_name','AgregateDataset', 'training dataset name')
 
 cmd:option('-test_model_name','ranking_model_8', 'cnn model name during testing')
-cmd:option('-test_model_epoch',150, 'the number of epoch to load')
-cmd:option('-test_datasets_folder','/scratch/ukg-030-aa/lupoglaz/', 'test dataset folder')
+cmd:option('-test_model_epoch',120, 'the number of epoch to load')
+cmd:option('-test_datasets_folder','/home/lupoglaz/ProteinsDataset/', 'test dataset folder')
 cmd:option('-test_dataset_name','CASP11Stage1_SCWRL_Local', 'test dataset name')
 cmd:option('-test_dataset_subset','datasetDescription.dat', 'test dataset subset')
 
@@ -115,8 +119,6 @@ params = cmd:parse(arg)
 
 local model, optimization_parameters = dofile('../ModelsDef/'..params.test_model_name..'.lua')
 
-
-local parameters, gradParameters = model.net:getParameters()
 math.randomseed( 42 )
 
 local adamConfig = {batch_size = optimization_parameters.batch_size	}
@@ -125,7 +127,7 @@ local adamConfig = {batch_size = optimization_parameters.batch_size	}
 local input_size = {	model.input_options.num_channels, model.input_options.input_size, 
 						model.input_options.input_size, model.input_options.input_size}
 
-local dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, false, false, model.input_options.resolution)
+local dataset = cDatasetBase.new(optimization_parameters.batch_size, input_size, false, false, model.input_options.resolution)
 dataset:load_dataset(params.test_datasets_folder..params.test_dataset_name..'/Description', params.test_dataset_subset, 'tm-score')
 local training_logger = cTrainingLogger.new(params.experiment_name, params.test_model_name, params.training_dataset_name, 'training')
 

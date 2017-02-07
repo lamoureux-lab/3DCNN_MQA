@@ -68,9 +68,9 @@ cmd:text()
 cmd:text('Testing a network')
 cmd:text()
 cmd:text('Options')
-cmd:option('-experiment_name','QA_5', 'training experiment name')
+cmd:option('-experiment_name','QA', 'training experiment name')
 cmd:option('-training_model_name','ranking_model_8', 'cnn model name during training')
-cmd:option('-training_dataset_name','CASP_SCWRL', 'training dataset name')
+cmd:option('-training_dataset_name','AgregateDataset', 'training dataset name')
 
 cmd:option('-test_model_name','ranking_model_8', 'cnn model name during testing')
 cmd:option('-test_dataset_name','CASP11Stage2_SCWRL', 'test dataset name')
@@ -81,15 +81,8 @@ cmd:text()
 
 params = cmd:parse(arg)
 
-
 local model, optimization_parameters = dofile('../ModelsDef/'..params.test_model_name..'.lua')
-model:initialize_cuda(1)
-local parameters, gradParameters = model.net:getParameters()
-math.randomseed( 42 )
-
 local adamConfig = {batch_size = optimization_parameters.batch_size	}
-
-
 local input_size = {	model.input_options.num_channels, model.input_options.input_size, 
 						model.input_options.input_size, model.input_options.input_size}
 
@@ -97,6 +90,22 @@ local test_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_
 test_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/'..params.test_dataset_name..'/Description', params.test_dataset_subset, 'tm-score')
 local test_logger = cTrainingLogger.new(params.experiment_name, params.training_model_name, params.training_dataset_name, 
 										params.test_dataset_name)
+
+--Get the last model
+local model_backup_dir = test_logger.global_dir..'models/'
+local start_epoch = 1
+for i=150, 1, -1 do 
+	local epoch_model_backup_dir = model_backup_dir..'epoch'..tostring(i)
+	if file_exists(epoch_model_backup_dir) then 
+		model:load_model(epoch_model_backup_dir)
+		print('Loading model from epoch ',i)
+		start_epoch = i + 1
+		break
+	end
+end
+
+model:initialize_cuda(1)
+math.randomseed( 42 )
 
 test_logger:allocate_train_epoch(test_dataset)
 test(test_dataset, model, test_logger, adamConfig)

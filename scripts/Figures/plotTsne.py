@@ -13,10 +13,12 @@
 
 import numpy as Math
 import matplotlib.pylab as plt
+from mpl_toolkits.mplot3d import Axes3D
 import cPickle as pkl
 import sys
 import os
 import argparse
+from operator import itemgetter
 
 
 def Hbeta(D = Math.array([]), beta = 1.0):
@@ -113,7 +115,7 @@ def tsne(X = Math.array([]), no_dims = 2, initial_dims = 50, perplexity = 30.0):
 	# Initialize variables
 	X = pca(X, initial_dims).real;
 	(n, d) = X.shape;
-	max_iter = 1000;
+	max_iter = 300;
 	initial_momentum = 0.5;
 	final_momentum = 0.8;
 	eta = 500;
@@ -170,6 +172,7 @@ def tsne(X = Math.array([]), no_dims = 2, initial_dims = 50, perplexity = 30.0):
 
 def parse_activations_file(filename):
 	X = None
+	proteins = []
 	start=False
 	with open(filename, 'r') as f:
 		for line in f:
@@ -177,6 +180,7 @@ def parse_activations_file(filename):
 				sline = line.split()
 				group_name = sline[0]
 				protein_path = sline[1]
+				proteins.append(protein_path)
 
 				vec = Math.zeros( (1,len(sline)-2) )
 				for n,digit in enumerate(sline[2:-1]):
@@ -190,7 +194,7 @@ def parse_activations_file(filename):
 
 			if line.find("Decoys activations:")!=-1:
 				start = True
-	return X
+	return X, proteins
 
 if __name__ == "__main__":
 		
@@ -200,29 +204,43 @@ if __name__ == "__main__":
 									Processes the activations written in a file and embeds them in 2D.
 									""")
 	parser.add_argument('--experiment_name', metavar='experiment_name', type=str, 
-                   help='Experiment name', default='QA_5')
+                   help='Experiment name', default='QA')
 	parser.add_argument('--training_dataset_name', metavar='training_dataset_name', type=str, 
-                   help='Dataset name used for training', default='CASP_SCWRL')
+                   help='Dataset name used for training', default='AgregateDataset')
 	parser.add_argument('--training_model_name', metavar='training_model_name', type=str, 
                    help='Model used for training', default='ranking_model_8')
 	parser.add_argument('--embed_dataset_name', metavar='embed_dataset_name', type=str, 
-                   help='Dataset used for embedding', default='CASP11Stage2_SCWRL')
+                   help='Dataset used for embedding', default='AgregateDataset')
 	parser.add_argument('--embed_name', metavar='embed_name', type=str, 
                    help='Additional label for embedding', default='_native_activations')
 	parser.add_argument('-generate', metavar='generate', type=bool, 
                    help='Generate embedding', default=False)
+	parser.add_argument('-pca', metavar='generate', type=bool, 
+                   help='Generate embedding', default=False)
 	parser.add_argument('-visualize', metavar='visualize', type=bool, 
                    help='Visualize embedding', default=False)
+	parser.add_argument('-clusters', metavar='clusters', type=bool, 
+                   help='Get clusters', default=False)
 	args = parser.parse_args()
 
 	experiment_dir = "../../models/%s_%s_%s"%(args.experiment_name, args.training_model_name, args.training_dataset_name)
 	activations_file = os.path.join(experiment_dir,args.embed_dataset_name + args.embed_name,'epoch_0.dat')
 	figure_output_file = os.path.join(experiment_dir, args.embed_dataset_name + args.embed_name+'.png')
+	figure_pca_output_file = os.path.join(experiment_dir, args.embed_dataset_name + args.embed_name+'_pca.png')
 	raw_output_file = os.path.join(experiment_dir, args.embed_dataset_name + args.embed_name+'.pkl')
-		
+	
+	if args.pca:
+		X, proteins = parse_activations_file(activations_file)	
+		Y = pca(X, 3).real
+
+		fig = plt.figure(figsize=(10,10))
+		ax = fig.add_subplot(111, projection='3d')
+		ax.scatter(Y[:,0], Y[:,1], Y[:,2])
+		plt.savefig(figure_pca_output_file)
+
 	if args.generate:
-		X = parse_activations_file(activations_file)	
-		Y = tsne(X, 2, X.shape[1], 10.0)
+		X, proteins = parse_activations_file(activations_file)	
+		Y = tsne(X, 2, 50, 30.0)
 		
 		with open(raw_output_file,"w") as out:
 			pkl.dump(Y,out)
@@ -234,5 +252,93 @@ if __name__ == "__main__":
 		fig = plt.figure(figsize=(10,10))
 		plt.scatter(Y[:,0], Y[:,1])
 		plt.savefig(figure_output_file)
+
+	if args.clusters:
+		from sklearn.cluster import KMeans
+		X, proteins = parse_activations_file(activations_file)
+		with open(raw_output_file,"r") as inp:
+			Y = pkl.load(inp)
+
+		random_state = 42
+		y_pred = KMeans(n_clusters=8, random_state=random_state).fit_predict(Y)
+
+		clusters = {}
+		for i in xrange(8):
+			clusters[i]=[]
+		
+		queries = []
+		for i,y in enumerate(y_pred):
+			protein_name = proteins[i][proteins[i].rfind('/')+1:]
+			if protein_name=='native.pdb':
+				i_end = proteins[i].rfind('/')
+				i_beg = proteins[i][ :i_end].rfind('/')
+				protein_name = proteins[i][i_beg+1:i_end]
+			if protein_name.find('.pdb')!=-1:
+				protein_name = protein_name[:protein_name.find('.')]
+			if protein_name.find('_')!=-1:
+				query_name = protein_name[:protein_name.find('_')]
+				chain_name = protein_name[protein_name.find('_')+1:]
+			else:
+				try:
+					int(protein_name[1:])
+					query_name = protein_name
+					chain_name = 'undefined'
+				except:
+					if protein_name[:2]=='IT':
+						query_name = protein_name[-5:-1]
+						chain_name = protein_name[-1:]
+						# print protein_name, query_name, chain_name
+					elif protein_name[:2]=='RO':
+						query_name = protein_name[-4:]
+						chain_name = 'undefined'
+						# print protein_name, query_name, chain_name
+
+					elif protein_name[:3]=='dcy':
+						query_name = protein_name[-4:]
+						chain_name = 'undefined'
+						# print protein_name, query_name, chain_name
+					
+					
+
+			if chain_name != 'undefined':
+				queries.append('%s_%s'%(query_name.upper(),chain_name.upper()))
+			clusters[y].append((query_name,chain_name))
+		
+		# with open('native_queries.pkl','w') as f:
+		# 	pkl.dump(queries,f)
+		with open('native_queries_mapping.pkl','r') as f:
+			mapping = pkl.load(f)
+
+		for i in xrange(8):
+			cluster_keywords = {}
+			for key in clusters[i]:
+				if key[1]=='undefined':
+					continue
+				query = '%s_%s'%(key[0].upper(),key[1].upper())
+				if query in mapping.keys():
+					for keyword in mapping[query][1]:
+						# print keyword
+						if keyword in cluster_keywords.keys():
+							cluster_keywords[keyword]+=1
+						else:
+							cluster_keywords[keyword]=1
+			# print cluster_keywords
+			sorted_keys = sorted(cluster_keywords.items(), key=itemgetter(1), reverse=True )
+			keywords_string = ''
+			print len(sorted_keys)
+			for j in range(4, Math.min( [20, len(sorted_keys)-4]) ):
+				keywords_string+=sorted_keys[j][0]+':%2.0f'%(sorted_keys[j][1]*100.0/len(clusters[i]))+';'
+			print 'Cluster %d'%i,' num proteins = ', len(clusters[i]), ':', keywords_string
+			
+					
+
+		
+		fig = plt.figure(figsize=(10,10))
+		plt.scatter(Y[:,0], Y[:,1], c=y_pred)
+		plt.legend()
+		plt.savefig(figure_output_file)
+
+		print y_pred
+
 
 	

@@ -102,7 +102,7 @@ extern "C"{
 			return -1;
 		}
         pL.dr.resize(pL.r.size());
-
+		std::cout<<"Assigned atom types"<<std::endl;
 		for(int i=0; i<pL.num_atom_types; i++){
             std::vector<float> indexes; // vector of atom indexes for plain coords
 			for(int j=0; j<pL.atomType.size(); j++){
@@ -234,10 +234,11 @@ extern "C"{
 			}
 		}
 		float* grid = THCudaTensor_data(state, batch5D);
+		std::cout<<"Start project gradient"<<std::endl;
 		projectTensorToAtoms<<<(batch->len), num_atom_types>>>(	d_flat_data, d_n_atoms, d_offsets,
 															    grid, batch->len, num_atom_types, spatial_dim,
 															    resolution);
-		
+		std::cout<<"Projected gradient"<<std::endl;
         for(int i=0; i<batch->len; i++){
 			for(int j=0; j<num_atom_types; j++){
 				int volume_idx = j+i*num_atom_types;
@@ -245,13 +246,13 @@ extern "C"{
 							n_atoms[j+i*num_atom_types]*sizeof(float), cudaMemcpyDeviceToHost);
 			}
 		}
-
-        #pragma omp parallel for num_threads(10)
+		std::cout<<"Copied memory back"<<std::endl;
+        // #pragma omp parallel for num_threads(10)
 		for(int i=0; i<batch->len; i++){
 			saveProtein(batch->strings[i], assigner_type,
 				        data_array + i*num_atom_types, n_atoms + i*num_atom_types);			
 		}
-
+		std::cout<<"Saved protein"<<std::endl;
 		for(int i=0;i<batch->len*num_atom_types;i++){
 			delete[] data_array[i];
 		}
