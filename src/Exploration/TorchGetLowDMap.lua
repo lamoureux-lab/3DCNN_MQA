@@ -49,11 +49,14 @@ function get_embedding(dataset, model, logger, adamConfig)
 			local forward_time = torch.tic()-stic
 			for i=1, adamConfig.batch_size do
 				if indexes[i]>0 then
-					local activations = model.net:get(31).output[i]
+					local activations = model.net:get(28).output[i]:clone():float()
+					local score = outputs_cpu[{i,1}]
 					logger:set_decoy_activations(protein_name, dataset.decoys[protein_name][indexes[i]].filename, activations)
+					logger:set_decoy_score(protein_name, dataset.decoys[protein_name][indexes[i]].filename, score)
 				end
 			end
 			print(protein_index, #dataset.proteins, protein_name, batch_index, numBatches, batch_loading_time, forward_time)
+			-- return nil
 		end --batch
 	end --protein
 end
@@ -72,8 +75,8 @@ cmd:option('-training_model_name','ranking_model_8', 'cnn model name during trai
 cmd:option('-training_dataset_name','AgregateDataset', 'training dataset name')
 
 cmd:option('-test_model_name','ranking_model_8', 'cnn model name during testing')
-cmd:option('-test_dataset_name','AgregateDataset', 'test dataset name')
-cmd:option('-test_dataset_subset','native_set.dat', 'test dataset subset')
+cmd:option('-test_dataset_name','CASP11Stage1_SCWRL', 'test dataset name')
+cmd:option('-test_dataset_subset','datasetDescription.dat', 'test dataset subset')
 -- cmd:option('-test_dataset_subset','validation_set.dat', 'test dataset subset')
 
 cmd:text()

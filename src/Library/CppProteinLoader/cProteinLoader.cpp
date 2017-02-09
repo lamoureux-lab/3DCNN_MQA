@@ -57,13 +57,13 @@ int cProteinLoader::loadPDB(std::string filename){
 
 int cProteinLoader::savePDB(std::string filename){
 	std::ofstream pfile(filename);
-	if(dr.size() == lines.size()){
-		for(int i=0; i<lines.size(); i++){
-			pfile<<lines[i].substr(0, lines[i].length()-1)+string_format("%6.2f%6.2f%6.2f\n",dr[i].v[0],dr[i].v[1],dr[i].v[2]);
+	if(dr.size() == r.size()){
+		for(int i=0; i<r.size(); i++){
+			pfile<<lines[line_num[i]].substr(0, lines[line_num[i]].length()-1)+string_format("%6.2f%6.2f%6.2f\n",dr[i].v[0],dr[i].v[1],dr[i].v[2]);
 		}
 	}else{
-		for(int i=0; i<lines.size(); i++){
-			pfile<<lines[i]<<"\n";
+		for(int i=0; i<r.size(); i++){
+			pfile<<lines[line_num[i]]<<"\n";
 		}
 	}
 	return 0;
@@ -99,6 +99,7 @@ int cProteinLoader::assignAtomTypes(int assigner_type){
 			yStr = lines[i].substr(38,8);
 			zStr = lines[i].substr(46,8);
 			r.push_back(cVector3(std::stof(xStr),std::stof(yStr),std::stof(zStr)));
+			line_num.push_back(i);
 			atomType.push_back(atom_type);
 		}catch(std::exception& e ){
 			std::cout<<"Problem in file: "<<filename<<"\n";

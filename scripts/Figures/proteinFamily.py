@@ -8,7 +8,7 @@ from xml.etree.ElementTree import fromstring
 import argparse
 from Bio import ExPASy
 from Bio import SwissProt
-
+import urllib2
 
 #http addresses for getting the keys
 pdb_mapping_url = 'http://www.rcsb.org/pdb/rest/das/pdb_uniprot_mapping/alignment'
@@ -17,7 +17,9 @@ unprot_pfam_url = 'http://pfam.xfam.org/protein/{}.xml'
 
 PDB_PFAM_MAPPING_URL = 'ftp://ftp.ebi.ac.uk/pub/databases/Pfam/mappings/pdb_pfam_mapping.txt'
 PDB_PFAM_MAPPING_PATH = 'pdb_pfam_mapping.txt'
+PDB_SCOP_MAPPING_PATH = 'pdb_scop_mapping.txt'
 PDB_PFAM_MAPPING_PROCESSED_PATH = 'pdb_pfam_mapping.pkl'
+PDB_SCOP_MAPPING_PROCESSED_PATH = 'pdb_scop_mapping.pkl'
 
 def get_uniprot_accession_id(response_xml):
 	"""returns uniprot id in the xml response"""
@@ -74,6 +76,33 @@ def preprocess_pdb_to_pfam_database():
 	return
 
 
+def preprocess_pdb_to_scop_database():
+	"""Downloads pdb2pfam database and converts it to dictionary"""
+	if os.path.exists(PDB_SCOP_MAPPING_PROCESSED_PATH):
+		return 
+	
+	# if not os.path.exists(PDB_PFAM_MAPPING_PATH):
+	# 	os.system('wget %s'%PDB_PFAM_MAPPING_URL)
+	# 	os.system('mv %s %s'%(PDB_PFAM_MAPPING_URL[PDB_PFAM_MAPPING_URL.rfind('/')+1:], PDB_PFAM_MAPPING_PATH))
+	
+	data = {}
+	pdb2pfamF = open(PDB_SCOP_MAPPING_PATH, 'r')
+	[pdb2pfamF.readline() for i in range(0,4)]
+	for line in tqdm(pdb2pfamF):
+		sline = line.split()
+		# print sline
+		query_id = sline[1]+'_'+sline[2][:sline[2].find(':')]
+		if not query_id in data.keys():
+			data[query_id] = []
+		data[query_id].append( (sline[3], sline[4], sline[5]) )
+	pdb2pfamF.close()
+
+	fout = open(PDB_SCOP_MAPPING_PROCESSED_PATH,'w')
+	pkl.dump(data, fout)
+	fout.close()
+	return
+
+
 def map_pdb_to_pfam_family(query_id, res_start=None, res_end=None, data=None):
 	"""Tries to find pfam family that corresponds to given pdb+chain"""
 	if data is None:
@@ -101,6 +130,20 @@ def map_pdb_to_pfam_family(query_id, res_start=None, res_end=None, data=None):
 				max_overlap = overlap
 
 	return max_candidate
+
+
+def map_pdb_to_scop_family(query_id, data=None):
+	"""Tries to find pfam family that corresponds to given pdb+chain"""
+	if data is None:
+		fin = open(PDB_SCOP_MAPPING_PROCESSED_PATH,'r')
+		data = pkl.load(fin)
+		fin.close()
+	
+	if not query_id in data.keys():
+		return None
+	
+	return data[query_id][0][0]
+	
 		
 
 def map_pdb_to_uniprot(query_id):
@@ -145,7 +188,31 @@ def get_keys_information(dataset_sequences, output_path):
 	pkl.dump(formatted_keys, fout)
 	fout.close()
 
+def getFold(scop_entry):
+	import Bio.SCOP as scop
+	try:
+		handle = scop.search(key=scop_entry)
+	except:
+		return None
+	text = handle.read()
+	# print text
+	strBeg = text.find("Class:")
+	classHTMLText =  text[ strBeg: strBeg + text[strBeg:].find("</a>")]
+	classText = classHTMLText[classHTMLText.find(">")+1:]
+	#print classText
 
+	strBeg = text.find("Fold:")
+	foldHTMLText =  text[ strBeg: strBeg + text[strBeg:].find("</a>")]
+	foldText = foldHTMLText[foldHTMLText.find(">")+1:]
+	#print foldText
+
+	strBeg = text.find("Superfamily:")
+	famHTMLText =  text[ strBeg: strBeg + text[strBeg:].find("</a>")]
+	famText = famHTMLText[famHTMLText.find(">")+1:]
+	#print famText
+	if len(foldText)==0 and len(classText)==0 and len(famText)==0:
+		return None
+	return foldText, classText, famText
 
 if __name__=='__main__':
 	parser = argparse.ArgumentParser(prog='ProteinMapping', 
@@ -179,12 +246,24 @@ if __name__=='__main__':
 			pkl.dump(mapping,f)
 	
 	if args.folds:
-		preprocess_pdb_to_pfam_database()
+		preprocess_pdb_to_scop_database()
 		with open(PDB_PFAM_MAPPING_PROCESSED_PATH,'r') as fin:
 			data = pkl.load(fin)
+
+		with open(PDB_SCOP_MAPPING_PROCESSED_PATH,'r') as fin:
+			data = pkl.load(fin)
 		
-		for query in tqdm(queries[0:10]):
-			mapp = map_pdb_to_pfam_family(query, data=data)
-			print mapp
-			
+		folds = {}
+		for query in tqdm(queries):
+			mapp = map_pdb_to_scop_family(query[:-2].lower()+query[-2:], data=data)
+			if mapp is None:
+				continue
+			fold = getFold(mapp)
+			if fold is None:
+				continue
+			folds[query]=fold
+			# print query,':',fold
+		
+		with open('native_queries_folds.pkl','w') as f:
+			pkl.dump(folds,f)
 		

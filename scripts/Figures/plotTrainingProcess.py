@@ -329,6 +329,14 @@ if __name__=='__main__':
 				'LR_1em3',
 				'LR_05em3',
 				'LR_1em4']
+	exp_names = ['L2_1em3',
+				'L2_05em3',
+				'L2_1em4',
+				'L2_05em4',
+				'L2_1em5',
+				'L2_05em5',
+				'L2_1em6',
+				'L2_1em7']
 	model_name = 'ranking_model_8'
 	dataset_name = 'CASP_SCWRL'
 	for exp_name in exp_names:

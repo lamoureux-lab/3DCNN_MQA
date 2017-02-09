@@ -107,7 +107,7 @@ if __name__ == "__main__":
 	parser.add_argument('--dataset_path', metavar='dataset_path', type=str, 
 				   help='Dataset path', default='/home/lupoglaz/ProteinsDataset/CASP11Stage1_SCWRL')
 	parser.add_argument('--output_dataset_path', metavar='output_dataset_path', type=str, 
-				   help='Output dataset path', default='/home/lupoglaz/ProteinsDataset/CASP11Stage1_SCWRL_Local')
+				   help='Output dataset path', default='/home/lupoglaz/ProteinsDataset/CASP11Stage1_SCWRL_AA')
 	parser.add_argument('--target_name', metavar='target_name', type=str, 
 				   help='Target name', default='T0129')
 	parser.add_argument('--decoy_name', metavar='decoy_name', type=str, 

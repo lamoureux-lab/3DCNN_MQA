@@ -38,6 +38,7 @@ def changeDataPath( dataset_path,
 
 
 if __name__=='__main__':
-    changeDataPath('/scratch/ukg-030-aa/lupoglaz/CASP_SCWRL', description_file='training_set.dat')
-    changeDataPath('/scratch/ukg-030-aa/lupoglaz/CASP_SCWRL', description_file='validation_set.dat')
+    # changeDataPath('/scratch/ukg-030-aa/lupoglaz/CASP_SCWRL', description_file='training_set.dat')
+    # changeDataPath('/scratch/ukg-030-aa/lupoglaz/CASP_SCWRL', description_file='validation_set.dat')
+    changeDataPath('/home/lupoglaz/ProteinsDataset/CASP11Stage1_SCWRL_grad', description_file='datasetDescription.dat')
 

@@ -70,26 +70,34 @@ function get_gradient(dataset, model, logger, adamConfig)
 	        model.net:backward(cbatch, df_do:cuda())
             local layer = model.net:get(1)
 			-- print('Backwards')
-			local batch_info = Cuda.createBatchInfo(adamConfig.batch_size)
+			local batch_len = 0
+			for ind = 1, adamConfig.batch_size do
+				if indexes[ind]>0 then 
+					batch_len = batch_len+1
+				end
+			end
+			local batch_info = Cuda.createBatchInfo(batch_len)
             for ind = 1, adamConfig.batch_size do
-                local glob_index = indexes[ind]
-		        Cuda.pushProteinToBatchInfo(dataset.decoys[protein_name][glob_index].filename, batch_info)
+				if indexes[ind]>0 then 
+					local glob_index = indexes[ind]
+					Cuda.pushProteinToBatchInfo(dataset.decoys[protein_name][glob_index].filename, batch_info)
+				end
 	        end
             --Projecting gradient onto atoms and saving the result
             --copying data to cbatch to ensure that the memory is contigious
 			layer = model.net:get(1)
-			print(layer)
+			-- print(layer)
             -- for i=1, adamConfig.batch_size do 
 			-- 	print(layer.gradInput:size())
             --     cbatch[i] = layer.gradInput[i]:copy()
             -- end
-			print(layer.gradInput:isContiguous())
+			-- print(layer.gradInput:isContiguous())
 			local res = Cuda.getGradientsCUDA(  cutorch.getState(), batch_info, layer.gradInput:cdata(), 
 							                    dataset.resolution, dataset.assigner_type, dataset.input_size[2])
             Cuda.deleteBatchInfo(batch_info)
             
             print(protein_index, #dataset.proteins, protein_name, batch_index, numBatches, batch_loading_time, forward_time)
-            return nil
+            -- return nil
 		end --batch
 	end --protein
 end
@@ -110,7 +118,7 @@ cmd:option('-training_dataset_name','AgregateDataset', 'training dataset name')
 cmd:option('-test_model_name','ranking_model_8', 'cnn model name during testing')
 cmd:option('-test_model_epoch',120, 'the number of epoch to load')
 cmd:option('-test_datasets_folder','/home/lupoglaz/ProteinsDataset/', 'test dataset folder')
-cmd:option('-test_dataset_name','CASP11Stage1_SCWRL_Local', 'test dataset name')
+cmd:option('-test_dataset_name','CASP11Stage1_SCWRL_grad', 'test dataset name')
 cmd:option('-test_dataset_subset','datasetDescription.dat', 'test dataset subset')
 
 cmd:text()

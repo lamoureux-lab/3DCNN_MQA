@@ -21,6 +21,7 @@ public:
 	std::vector<cVector3> r;
 	std::vector<std::string> lines;
 	std::vector<cVector3> dr;
+	std::vector<int> line_num;
 	std::string filename;
 	//bounding box
 	cVector3 b0, b1;

@@ -19,7 +19,9 @@ import sys
 import os
 import argparse
 from operator import itemgetter
-
+from plotTrainingProcess import read_dataset_description, read_epoch_output
+from sklearn.preprocessing import normalize
+import matplotlib.patches as mpatches
 
 def Hbeta(D = Math.array([]), beta = 1.0):
 	"""Compute the perplexity and the P-row for a specific value of the precision of a Gaussian distribution."""
@@ -115,7 +117,7 @@ def tsne(X = Math.array([]), no_dims = 2, initial_dims = 50, perplexity = 30.0):
 	# Initialize variables
 	X = pca(X, initial_dims).real;
 	(n, d) = X.shape;
-	max_iter = 300;
+	max_iter = 3000;
 	initial_momentum = 0.5;
 	final_momentum = 0.8;
 	eta = 500;
@@ -196,6 +198,43 @@ def parse_activations_file(filename):
 				start = True
 	return X, proteins
 
+def get_query_from_path(protein_path):
+	query=None
+	protein_name = protein_path[protein_path.rfind('/')+1:]
+	if protein_name=='native.pdb':
+		i_end = protein_path.rfind('/')
+		i_beg = protein_path[ :i_end].rfind('/')
+		protein_name = protein_path[i_beg+1:i_end]
+	if protein_name.find('.pdb')!=-1:
+		protein_name = protein_name[:protein_name.find('.')]
+	if protein_name.find('_')!=-1:
+		query_name = protein_name[:protein_name.find('_')]
+		chain_name = protein_name[protein_name.find('_')+1:]
+	else:
+		try:
+			int(protein_name[1:])
+			query_name = protein_name
+			chain_name = 'undefined'
+		except:
+			if protein_name[:2]=='IT':
+				query_name = protein_name[-5:-1]
+				chain_name = protein_name[-1:]
+				# print protein_name, query_name, chain_name
+			elif protein_name[:2]=='RO':
+				query_name = protein_name[-4:]
+				chain_name = 'undefined'
+				# print protein_name, query_name, chain_name
+
+			elif protein_name[:3]=='dcy':
+				query_name = protein_name[-4:]
+				chain_name = 'undefined'
+				# print protein_name, query_name, chain_name
+
+	if chain_name != 'undefined':
+		query='%s_%s'%(query_name.upper(),chain_name.upper())
+	
+	return query
+
 if __name__ == "__main__":
 		
 	parser = argparse.ArgumentParser(prog='Tsne', 
@@ -221,49 +260,141 @@ if __name__ == "__main__":
                    help='Visualize embedding', default=False)
 	parser.add_argument('-clusters', metavar='clusters', type=bool, 
                    help='Get clusters', default=False)
+	parser.add_argument('-decoys', metavar='decoys', type=bool, 
+                   help='Get clusters and rerun t-sne on them', default=False)
+	parser.add_argument('-folds', metavar='folds', type=bool, 
+                   help='Plot tsne with folds', default=False)
+	
 	args = parser.parse_args()
+	# args.embed_dataset_name = 'CASP11Stage1_SCWRL'
 
 	experiment_dir = "../../models/%s_%s_%s"%(args.experiment_name, args.training_model_name, args.training_dataset_name)
 	activations_file = os.path.join(experiment_dir,args.embed_dataset_name + args.embed_name,'epoch_0.dat')
 	figure_output_file = os.path.join(experiment_dir, args.embed_dataset_name + args.embed_name+'.png')
 	figure_pca_output_file = os.path.join(experiment_dir, args.embed_dataset_name + args.embed_name+'_pca.png')
-	raw_output_file = os.path.join(experiment_dir, args.embed_dataset_name + args.embed_name+'.pkl')
 	
-	if args.pca:
-		X, proteins = parse_activations_file(activations_file)	
-		Y = pca(X, 3).real
+	raw_output_file = os.path.join(experiment_dir, args.embed_dataset_name + args.embed_name+'.pkl')
 
-		fig = plt.figure(figsize=(10,10))
-		ax = fig.add_subplot(111, projection='3d')
-		ax.scatter(Y[:,0], Y[:,1], Y[:,2])
-		plt.savefig(figure_pca_output_file)
+	if args.pca:
+		X, proteins = parse_activations_file(activations_file)
+		X = normalize(X,axis=0)
+		Y = pca(X, 3).real
+		
+		if args.decoys:
+			dataset_proteins, decoys = read_dataset_description('/home/lupoglaz/ProteinsDataset/%s/Description'%args.embed_dataset_name,'datasetDescription.dat')		
+			loss_function_values, decoys_scores = read_epoch_output(os.path.join(experiment_dir,
+																	'CASP11Stage1_SCWRL_native_activations/epoch_0.dat'))
+			C = Math.zeros( (X.shape[0],))
+			for n,protein_path in enumerate(proteins):
+				i_end = protein_path.rfind('/')
+				i_beg = protein_path[:i_end].rfind('/')
+				target = protein_path[i_beg+1:i_end]
+				C[n] = decoys_scores[target][protein_path]
+				
+			fig = plt.figure(figsize=(10,10))
+			ax = fig.add_subplot(111, projection='3d')
+			ax.scatter(Y[:,0], Y[:,1], Y[:,2], c=C)
+			# plt.scatter(Y[:,0], Y[:,1])
+			plt.savefig(figure_pca_output_file)
+		else:
+			fig = plt.figure(figsize=(10,10))
+			ax = fig.add_subplot(111, projection='3d')
+			ax.scatter(Y[:,0], Y[:,1], Y[:,2])
+			# plt.scatter(Y[:,0], Y[:,1])
+			plt.savefig(figure_pca_output_file)
+		
 
 	if args.generate:
 		X, proteins = parse_activations_file(activations_file)	
-		Y = tsne(X, 2, 50, 30.0)
+		Y = tsne(X, 2, 30, 20.0)
 		
 		with open(raw_output_file,"w") as out:
 			pkl.dump(Y,out)
 	
 	if args.visualize:
+		X, proteins = parse_activations_file(activations_file)
 		with open(raw_output_file,"r") as inp:
 			Y = pkl.load(inp)
+		if args.decoys:
+			dataset_proteins, decoys = read_dataset_description('/home/lupoglaz/ProteinsDataset/%s/Description'%args.embed_dataset_name,'datasetDescription.dat')		
+			loss_function_values, decoys_scores = read_epoch_output(os.path.join(experiment_dir,
+																	'CASP11Stage1_SCWRL_native_activations/epoch_0.dat'))
+			C = Math.zeros( (X.shape[0],))
+			for n,protein_path in enumerate(proteins):
+				i_end = protein_path.rfind('/')
+				i_beg = protein_path[:i_end].rfind('/')
+				target = protein_path[i_beg+1:i_end]
+				# C[n] = decoys_scores[target][protein_path]
+				for decoy in decoys[target]:
+					if decoy[0]==protein_path:
+						C[n] = decoy[1]
+						print decoy
+		elif args.folds:
+			with open('native_queries_folds.pkl','r') as f:
+				folds = pkl.load(f)
+			
+			
+			#indexing fold types
+			folds_set = []
+			folds_labels = {}
+			labels_folds = {}
+			for query in folds.keys():
+				folds_set.append(folds[query][1])
+			folds_set=list(set(folds_set))
+			for n, fold in enumerate(folds_set):
+				folds_labels[fold]=n
+				labels_folds[n]=fold
+			folds_num={}
+			for query in folds.keys():
+				fold = folds[query][1]
+				if not fold in folds_num.keys():
+					folds_num[fold]=0
+				folds_num[fold]+=1
 
-		fig = plt.figure(figsize=(10,10))
-		plt.scatter(Y[:,0], Y[:,1])
-		plt.savefig(figure_output_file)
+			print folds_num
+			print folds_labels
 
+			Y_filtered = None
+			C_filtered = []
+			for n,protein_path in enumerate(proteins):
+				query = get_query_from_path(protein_path)
+				if query is None:
+					continue
+				if not query in folds.keys():
+					continue
+				if Y_filtered is None:
+					Y_filtered = Y[n,:].reshape((1,Y.shape[1]))
+				else:
+					Y_filtered = Math.concatenate((Y_filtered, Y[n,:].reshape((1,Y.shape[1]))), axis=0)
+				fold = folds[query][1]
+				label = folds_labels[fold]
+				C_filtered.append(label)
+
+			fig = plt.figure(figsize=(10,10))
+			C = Math.array(C_filtered)
+			colors=['red', 'blue', 'yellow', 'cyan']
+			for n,class_num in enumerate([3,5,8,9]):
+				indexes = (C==class_num)
+				Y_class = Y_filtered[indexes,:]
+				plt.scatter(Y_class[:,0], Y_class[:,1], c=colors[n], label=labels_folds[class_num])
+			plt.legend()
+			plt.savefig(figure_output_file)
+		else:
+			fig = plt.figure(figsize=(10,10))
+			plt.scatter(Y[:,0], Y[:,1])
+			plt.savefig(figure_output_file)
+	
 	if args.clusters:
 		from sklearn.cluster import KMeans
 		X, proteins = parse_activations_file(activations_file)
 		with open(raw_output_file,"r") as inp:
 			Y = pkl.load(inp)
-
+		nclusters = 3
 		random_state = 42
-		y_pred = KMeans(n_clusters=8, random_state=random_state).fit_predict(Y)
+		y_pred = KMeans(n_clusters=nclusters, random_state=random_state).fit_predict(Y)
 
 		clusters = {}
-		for i in xrange(8):
+		for i in xrange(nclusters):
 			clusters[i]=[]
 		
 		queries = []
@@ -309,7 +440,7 @@ if __name__ == "__main__":
 		with open('native_queries_mapping.pkl','r') as f:
 			mapping = pkl.load(f)
 
-		for i in xrange(8):
+		for i in xrange(nclusters):
 			cluster_keywords = {}
 			for key in clusters[i]:
 				if key[1]=='undefined':
