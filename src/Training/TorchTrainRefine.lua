@@ -90,11 +90,12 @@ function train_epoch(epoch, dataset, model, batchRankingLoss, logger, adamConfig
 			local outputs_gpu = model.net:forward(cbatch)
 			local outputs_cpu = outputs_gpu:clone():float()
 			forward_time = torch.tic()-stic
-			
+
 			--saving the outputs for the later analysis
 			for i=1, adamConfig.batch_size do
 				if indexes[i]>0 then
 					logger:set_decoy_score(protein_name, dataset.decoys[protein_name][indexes[i]].filename, outputs_cpu[{i,1}])
+                    print("Actual score ", dataset.decoys[protein_name][indexes[i]].filename, outputs_cpu[{i,1}])
 				end
 			end
 			-- print(torch.norm(parameters,1))

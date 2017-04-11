@@ -97,8 +97,8 @@ function cDatasetScored.load_batch_sorted(self, protein_name)
     for i=1, self.batch_size do
         local decoy_idx = self.sorted_losses[i][1]
         Cuda.pushProteinToBatchInfo(self.decoys[protein_name][decoy_idx].filename, batch_info)
-        self.indexes[batch_ind] = decoy_idx
-        print('Select ',self.decoys[protein_name][decoy_idx].filename, 'loss ',  self.decoys_loss[protein_name][decoy_idx])
+        self.indexes[i] = decoy_idx
+        print('Select ',self.decoys[protein_name][decoy_idx].filename, 'loss ',  self.decoys_loss[protein_name][decoy_idx], self.decoys[protein_name][decoy_idx].gdt_ts)
 	end
     local res = Cuda.loadProteinCUDA(	cutorch.getState(), batch_info, self.batch:cdata(), 
                                         self.shift, self.rotate, self.resolution, 
