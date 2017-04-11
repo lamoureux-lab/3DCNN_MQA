@@ -245,7 +245,7 @@ if __name__ == "__main__":
 	parser.add_argument('--experiment_name', metavar='experiment_name', type=str, 
                    help='Experiment name', default='QA')
 	parser.add_argument('--training_dataset_name', metavar='training_dataset_name', type=str, 
-                   help='Dataset name used for training', default='AgregateDataset')
+                   help='Dataset name used for training', default='CASP_SCWRL')
 	parser.add_argument('--training_model_name', metavar='training_model_name', type=str, 
                    help='Model used for training', default='ranking_model_8')
 	parser.add_argument('--embed_dataset_name', metavar='embed_dataset_name', type=str, 

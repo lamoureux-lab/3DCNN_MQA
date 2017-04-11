@@ -98,6 +98,9 @@ TARGET_LINK_LIBRARIES(load_protein_cuda TH THC PROTEINLOADER)
 CUDA_ADD_LIBRARY(get_gradient_cuda SHARED CppProteinLoader/reprojectGradientCUDA.cu)
 TARGET_LINK_LIBRARIES(get_gradient_cuda TH THC PROTEINLOADER)
 
+CUDA_ADD_LIBRARY(load_protein_cuda_direct SHARED CppProteinLoader/loadProteinCUDAdirect.cu)
+TARGET_LINK_LIBRARIES(load_protein_cuda_direct TH THC PROTEINLOADER)
+
 #cuda_add_executable(volume_render VolumeVisualization/cudaVolumeRender.cpp VolumeVisualization/volume_render_kernel.cu)
 #TARGET_LINK_LIBRARIES(volume_render TH THC GLFRAMEWORK /home/lupoglaz/NVIDIA_CUDA-7.5_Samples/common/lib/linux/x86_64/libGLEW.a)
 

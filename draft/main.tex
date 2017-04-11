@@ -6,6 +6,7 @@
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{amsmath}
+\usepackage{multirow}
 
 %opening
 \title{Deep convolutional networks for protein fold recognition}
@@ -211,36 +212,33 @@ in the Table \ref{}.
 
 \begin{table}[H]
 \begin{center}
-\begin{tabular}{ c | c | c | c | c }
-    
-    QA method & Mean loss & Mean Pearson corr. & Mean Spearmann corr. & Mean Kendall corr. \\
-    \hline
-    CNN     &0.084 &0.524 &0.404 &0.305 \\ \hline
-    ProQ2   &0.090 &0.643 &0.506 &0.379 \\ \hline
-    Qprob   &0.097 &0.631 &0.517 &0.389 \\ \hline
-    Dope    &0.111 &0.542 &0.416 &0.316 \\ \hline
-    RWplus  &0.135 &0.536 &0.433 &0.433 \\ \hline
-\end{tabular}
-    
-    \caption {Results of our method and other state-of-art quality assessment programs on CASP11 dataset stage 1.}
-    \label{Tbl:optParams}
-\end{center}
-\end{table}
+\begin{tabular}{ c | c | c | c | c | c }
+    \multicolumn{6}{ c }{Stage 1} \\ \hline
 
-\begin{table}[H]
-\begin{center}
-\begin{tabular}{ c | c | c | c | c }
-    
-    QA method & Mean loss & Mean Pearson corr. & Mean Spearmann corr. & Mean Kendall corr. \\
+    QA method type & QA method & Loss & Pearson & Spearmann & Kendall \\
     \hline
-    CNN     &0.071 &0.380 &0.370 &0.262 \\ \hline
-    ProQ2   &0.058 &0.372 &0.366 &0.256 \\ \hline
-    Qprob   &0.068 &0.381 &0.387 &0.272 \\ \hline
-    Dope    &0.077 &0.304 &0.324 &0.228 \\ \hline
-    RWplus  &0.084 &0.295 &0.314 &0.220 \\ \hline
+    
+    \multirow{2}{*}{Meta-models} 
+    &ProQ2   &0.090 &0.643 &0.506 &0.379 \\
+    &Qprob   &0.097 &0.631 &0.517 &0.389 \\ \hline
+    \multirow{2}{*}{Single models} 
+    &\textbf{3DCNN}   &0.087 &0.515 &0.405 &0.308 \\
+    &RWplus  &0.135 &0.536 &0.433 &0.433 \\ \hline
+    
+    \multicolumn{6}{ c }{Stage 2} \\ \hline
+
+    \multirow{2}{*}{Meta-models} 
+    &ProQ2   &0.058 &0.372 &0.366 &0.256 \\ 
+    &Qprob   &0.068 &0.381 &0.387 &0.272 \\ \hline
+    \multirow{2}{*}{Single models} 
+    &\textbf{3DCNN}     &0.074 &0.397 &0.381 &0.268 \\ 
+    &RWplus  &0.084 &0.295 &0.314 &0.220 \\ \hline
+
 \end{tabular}
     
-    \caption {Results of our method and other state-of-art quality assessment programs on CASP11 dataset stage 2.}
+    \caption {Results of our method(3DCNN) and the other state-of-art quality assessment programs on the CASP11 dataset Stage 1 and 2.
+            Table shows the absolute average values of correlation coefficients. The averaging was performed for each target in the 
+            dataset. Afterwards all the values were averaged over all the targets.}
     \label{Tbl:optParams}
 \end{center}
 \end{table}

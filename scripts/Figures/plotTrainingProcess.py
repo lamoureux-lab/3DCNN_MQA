@@ -2,6 +2,7 @@ import os
 import sys
 import numpy as np
 from scipy.stats import pearsonr, spearmanr
+import seaborn as sea
 
 def read_dataset_description(dataset_description_dir, dataset_description_filename, decoy_ranging = 'tm-score'):
 	description_path= os.path.join(dataset_description_dir,dataset_description_filename)
@@ -186,7 +187,7 @@ def plot_validation_funnels(experiment_name, model_name, dataset_name, epoch_sta
 			plotFunnels(proteins, decoys, decoys_scores, output_path)
 
 def plot_validation_correlations(experiment_name, model_name, dataset_name, epoch_start=0, epoch_end=200):
-	proteins, decoys = read_dataset_description('/home/lupoglaz/ProteinsDataset/%s/Description'%dataset_name,'validation_set1.dat')
+	proteins, decoys = read_dataset_description('/home/lupoglaz/ProteinsDataset/%s/Description'%dataset_name,'validation_set.dat')
 	epochs = [0]
 	taus = [0]
 	pearsons = [0]
@@ -202,10 +203,12 @@ def plot_validation_correlations(experiment_name, model_name, dataset_name, epoc
 			losses.append(get_average_loss(proteins, decoys, decoys_scores))
 
 	from matplotlib import pylab as plt
-	fig = plt.figure(figsize=(20,20))
-	plt.plot(epochs,taus, 'r')
-	plt.plot(epochs,pearsons, 'b')
-	plt.plot(epochs,losses, 'g')
+	fig = plt.figure()
+	plt.title(experiment_name+'  '+model_name+'   '+dataset_name)
+	plt.plot(epochs,taus, '-.r', label = 'Kendall tau')
+	plt.plot(epochs,pearsons, '--b', label ='Pearson R')
+	plt.plot(epochs,losses, '-g', label ='Loss')
+	plt.legend()
 	plt.savefig('../../models/%s_%s_%s/kendall_validation.png'%(experiment_name, model_name, dataset_name))
 	return taus, pearsons, losses
 
@@ -315,34 +318,36 @@ if __name__=='__main__':
 	# 	# plot_validation_funnels(exp_name, 'ranking_model_8', 'CASP_SCWRL')
 
 
-	# exp_name = 'QA'
-	# taus, pears = plot_validation_correlations(exp_name, 'ranking_model_8', 'AgregateDataset')
-	# print '%s: '%exp_name, taus[-1], pears[-1]
-	# plot_validation_funnels(exp_name, 'ranking_model_8', 'AgregateDataset')
-
-
-	exp_names = ['LR_1em1',
-				'LR_1em2',
-				'LR_075em2',
-				'LR_05em2',
-				'LR_025em2',
-				'LR_1em3',
-				'LR_05em3',
-				'LR_1em4']
-	exp_names = ['L2_1em3',
-				'L2_05em3',
-				'L2_1em4',
-				'L2_05em4',
-				'L2_1em5',
-				'L2_05em5',
-				'L2_1em6',
-				'L2_1em7']
-	model_name = 'ranking_model_8'
+	exp_name = 'QA_uniform'
 	dataset_name = 'CASP_SCWRL'
-	for exp_name in exp_names:
-		for epoch in [5, 10, 15]:
-			changeDataPath(	'../../models/%s_%s_%s/validation/epoch_%d.dat'%(exp_name, model_name, dataset_name, epoch),
-							'/home/lupoglaz/ProteinsDataset/%s'%dataset_name)
-		taus, pears, losses = plot_validation_correlations(exp_name, model_name, dataset_name)
-		print '%s: '%exp_name, taus[-1], pears[-1], losses[-1]
-		# plot_validation_funnels(exp_name, 'ranking_model_8', 'CASP_SCWRL')
+	taus, pears, losses = plot_validation_correlations(exp_name, 'ranking_model_8', dataset_name)
+	print '%s: '%exp_name, taus[-1], pears[-1], losses[-1]
+	print np.min(taus), np.argmin(taus), np.min(pears), np.argmin(pears), np.min(losses), np.argmin(losses)
+	plot_validation_funnels(exp_name, 'ranking_model_8', dataset_name)
+
+
+	# exp_names = ['LR_1em1',
+	# 			'LR_1em2',
+	# 			'LR_075em2',
+	# 			'LR_05em2',
+	# 			'LR_025em2',
+	# 			'LR_1em3',
+	# 			'LR_05em3',
+	# 			'LR_1em4']
+	# exp_names = ['L2_1em3',
+	# 			'L2_05em3',
+	# 			'L2_1em4',
+	# 			'L2_05em4',
+	# 			'L2_1em5',
+	# 			'L2_05em5',
+	# 			'L2_1em6',
+	# 			'L2_1em7']
+	# model_name = 'ranking_model_8'
+	# dataset_name = 'CASP_SCWRL'
+	# for exp_name in exp_names:
+	# 	for epoch in [5, 10, 15]:
+	# 		changeDataPath(	'../../models/%s_%s_%s/validation/epoch_%d.dat'%(exp_name, model_name, dataset_name, epoch),
+	# 						'/home/lupoglaz/ProteinsDataset/%s'%dataset_name)
+	# 	taus, pears, losses = plot_validation_correlations(exp_name, model_name, dataset_name)
+	# 	print '%s: '%exp_name, taus[-1], pears[-1], losses[-1]
+	# 	# plot_validation_funnels(exp_name, 'ranking_model_8', 'CASP_SCWRL')

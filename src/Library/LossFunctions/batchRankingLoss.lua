@@ -78,19 +78,92 @@ function cBatchRankingLoss.evaluate(self, decoys, indexes, outputs_cpu)
 						tm_i = decoys[indexes[i]].gdt_ts
 		 				tm_j = decoys[indexes[j]].gdt_ts
 					end
-		 			--local gap = self.gap_weight*math.abs(tm_i-tm_j)
+		 			-- local gap = self.gap_weight*math.abs(tm_i-tm_j)
 		 			local gap = 1.0
 		 			local y_ij = 0
 		 			if tm_i>=tm_j then y_ij = 1 end
 		 			if tm_i<tm_j then y_ij = -1 end
-		 			--y_ij = y_ij*math.max(tm_i,tm_j)
+		 			-- y_ij = y_ij*math.max(tm_i,tm_j) 
 		 			local example_weight = math.max(0, math.abs(tm_i-tm_j) - self.tmscore_threshold)
+					if math.abs(tm_i-tm_j) > self.tmscore_threshold then 
+						example_weight = 1.0
+					else
+						example_weight = 0.0 
+					end
 		 			local dL = example_weight*math.max(0, gap + y_ij*(outputs_cpu[{i,1}] - outputs_cpu[{j,1}]))
 					if dL > 0 then
 	 					df_do[i] = df_do[i] + example_weight*y_ij
 	 					df_do[j] = df_do[j] - example_weight*y_ij
 		 			end
 		 			f = f + dL
+				end
+			end
+		end
+	end
+	return f/N, df_do/N
+end
+
+
+function cBatchRankingLoss.forwardOneVsAll(self, decoys, index, decoys_scores)
+	local f = 0
+	local N = 1
+
+	for j=1, #decoys_scores do
+		if not(index==j) then
+			N = N + 1
+			local tm_i,tm_j
+			if self.decoys_ranking_mode == 'tm-score' then 
+				tm_i = decoys[index].tm_score
+				tm_j = decoys[j].tm_score
+			elseif self.decoys_ranking_mode == 'gdt-ts' then 
+				tm_i = decoys[index].gdt_ts
+				tm_j = decoys[j].gdt_ts
+			end
+			local y_ij = 0
+			if tm_i>=tm_j then y_ij = 1 end
+			if tm_i<tm_j then y_ij = -1 end
+			if math.abs(tm_i-tm_j) > self.tmscore_threshold then 
+				example_weight = 1.0
+			else
+				example_weight = 0.0 
+			end
+			f = f + example_weight*math.max(0, y_ij*(decoys_scores[index] - decoys_scores[j]))
+		end
+	end
+	return f/N
+end
+
+function cBatchRankingLoss.backwardOneVsAll(self, decoys_scores, decoys, indexes, outputs_cpu)
+	local f = 0
+	local N = 1
+	local batch_size = outputs_cpu:size(1)
+	local df_do = torch.zeros(batch_size,1)
+	for i=1, batch_size do
+		if indexes[i]>0 then
+			for j=1, #decoys_scores do
+				if (not(indexes[i]==j)) then
+					N = N + 1
+					local tm_i,tm_j
+					if self.decoys_ranking_mode == 'tm-score' then
+						tm_i = decoys[indexes[i]].tm_score
+						tm_j = decoys[j].tm_score
+					elseif self.decoys_ranking_mode == 'gdt-ts' then 
+						tm_i = decoys[indexes[i]].gdt_ts
+						tm_j = decoys[j].gdt_ts
+					end
+					local y_ij = 0
+					if tm_i>=tm_j then y_ij = 1 end
+					if tm_i<tm_j then y_ij = -1 end
+					if math.abs(tm_i-tm_j) > self.tmscore_threshold then 
+						example_weight = 1.0
+					else
+						example_weight = 0.0 
+					end
+					dL = example_weight*math.max(0, y_ij*(outputs_cpu[{i,1}] - decoys_scores[j]))
+					if dL > 0 then
+						df_do[i] = df_do[i] + example_weight*y_ij
+					end
+					f = f + dL
 				end
 			end
 		end

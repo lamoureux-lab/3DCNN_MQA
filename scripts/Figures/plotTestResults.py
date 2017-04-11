@@ -111,7 +111,8 @@ def plot_test_results(	experiment_name = 'QA',
 						test_dataset_name = 'CASP11Stage1',
 						test_dataset_subset = 'datasetDescription.dat',
 						decoy_ranging_column = 'gdt-ts',
-						subset = None):
+						subset = None,
+						suffix = ''):
 	"""
 	Outputs:
 	pearson, spearman, kendall correlations 
@@ -124,7 +125,7 @@ def plot_test_results(	experiment_name = 'QA',
 												test_dataset_subset, decoy_ranging=decoy_ranging_column)
 	
 	input_path = '../../models/%s_%s_%s/%s/epoch_0.dat'%(	experiment_name, model_name, trainig_dataset_name,
-															test_dataset_name)
+															test_dataset_name+suffix)
 	loss_function_values, decoys_scores = read_epoch_output(input_path)
 
 	correlations = get_correlations(proteins, decoys, decoys_scores, subset)
@@ -138,7 +139,7 @@ def plot_test_results(	experiment_name = 'QA',
 	loss = get_average_loss(proteins, decoys, decoys_scores, subset)
 	print 'Loss:',loss
 
-	output_path = '../../models/%s_%s_%s/%s_funnels.png'%(experiment_name, model_name, trainig_dataset_name, test_dataset_name)
+	output_path = '../../models/%s_%s_%s/%s_funnels.png'%(experiment_name, model_name, trainig_dataset_name, test_dataset_name+suffix)
 	plotFunnels(proteins, decoys, decoys_scores, output_path)
 
 def get_best_and_worst_proteins(	experiment_name = 'QA',
@@ -211,7 +212,7 @@ def protein_size_filter(test_dataset_name = 'CASP11Stage1_SCWRL',
 
 if __name__=='__main__':
 	construct_protein_size_subsets = False
-	inspect_protein_size_subsets = True
+	inspect_protein_size_subsets = False
 	inspect_best_and_worst = False
 	inspect_monomers = False
 
@@ -228,11 +229,12 @@ if __name__=='__main__':
 	# 					test_dataset_name = 'CASP11Stage1_SCWRL',
 	# 					decoy_ranging_column = 'gdt-ts')
 
-	# plot_test_results(	experiment_name = 'QA',
-	# 					model_name = 'ranking_model_8',
-	# 					trainig_dataset_name = 'AgregateDataset',
-	# 					test_dataset_name = 'CASP11Stage2_SCWRL',
-	# 					decoy_ranging_column = 'gdt-ts')
+	plot_test_results(	experiment_name = 'QA_uniform',
+						model_name = 'ranking_model_8',
+						trainig_dataset_name = 'CASP_SCWRL',
+						test_dataset_name = 'CASP11Stage2_SCWRL',
+						decoy_ranging_column = 'gdt-ts',
+						suffix = '_e100')
 	if inspect_monomers:
 		monomer_subset = [
 			'T0759','T0760','T0762','T0766','T0767','T0769','T0773','T0777','T0778',

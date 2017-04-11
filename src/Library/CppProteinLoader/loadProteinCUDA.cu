@@ -52,10 +52,30 @@ extern "C"{
 		//placing center of the bbox to the origin
 		pL.shiftProtein( -0.5*(pL.b0 + pL.b1) ); 
 		if(rot){
-			float alpha = THRandom_uniform(gen,0,2.0*M_PI);
- 			float beta = THRandom_uniform(gen,0,2.0*M_PI);
- 			float theta = THRandom_uniform(gen,0,2.0*M_PI);
- 			cMatrix33 random_rotation = cMatrix33::rotationXYZ(alpha,beta,theta);
+			// float alpha = THRandom_uniform(gen,0,2.0*M_PI);
+ 			// float beta = THRandom_uniform(gen,0,2.0*M_PI);
+ 			// float theta = THRandom_uniform(gen,0,2.0*M_PI);
+ 			// cMatrix33 random_rotation = cMatrix33::rotationXYZ(alpha,beta,theta);
+			float u1 = THRandom_uniform(gen,0,1.0);
+			float u2 = THRandom_uniform(gen,0,1.0);
+			float u3 = THRandom_uniform(gen,0,1.0);
+			float q[4];
+			q[0] = sqrt(1-u1) * sin(2.0*M_PI*u2);
+			q[1] = sqrt(1-u1) * cos(2.0*M_PI*u2);
+			q[2] = sqrt(u1) * sin(2.0*M_PI*u3);
+			q[3] = sqrt(u1) * cos(2.0*M_PI*u3);
+			cMatrix33 random_rotation;
+			random_rotation.m[0][0] = q[0]*q[0] + q[1]*q[1] - q[2]*q[2] - q[3]*q[3];
+			random_rotation.m[0][1] = 2.0*(q[1]*q[2] - q[0]*q[3]);
+			random_rotation.m[0][2] = 2.0*(q[1]*q[3] + q[0]*q[2]);
+
+			random_rotation.m[1][0] = 2.0*(q[1]*q[2] + q[0]*q[3]);
+			random_rotation.m[1][1] = q[0]*q[0] - q[1]*q[1] + q[2]*q[2] - q[3]*q[3];
+			random_rotation.m[1][2] = 2.0*(q[2]*q[3] - q[0]*q[1]);
+
+			random_rotation.m[2][0] = 2.0*(q[1]*q[3] - q[0]*q[2]);
+			random_rotation.m[2][1] = 2.0*(q[2]*q[3] + q[0]*q[1]);
+			random_rotation.m[2][2] = q[0]*q[0] - q[1]*q[1] - q[2]*q[2] + q[3]*q[3];
 			pL.rotateProtein(random_rotation);
 		}
 		if(shift){

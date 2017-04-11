@@ -56,16 +56,19 @@ int cProteinLoader::loadPDB(std::string filename){
 }
 
 int cProteinLoader::savePDB(std::string filename){
-	std::ofstream pfile(filename);
+	std::ofstream pfile(filename, std::ofstream::out | std::ofstream::app);
 	if(dr.size() == r.size()){
 		for(int i=0; i<r.size(); i++){
 			pfile<<lines[line_num[i]].substr(0, lines[line_num[i]].length()-1)+string_format("%6.2f%6.2f%6.2f\n",dr[i].v[0],dr[i].v[1],dr[i].v[2]);
 		}
 	}else{
+		pfile<<"MODEL\n";
 		for(int i=0; i<r.size(); i++){
-			pfile<<lines[line_num[i]]<<"\n";
+			pfile<<lines[line_num[i]].substr(0, 30)+string_format("%8.3f%8.3f%8.3f\n",r[i].v[0],r[i].v[1],r[i].v[2]);
 		}
+		pfile<<"ENDMDL\n";
 	}
+	pfile.close();
 	return 0;
 	
 }

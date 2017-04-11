@@ -18,7 +18,16 @@ int main(int argc, char** argv)
 	GlutFramework framework;
 		
 	cProteinLoader pL;
-	int res = pL.loadPDB("/home/lupoglaz/ProteinsDataset/CASP/T0188/T0188TS001_1");
+	// int res = pL.loadPDB("/home/lupoglaz/temp/strange/BhageerathH_TS1");
+	// int res = pL.loadPDB("/home/lupoglaz/temp/strange/confuzzGS_TS1");
+	// int res = pL.loadPDB("/home/lupoglaz/temp/strange/GSmetaserver_TS2");
+	// int res = pL.loadPDB("/home/lupoglaz/temp/strange/HHpred-thread_TS1");
+	// int res = pL.loadPDB("/home/lupoglaz/temp/strange/Jiang_Fold_TS3");
+	// int res = pL.loadPDB("/home/lupoglaz/temp/strange/MULTICOM-CLUSTER_TS4");
+	// int res = pL.loadPDB("/home/lupoglaz/temp/strange/RBO-i-MBS-BB_TS2");
+	// int res = pL.loadPDB("/home/lupoglaz/temp/strange/RBO-i-MBS-BB_TS4");
+	// int res = pL.loadPDB("/home/lupoglaz/temp/strange/RBO-i-MBS_TS2");
+	int res = pL.loadPDB("/home/lupoglaz/temp/strange/sysimm_TS4");
 	pL.assignAtomTypes(2);
 	
 	int size = 120;
