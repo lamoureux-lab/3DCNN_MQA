@@ -15,13 +15,15 @@ cTrainingLogger.__index = cTrainingLogger
 
 function cTrainingLogger.new(experiment_name, model_name, dataset_name, log_name)
 	local self = setmetatable({}, cTrainingLogger)
+	self:init_dirs(experiment_name, model_name, dataset_name, log_name)
+	return self
+end
+function cTrainingLogger.init_dirs(self, experiment_name, model_name, dataset_name, log_name)
 	self.global_dir = '../../models/'..experiment_name..'_'..model_name..'_'..dataset_name..'/'
 	os.execute("mkdir " .. self.global_dir)
 	self.dir = self.global_dir..log_name..'/'
 	os.execute("mkdir " .. self.dir)
-	return self
 end
-
 function cTrainingLogger.allocate_train_epoch(self, dataset)
 	self.data = {}
 	self.activations = {}

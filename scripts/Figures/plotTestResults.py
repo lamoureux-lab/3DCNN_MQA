@@ -232,9 +232,11 @@ if __name__=='__main__':
 	plot_test_results(	experiment_name = 'QA_uniform',
 						model_name = 'ranking_model_8',
 						trainig_dataset_name = 'CASP_SCWRL',
-						test_dataset_name = 'CASP11Stage2_SCWRL',
+						# test_dataset_name = 'CASP11Stage2_SCWRL',
+						test_dataset_name = 'CASP_SCWRL',
+						test_dataset_subset = 'validation_set.dat',
 						decoy_ranging_column = 'gdt-ts',
-						suffix = '_e100')
+						suffix = '')
 	if inspect_monomers:
 		monomer_subset = [
 			'T0759','T0760','T0762','T0766','T0767','T0769','T0773','T0777','T0778',

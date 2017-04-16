@@ -18,43 +18,36 @@ require 'optim'
 
 requireRel '../Library/DataProcessing/utils'
 requireRel '../Library/DataProcessing/dataset_homogenious'
-requireRel '../Logging/training_logger'
+requireRel '../Logging/sampling_logger'
 
 
-function test(dataset, model, logger, adamConfig)
+function sample(dataset, model, logger, protein_name, decoy_filename, numSamples)
+    for i=1, numSamples do
+        local stic = torch.tic()
+        local cbatch = dataset:load_batch_repeat(decoy_filename)
+        local batch_loading_time = torch.tic()-stic
+        
+        stic = torch.tic()
+        local outputs_gpu = model.net:forward(cbatch)
+        local outputs_cpu = outputs_gpu:clone():float()
+        local forward_time = torch.tic()-stic
+        for i=1, outputs_cpu:size(1) do
+            local score = outputs_cpu[{i,1}]
+            logger:set_decoy_score(protein_name, decoy_filename, score)
+        end
+    end
+end
+
+function test(dataset, model, logger, adamConfig, numSamples)
 	model.net:evaluate()
 	
 	for protein_index=1, #dataset.proteins do
-		local num_beg = 1
-		local num_end = 1
-		protein_name = dataset.proteins[protein_index]
-
-		local numBatches = math.floor(#dataset.decoys[protein_name]/adamConfig.batch_size) + 1
-		if ((numBatches-1)*adamConfig.batch_size)==(#dataset.decoys[protein_name]) then
-			numBatches = numBatches - 1
-		end
-
-		for batch_index=1, numBatches do
-			local f_av = 0.0
-			local N = 0
-			local stic = torch.tic()
-			cbatch, indexes = dataset:load_sequential_batch(protein_name, num_beg)
-			num_beg = num_beg + adamConfig.batch_size
-			local batch_loading_time = torch.tic()-stic
-			
-			--Forward pass through batch
-			stic = torch.tic()
-			local outputs_gpu = model.net:forward(cbatch)
-			local outputs_cpu = outputs_gpu:clone():float()
-			local forward_time = torch.tic()-stic
-			for i=1, adamConfig.batch_size do
-				if indexes[i]>0 then
-					--local score = torch.mean(outputs_cpu[{i,1,{},{},{}}])
-					local score = outputs_cpu[{i,1}]
-					logger:set_decoy_score(protein_name, dataset.decoys[protein_name][indexes[i]].filename, score)
-				end
-			end
-			print(protein_index, #dataset.proteins, protein_name, batch_index, numBatches, batch_loading_time, forward_time)
+        protein_name = dataset.proteins[protein_index]
+        for decoy_index=1, #dataset.decoys[protein_name] do
+            local decoy_filename = dataset.decoys[protein_name][decoy_index].filename
+            --Forward pass through batch
+            sample(dataset, model, logger, protein_name, decoy_filename, numSamples)                
+            print(protein_index, #dataset.proteins, protein_name, decoy_index, #dataset.decoys[protein_name])
 		end --batch
 	end --protein
 end
@@ -73,7 +66,7 @@ cmd:option('-training_model_name','ranking_model_8', 'cnn model name during trai
 cmd:option('-training_dataset_name','CASP_SCWRL', 'training dataset name')
 
 cmd:option('-test_model_name','ranking_model_8', 'cnn model name during testing')
-cmd:option('-test_dataset_name','CASP_SCWRL', 'test dataset name')
+cmd:option('-test_dataset_name','CASP11Stage2_SCWRL', 'test dataset name')
 cmd:option('-test_dataset_subset','datasetDescription.dat', 'test dataset subset')
 -- cmd:option('-test_dataset_subset','validation_set.dat', 'test dataset subset')
 
@@ -86,10 +79,10 @@ local adamConfig = {batch_size = optimization_parameters.batch_size	}
 local input_size = {	model.input_options.num_channels, model.input_options.input_size, 
 						model.input_options.input_size, model.input_options.input_size}
 
-local test_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, false, false, model.input_options.resolution)
+local test_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, true, true, model.input_options.resolution)
 test_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/'..params.test_dataset_name..'/Description', params.test_dataset_subset, 'tm-score')
-local test_logger = cTrainingLogger.new(params.experiment_name, params.training_model_name, params.training_dataset_name, 
-										params.test_dataset_name)
+local test_logger = cSamplingLogger.new(params.experiment_name, params.training_model_name, params.training_dataset_name, 
+										params.test_dataset_name..'_sampling')
 
 --Get the last model
 local model_backup_dir = test_logger.global_dir..'models/'
@@ -107,6 +100,7 @@ end
 model:initialize_cuda(1)
 math.randomseed( 42 )
 
-test_logger:allocate_train_epoch(test_dataset)
-test(test_dataset, model, test_logger, adamConfig)
+test_logger:allocate_sampling_epoch(test_dataset)
+test(test_dataset, model, test_logger, adamConfig, 2)
+-- sample(test_dataset, model, test_logger, test_dataset.proteins[1], test_dataset.decoys[test_dataset.proteins[1]][1].filename, 20)
 test_logger:save_epoch(0)
