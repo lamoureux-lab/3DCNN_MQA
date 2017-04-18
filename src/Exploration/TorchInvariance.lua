@@ -66,7 +66,7 @@ cmd:option('-training_model_name','ranking_model_8', 'cnn model name during trai
 cmd:option('-training_dataset_name','CASP_SCWRL', 'training dataset name')
 
 cmd:option('-test_model_name','ranking_model_8', 'cnn model name during testing')
-cmd:option('-test_dataset_name','CASP11Stage2_SCWRL', 'test dataset name')
+cmd:option('-test_dataset_name','CASP_SCWRL', 'test dataset name')
 cmd:option('-test_dataset_subset','datasetDescription.dat', 'test dataset subset')
 -- cmd:option('-test_dataset_subset','validation_set.dat', 'test dataset subset')
 
@@ -101,6 +101,6 @@ model:initialize_cuda(1)
 math.randomseed( 42 )
 
 test_logger:allocate_sampling_epoch(test_dataset)
-test(test_dataset, model, test_logger, adamConfig, 2)
--- sample(test_dataset, model, test_logger, test_dataset.proteins[1], test_dataset.decoys[test_dataset.proteins[1]][1].filename, 20)
+-- test(test_dataset, model, test_logger, adamConfig, 2)
+sample(test_dataset, model, test_logger, test_dataset.proteins[1], test_dataset.decoys[test_dataset.proteins[1]][1].filename, 100)
 test_logger:save_epoch(0)

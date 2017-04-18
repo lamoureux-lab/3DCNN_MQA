@@ -7,6 +7,8 @@ from matplotlib import pylab as plt
 from proteinProperties import getPDBBoundingBox
 import cPickle as pkl
 import operator
+import seaborn as sea
+import matplotlib.mlab as mlab
 
 def read_output(filename):
 	decoys_scores = {}
@@ -76,20 +78,21 @@ def plot_test_results(	experiment_name = 'QA',
 	plotFunnels(proteins, decoys, decoys_scores_average, output_path)
 
 if __name__=='__main__':
+	from scipy.stats import norm
 	experiment_name = 'QA_uniform'
 	model_name = 'ranking_model_8'
 	dataset_name = 'CASP_SCWRL'
 	test_dataset_name = 'CASP_SCWRL_sampling'
 
-	plot_test_results(  experiment_name = 'QA_uniform',
-						model_name = 'ranking_model_8',
-						trainig_dataset_name = 'CASP_SCWRL',
-						test_dataset_name = 'CASP11Stage2_SCWRL',
-						decoy_ranging_column = 'gdt-ts',
-						suffix = '_sampling')
+	# plot_test_results(  experiment_name = 'QA_uniform',
+	# 					model_name = 'ranking_model_8',
+	# 					trainig_dataset_name = 'CASP_SCWRL',
+	# 					test_dataset_name = 'CASP11Stage2_SCWRL',
+	# 					decoy_ranging_column = 'gdt-ts',
+	# 					suffix = '_sampling')
 	
 	data_path = '../../models/%s_%s_%s/%s/epoch_0.dat'%(	experiment_name, model_name, dataset_name,
-													test_dataset_name)
+															test_dataset_name)
 	data = []
 	with open(data_path, 'r') as f:
 		f.readline()
@@ -97,5 +100,13 @@ if __name__=='__main__':
 			sline = line.split()
 			data.append(float(sline[-1]))
 
-	plt.hist(data)
+	n, bins, patches = plt.hist(data, 50, normed=1, alpha=0.75, label='Distribution of sampled scores')
+	mu, std = norm.fit(data)
+	# mu, sigma = 1.4, 0.4
+	y = mlab.normpdf( bins, mu, std)
+	l = plt.plot(bins, y, 'r--', linewidth=2, label='Normal distribution')
+	title = "Fit results: mu = %.2f,  std = %.2f" % (mu, std)
+	plt.title(title)
+	plt.legend()
 	plt.show()
+	# plt.savefig('sampling_dist.png')

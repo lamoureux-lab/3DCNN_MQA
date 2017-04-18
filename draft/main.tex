@@ -196,56 +196,83 @@ the chosen protein. If there are empty clusters, then we take secon decoys from 
 At the end of each epoch we randomly
 shuffle the order of protein and the order of decoys in each cluster. 
 
+Each decoy from the selected batch is randomly rotated and translated. The rotations are sampled uniformly \cite{}. The translation are chosen
+in such a way, that the bounding box of the translated protein lies within the box of the size 120x120x120\AA. 
+
 To select the final model we randomly divided the training set into training and validation subsets. The validation subset consists of 
 35 targets and their decoys. This subset was not sampled during the training. 
-Figure \ref{} shows the Kendal tau, Pearsor R coefficients and the loss on the vaidation subset. The final model was chosen according to the 
-minimum loss.
+Figure \ref{Fig:TrainingLoss} shows the Kendal tau, Pearsor R coefficients and the loss on the vaidation subset. 
+The final model was chosen according to the minimum loss (epoch 40).
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{Fig/kendall_validation.png}
     \caption{The loss, Kendal tau and Pearson R coefficients evaluated on the validation subset during the training procedure. The epoch 
     denotes that all the targets in the training subset were sampled.}
-    \label{Fig:CNNModel}
+    \label{Fig:TrainingLoss}
 \end{figure}
 
-
-\section{Results}
-
-Table \ref{} shows the comparisson of our model with the state of art methods used for the decoy quality assessement. We used CASP11 dataset to measure the 
-characteristics. As we mentioned before we generated two versions of this dataset: the raw dataset and the one where each decoy sidechains were optimized with 
-the help of SCWRL program \cite{}. We also evaluated the performance of our ranking algorithm on the proteins on different size separately. These results are shown 
-in the Table \ref{}. 
+The table \ref{Tbl:TrainingResults} summarizes the performance metrics on the training and validation sets for the model at epoch 40.
 
 \begin{table}[H]
 \begin{center}
 \begin{tabular}{ c | c | c | c | c | c }
-    \multicolumn{6}{ c }{Stage 1} \\ \hline
-
-    QA method type & QA method & Loss & Pearson & Spearmann & Kendall \\
+    Data subset & Loss & Pearson & Spearmann & Kendall \\
     \hline
-    
-    \multirow{2}{*}{Meta-models} 
-    &ProQ2   &0.090 &0.643 &0.506 &0.379 \\
-    &Qprob   &0.097 &0.631 &0.517 &0.389 \\ \hline
-    \multirow{2}{*}{Single models} 
-    &\textbf{3DCNN}   &0.087 &0.515 &0.405 &0.308 \\
-    &RWplus  &0.135 &0.536 &0.433 &0.433 \\ \hline
-    
-    \multicolumn{6}{ c }{Stage 2} \\ \hline
+    &Training set     &0.146 &0.71 &0.61 &0.45 \\
+    &Validation set   &0.135 &0.71 &0.59 &0.44 \\ \hline
 
-    \multirow{2}{*}{Meta-models} 
-    &ProQ2   &0.058 &0.372 &0.366 &0.256 \\ 
-    &Qprob   &0.068 &0.381 &0.387 &0.272 \\ \hline
-    \multirow{2}{*}{Single models} 
-    &\textbf{3DCNN}     &0.074 &0.397 &0.381 &0.268 \\ 
-    &RWplus  &0.084 &0.295 &0.314 &0.220 \\ \hline
+\end{tabular}
+  \caption {Results of the model from epoch 40 on the training and validation subsets.}
+    \label{Tbl:TrainingResults}
+\end{center}
+\end{table}
+
+\section{Results}
+During the training of the model we randomly sampled rotational and translational degrees of freedom of a decoy structure. Ideally, we 
+want the score assigned by the model to a decoy to be invariant under these transformations. However Fig \ref{} shows that the distribution
+of scores under rotations and translations follows the gaussian distribution. Therefore, to approximate the average score of a decoy we 
+sample a score under random translation and rotation 20 times for each decoy in the test set. The final score is then the average of these 
+samples.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{Fig/sampling_dist.png}
+    \caption{The distribution of scores under random translations and rotations of the decoy LOOPP\_TS1 for the target T0342. The raw data
+    is show with the histogram. The fitted normal distribution is show with the dashed line. The fitted parameters of the normal distribution are:
+    the average $\mu = 1.38$ and the standard deviation $\sigma = 0.42$.}
+    \label{Fig:TrainingLoss}
+\end{figure}
+
+
+Table \ref{Tbl:TestResults} shows the comparisson of our model with the state of art methods used for the decoy quality assessement. 
+To evaluate the performance we used CASP11 stages 1 and 2 datasets. 
+These datasets were preprocessed using SCWRL program to optimize side-chains. 
+
+\begin{table}[H]
+\begin{center}
+\begin{tabular}{ c | c | c | c | c }
+    \multicolumn{5}{ c }{Stage 1} \\ \hline
+
+    QA method & Loss & Pearson & Spearmann & Kendall \\
+    \hline
+    ProQ2   &0.090 &0.643 &0.506 &0.379 \\
+    Qprob   &0.097 &0.631 &0.517 &0.389 \\
+    \textbf{3DCNN}   &\textbf{0.072} &0.530 &0.415 &0.318 \\
+    RWplus  &0.135 &0.536 &0.433 &0.433 \\ \hline
+    
+    \multicolumn{5}{ c }{Stage 2} \\ \hline
+    
+    ProQ2   &\textbf{0.058} &0.372 &0.366 &0.256 \\ 
+    Qprob   &0.068 &0.381 &0.387 &0.272 \\
+    \textbf{3DCNN}     &\textbf{0.064} &\textbf{0.415} &\textbf{0.402} &\textbf{0.283} \\
+    RWplus  &0.084 &0.295 &0.314 &0.220 \\ \hline
 
 \end{tabular}
     
     \caption {Results of our method(3DCNN) and the other state-of-art quality assessment programs on the CASP11 dataset Stage 1 and 2.
             Table shows the absolute average values of correlation coefficients. The averaging was performed for each target in the 
             dataset. Afterwards all the values were averaged over all the targets.}
-    \label{Tbl:optParams}
+    \label{Tbl:TestResults}
 \end{center}
 \end{table}
 
