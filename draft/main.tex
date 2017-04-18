@@ -9,7 +9,7 @@
 \usepackage{multirow}
 
 %opening
-\title{Deep convolutional networks for protein fold recognition}
+\title{Deep convolutional networks for protein fold quality assessment}
 \author{}
 
 \begin{document}
@@ -22,45 +22,47 @@
 
 \section{Introduction}
 Proteins are the cogs of the cell machinery. In order to understand responses of a cell to the external stimuli given their internal state, we
-have to be able to predict the function of the proteins expressed in a cell. The current paradigm dictates that the function of a protein is determined
-mainly by its structure and its interactions with other molecules present in a cell. Therefore the problem of a protein structure prediction 
-(protein folding) is one of the limiting factors in the progress of biology.
+have to be able to predict the function of the proteins expressed in a cell. The current paradigm dictates that the function 
+of a protein is determined mainly by its structure that dictates its interactions with other molecules present in a cell. 
+Therefore the problem of a protein structure prediction (protein folding) is one of the limiting factors in understanding and designing living
+organisms.
 
-Recent progress in protein folding relies mostly on the increasing computing capacity. Current methods can generate thousands of 
-candidate structures (decoys) given its sequence. Hence the selection of the most viable candidates comes to the forefront as the limiting 
-factor in solving the protein folding problem. 
+The progress in the field of protein folding is monitored by Critical Assessment of protein Structure Prediction (CASP) \cite{moult1995large}. This 
+is a community-wide experiment to evaluate the protein folding prediction methods. Every method participating in this competition has a pipline
+that includes sampling and quality assessment (QA) steps. During the sampling part, the candidate conformations of a protein are generated. The 
+QA part of an algorithm tries to select the candidates closest to the unknown native structure.
 
-Deep learning (DL) is a popular  approach in the field of machine learning, which recently gained considerable interest in the research community \cite{lecun2015deep}, 
-particularly in computer vision and image recognition. Unlike previous ‘shallow’ approaches, DL tries to learn hierarchical representation of the 
+In this paper we explore the application of deep learning, a new machine learning technique to the protein decoys quality assessment problem. 
+Deep learning (DL) is a popular  approach in the field of machine learning, which recently gained considerable interest 
+in the research community \cite{lecun2015deep}, particularly in computer vision and image recognition. 
+Unlike previous ‘shallow’ approaches, DL tries to learn hierarchical representation of the 
 data in hand. It alleviates the need for feature extraction that constituted the bulk of the work done by researchers. 
 
 Recently, DL was applied to biological data and yielded remarkable results in the human splicing code prediction \cite{xiong2015human}, 
-identification of DNA- and RNA-binding  motifs \cite{alipanahi2015predicting} and predicting the effects of non-coding DNA variants at single nucleotide polymorphism 
-precision \cite{zhou2015predicting}. These successes have one thing in common: they do not introduce any features between the raw data and the deep learning model. 
+identification of DNA- and RNA-binding  motifs \cite{alipanahi2015predicting} and predicting the effects of non-coding 
+DNA variants at single nucleotide polymorphism 
+precision \cite{zhou2015predicting}. These successes have one thing in common: they do not introduce any features 
+between the raw data and the deep learning model. 
 
-Deep learning methods were also applied in the field of structure quality assessment \cite{}. In particular, DeepQA \cite{} used 9 scores from other QA estimators and 
-7 physico-chemical feature estracted from a structure as the input features to the deep boltzman machine \cite{}. In the DL-PRO algorithm \cite{}, authors first compute 
-contact maps of the decoys and compress them using PCA. The vectors from PCA are then fed into an autoencoder to predict the score of the decoy. The authors that apply the 
-deep learning methods use them as the ordinary 'shallow' classifiers. Therefore they do not get all the advantages these new techniques offer.
+\subsection{Related work}
+Deep learning methods were also applied in the field of structure quality assessment \cite{}. In particular, 
+DeepQA \cite{} used 9 scores from other QA estimators and 
+7 physico-chemical feature estracted from a structure as the input features to the deep boltzman machine \cite{}. 
+In the DL-PRO algorithm \cite{}, authors first compute contact maps of the decoys and compress them using PCA. 
+The vectors from PCA are then fed into an autoencoder to predict the score of the decoy. 
+The authors that apply the deep learning methods use them as the ordinary 'shallow' classifiers. 
+Therefore they do not get all the advantages these new techniques offer.
 
-The are three major components that made deep learning from the raw data possible: increasing computational power and GPU acceleration, increased amount of 
-training data and improved optimization techniques such as Dropout \cite{}, batch normalization \cite{} and new stochastic gradient optimizers, such as Adam \cite{}.
-Usually, it is assumed that the amount of data is the bottleneck in the computational structural biology. In this paper we explore if this is indeed the case. We also show 
-that the model training from the raw atomic densities is competitive with the state-of-art methods, that either rely on meta-models or on the heavily engineered features.
-We also show that in certain cases deep learning model outperforms the conventional approach.
-
-Another obstackle that prevents wide adoption of DL methods is the lack of transparency of the models. Here we argue, that although we can not break the final score of 
-the model by contributions, as is done in ProQ2 QA assessment algorithm \cite{}, we can inspect the representations of proteins the model learns. We also look into local 
-features that contribute to the score. Finally, we demonstrate that the model we propose, unlike the conventional approaches, can fold proteins using the gradient descent.
 
 \section{Materials and Methods}
+
+
+
+
 \subsection{Datasets}
-To train and assess our method we used the two datasets of protein decoys: 3DRobot dataset \cite{} and CASP datasets \cite{}. The decoys in 3DRobot dataset 
-were generated using free fragment assembly followed by optimization of hydrogen bonding and compactness of the decoys. It contains 200 structures with 300 decoys
-for each. They have near-even distribution of root mean squared deviation with respect to the corresponding native structure. This dataset was used to tune the 
-hyperparameters of the model and the training procedure.
-The CASP datasets were used to asses the quality of the predictions. We took the datasets from CASP7 - CASP10 as the training set and the CASP11 dataset as the test set.
-We also generated the second version of the CASP training and test sets by optimizing sidechains with SCWRL program \cite{}.
+To train and assess our method we used the datasets of protein decoys from the CASP competition. 
+We took the datasets CASP7 - CASP10 as the training set and the CASP11 dataset as the test set.
+We optimized side chain conformation of the training and test sets using SCWRL program \cite{}.
 
 \subsection{Input and Model}
 \begin{figure}[H]
@@ -69,11 +71,14 @@ We also generated the second version of the CASP training and test sets by optim
     \caption{The schematic representation of the convolutional neural network architecture used in this work.}
     \label{Fig:CNNModel}
 \end{figure}
-The schematic representation of the model architecture is shown on the Fig \ref{Fig:CNNModel}. It is comprised of three blocks of alternating convolutional, 
+The schematic representation of the model architecture is shown on the Fig \ref{Fig:CNNModel}. 
+It is comprised of three blocks of alternating convolutional, 
 volumetric batch normalization and ReLU layers and three 
-fully connected layers with ReLU nonlinearities. The final output of the network is a single number, that is interpreted as a score of an input structure.
+fully connected layers with ReLU nonlinearities. The final output of the network is a single number, 
+that is interpreted as a score of an input structure.
 The input of the model is the density maps of atom types in a structure. We used 11 types of atoms shown in the Table \ref{Tbl:atomTypes}. 
-Each atom type was projected on the corresponding grid and served as an input of the model. The density of an atom was modeled using the function: 
+Each atom type was projected on the corresponding grid and served as an input of the model. 
+The density of an atom was modeled using the function: 
 $$
 \rho(r) =  \begin{cases}
                e^{-\frac{r^2}{2}}&r\leq 2.0\AA~\\
@@ -125,7 +130,8 @@ $$
 \end{table}
 
 \subsection{Loss functions}
-We evaluated two scoring functions: linear regression and ranking scoring function. Let a decoy representation be denoted as $x_i$ and therefore the output
+We evaluated two scoring functions: linear regression and ranking scoring function. 
+Let a decoy representation be denoted as $x_i$ and therefore the output
 of the network on this decoy will be $f(x_i)$. Next, let $y_{ij}$ be the ordering coefficient of the two decoys we pick: 
 $$
 y_{ij} = \begin{cases}
@@ -133,8 +139,8 @@ y_{ij} = \begin{cases}
                -1& gdtts_i > gdtts_j \\
             \end{cases}
 $$
-Here $gdtts_i$ is the GDT-TS score of the $i$-th decoy. In principle, any target function can be chosen. We also tried RMSD and TM-Score functions, but the results for
-these two scoring schemes are not presented in this paper. After we explained notation we can define the pairwise ranking scoring function:
+Here $gdtts_i$ is the GDT-TS score of the $i$-th decoy. In principle, any target function can be chosen. 
+The pairwise ranking scoring function has the following expression:
 
 $$ L_{ij} = w_{ij} \cdot \max \left[ 0, 1 - y_{ij} \left( f \left( x_i \right) - f \left( x_j \right) \right) \right] $$
 
@@ -147,54 +153,21 @@ w_{ij} = \begin{cases}
             \end{cases}
 $$
 
-where the $threshold$ we define manually. If the two decoys are too similar, we avoid scoring them against each other during the training, because it introduces 
-the noise into the gradient and prevents optimization. We observed that the noisy gradient results in the final model, that scores all the decoys equally.
+where the $threshold$ is set to 0.1{\AA}. If the two decoys are too similar, 
+we avoid scoring them against each other during the training, because it introduces 
+the noise into the gradient and prevents optimization.
 
 
-During the training procedure we load several decoys (batch) into memory and evaluate the model on them. Afterwards, we compute the average loss for the batch:
+During the training procedure we load several decoys (batch) into memory and evaluate the model on them. 
+Afterwards, we compute the average loss for the batch:
 $$ L = \frac{1}{N} \sum_{i=1,j=1, i \neq j}^{M} L_ij $$ 
 where $N$ is the number of pairs of decoys with the $w_{ij} > 0$ and $M$ is the number of decoys in a batch.
 
-The linear regression loss function is also defined on a batch of decoys. TODO.
-
-\subsection{Optimization and dataset sampling}
-The optimization procedure of deep convolutional networks usually is stochastic: the function value and gradient is estimated on a small subset (batch) of all the training 
-examples. We used the batch of size 10 due to memory limitations. The optimization algorithm we used was Adam \cite{} with hyper-parameters shown in Table \ref{Tbl:optParams}. 
-
-The dataset was sampled in the following way: first we chose a random protein from the dataset, then we sample decoys of this protein. The procedure is repeated for all the 
-proteins in a dataset. One pass through all the proteins in a dataset is called epoch. 
-The decoys are sampled in a homogeneous way: we divide all the decoys into $M$ clusters by the value of GDT-TS score. Precisely, the decoy $i$ belongs to the cluster  
-number $ \left[ \frac{\max(gdtts) - gdtts_i}{\max(gdtts) - \min(gdtts)} \right] + 1$, where $\max(gdtts)$ and $\min(gdtts)$ are computed for all the decoys of 
-the chosen protein. If there are empty clusters, then we take secon decoys from each non-empty and so on until we filled the batch. At the end of each epoch we randomly
-shuffle the order of protein and the order of decoys in each cluster.
-
-We also found that decreasing $threshold$ in the example weights $w_{ij}$ during training is beneficial. The exact schedule for this parameter during the training procedure 
-is shown in the Table \ref{Tbl:optParams}.
-
-\begin{table}[H]
-\begin{center}
-\begin{tabular}{ l | l }
-    
-    Parameter & Value \\
-    \hline
-    $L_1$ regularization coefficient & $1 \cdot 10^-5$ \\ \hline
-    Learning rate & $0.5 \cdot 10^-4$ \\ \hline
-    Number of epochs & 150 \\ \hline
-    GDT-TS threshold & epoch 1 : $0.3$ \\ 
-                     & epoch 20 : $0.2$ \\ 
-                     & epoch 40 : $0.1$ \\ 
-                     & epoch 80 : $0.0$ \\ \hline
-\end{tabular}
-    
-    \caption {Optimization parameters and GDT-TS threshold curriculum.}
-    \label{Tbl:optParams}
-\end{center}
-\end{table}
-
-
-\section{Results}
-We evaluated our algorithm using the correlation coefficients, Z-score and loss criterions. The correlation coefficents were computed between the score of 
-our model and GDT-TS metric for all the decoys of each protein in the CASP11 test dataset and then averaged. The Z-score is the deviation of the score of 
+\subsection{Evaluation criteria}
+We evaluated our algorithm using the correlation coefficients, Z-score and loss criterions. The correlation coefficents 
+were computed between the score of 
+our model and GDT-TS metric for all the decoys of each target protein in a test set and then averaged. 
+The Z-score is the deviation of the score of 
 the best decoy for a certain protein and average decoy score for this protein:
 $$ 
 Z-score = \frac{f( argmin(gdtts(x_i)) ) - <f(x)>}{std.dev.f(x)}
@@ -204,6 +177,39 @@ The loss criterion is the deviation of the GDT-TS of the best decoys for a prote
 $$ 
 Loss = | max_i( gdtts_i ) - gdtts( argmin(f(x_i) ) |
 $$ 
+
+\subsection{Optimization and dataset sampling}
+The optimization procedure of deep convolutional networks usually is stochastic: the function value and gradient 
+is estimated on a small subset (batch) of all the training 
+examples. We used the batch of size 10 due to the memory limitations. Afterward the parameters of the model are 
+changed in the direction of the estimated gradient.
+The parameter update step was performed using the Adam algorithm \cite{}. 
+
+The dataset was sampled in the following way: first we chose a random protein from the dataset, then we sample decoys of this protein. 
+The procedure is repeated for all the 
+proteins in a dataset. One pass through all the proteins in a dataset is called epoch. 
+The decoys are sampled in a homogeneous way: we divide all the decoys into $M$ clusters by the value of GDT-TS score. 
+Precisely, the decoy $i$ belongs to the cluster  
+number $ \left[ \frac{\max(gdtts) - gdtts_i}{\max(gdtts) - \min(gdtts)} \right] + 1$, where $\max(gdtts)$ and $\min(gdtts)$ 
+are computed for all the decoys of 
+the chosen protein. If there are empty clusters, then we take secon decoys from each non-empty and so on until we filled the batch. 
+At the end of each epoch we randomly
+shuffle the order of protein and the order of decoys in each cluster. 
+
+To select the final model we randomly divided the training set into training and validation subsets. The validation subset consists of 
+35 targets and their decoys. This subset was not sampled during the training. 
+Figure \ref{} shows the Kendal tau, Pearsor R coefficients and the loss on the vaidation subset. The final model was chosen according to the 
+minimum loss.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{Fig/kendall_validation.png}
+    \caption{The loss, Kendal tau and Pearson R coefficients evaluated on the validation subset during the training procedure. The epoch 
+    denotes that all the targets in the training subset were sampled.}
+    \label{Fig:CNNModel}
+\end{figure}
+
+
+\section{Results}
 
 Table \ref{} shows the comparisson of our model with the state of art methods used for the decoy quality assessement. We used CASP11 dataset to measure the 
 characteristics. As we mentioned before we generated two versions of this dataset: the raw dataset and the one where each decoy sidechains were optimized with 
