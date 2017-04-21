@@ -109,7 +109,7 @@ $$
      & & TRPCZ3, TYRCD1, TYRCD2, TYRCE1 \\
      & & TYRCE2, TYRCG, TYRCZ \\ \hline
     11 & Sp3 carbon & ALACB, ARGCB, ARGCG, ARGCD \\
-     & & ASNCB, ASPCB, GLNCB, GLNCG\\
+     & & ASNCB, ASPCB, GLNCB, GLNCG \\
      & & GLUCB, GLUCG, HISCB, HISCB \\
      & & ILECB, ILECD1, ILECG1, ILECG2 \\
      & & LEUCB, LEUCD1, LEUCD2, LEUCG \\
@@ -128,6 +128,16 @@ $$
     \label{Tbl:atomTypes}
 \end{center}
 \end{table}
+Figure \ref{Fig:atomic_densities} shows an example of atomic densities. 
+The protein used for visualization has PDB code 5eh6. Only non-zero densities are shown.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{Fig/atomic_densities.png}
+    \caption{The example of the representation of a protein using atomic densities. The density map is 
+    shown using the volumetric rendering plugin for PyMol. The pdb-code of the protein used for this visualization is 5eh6.}
+    \label{Fig:atomic_densities}
+\end{figure}
 
 \subsection{Loss functions}
 We evaluated two scoring functions: linear regression and ranking scoring function. 
@@ -215,11 +225,11 @@ The table \ref{Tbl:TrainingResults} summarizes the performance metrics on the tr
 
 \begin{table}[H]
 \begin{center}
-\begin{tabular}{ c | c | c | c | c | c }
+\begin{tabular}{ c | c | c | c | c }
     Data subset & Loss & Pearson & Spearmann & Kendall \\
     \hline
-    &Training set     &0.146 &0.71 &0.61 &0.45 \\
-    &Validation set   &0.135 &0.71 &0.59 &0.44 \\ \hline
+    Training set     &0.146 &0.71 &0.61 &0.45 \\
+    Validation set   &0.135 &0.71 &0.59 &0.44 \\ \hline
 
 \end{tabular}
   \caption {Results of the model from epoch 40 on the training and validation subsets.}
@@ -229,7 +239,8 @@ The table \ref{Tbl:TrainingResults} summarizes the performance metrics on the tr
 
 \section{Results}
 During the training of the model we randomly sampled rotational and translational degrees of freedom of a decoy structure. Ideally, we 
-want the score assigned by the model to a decoy to be invariant under these transformations. However Fig \ref{} shows that the distribution
+want the score assigned by the model to a decoy to be invariant under these transformations. However Fig \ref{Fig:ScoreDistribution} 
+shows that the distribution
 of scores under rotations and translations follows the gaussian distribution. Therefore, to approximate the average score of a decoy we 
 sample a score under random translation and rotation 20 times for each decoy in the test set. The final score is then the average of these 
 samples.
@@ -237,10 +248,11 @@ samples.
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{Fig/sampling_dist.png}
-    \caption{The distribution of scores under random translations and rotations of the decoy LOOPP\_TS1 for the target T0342. The raw data
-    is show with the histogram. The fitted normal distribution is show with the dashed line. The fitted parameters of the normal distribution are:
-    the average $\mu = 1.38$ and the standard deviation $\sigma = 0.42$.}
-    \label{Fig:TrainingLoss}
+    \caption{The distribution of scores under random translations and rotations of the decoy LOOPP\_TS1 for the target T0342. The distributions 
+    os scores under rotations only and translations only are shown with the dashed and solid lines respectively.
+    The normal distribution fitted into the sampled scores under both rotations and translations is show with the dashed line. 
+    The parameters of the normal distribution are: the average $\mu = 1.38$ and the standard deviation $\sigma = 0.42$.}
+    \label{Fig:ScoreDistribution}
 \end{figure}
 
 

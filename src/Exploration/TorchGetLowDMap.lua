@@ -70,12 +70,12 @@ cmd:text()
 cmd:text('Testing a network')
 cmd:text()
 cmd:text('Options')
-cmd:option('-experiment_name','QA', 'training experiment name')
+cmd:option('-experiment_name','QA_uniform', 'training experiment name')
 cmd:option('-training_model_name','ranking_model_8', 'cnn model name during training')
-cmd:option('-training_dataset_name','AgregateDataset', 'training dataset name')
+cmd:option('-training_dataset_name','CASP_SCWRL', 'training dataset name')
 
 cmd:option('-test_model_name','ranking_model_8', 'cnn model name during testing')
-cmd:option('-test_dataset_name','CASP11Stage1_SCWRL', 'test dataset name')
+cmd:option('-test_dataset_name','CASP11Stage2_SCWRL', 'test dataset name')
 cmd:option('-test_dataset_subset','datasetDescription.dat', 'test dataset subset')
 -- cmd:option('-test_dataset_subset','validation_set.dat', 'test dataset subset')
 
@@ -97,7 +97,7 @@ local activations_logger = cTrainingLogger.new(params.experiment_name, params.tr
 
 local model_backup_dir = activations_logger.global_dir..'models/'
 local start_epoch = 1
-for i=150, 1, -1 do 
+for i=40, 1, -1 do 
 	local epoch_model_backup_dir = model_backup_dir..'epoch'..tostring(i)
 	if file_exists(epoch_model_backup_dir) then 
 		model:load_model(epoch_model_backup_dir)

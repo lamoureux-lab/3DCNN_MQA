@@ -79,7 +79,7 @@ local adamConfig = {batch_size = optimization_parameters.batch_size	}
 local input_size = {	model.input_options.num_channels, model.input_options.input_size, 
 						model.input_options.input_size, model.input_options.input_size}
 
-local test_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, true, true, model.input_options.resolution)
+local test_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, true, false, model.input_options.resolution)
 test_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/'..params.test_dataset_name..'/Description', params.test_dataset_subset, 'tm-score')
 local test_logger = cSamplingLogger.new(params.experiment_name, params.training_model_name, params.training_dataset_name, 
 										params.test_dataset_name..'_sampling')
@@ -103,4 +103,4 @@ math.randomseed( 42 )
 test_logger:allocate_sampling_epoch(test_dataset)
 -- test(test_dataset, model, test_logger, adamConfig, 2)
 sample(test_dataset, model, test_logger, test_dataset.proteins[1], test_dataset.decoys[test_dataset.proteins[1]][1].filename, 100)
-test_logger:save_epoch(0)
+test_logger:save_epoch(4)

@@ -77,6 +77,15 @@ def plot_test_results(	experiment_name = 'QA',
 	output_path = '../../models/%s_%s_%s/%s_funnels.png'%(experiment_name, model_name, trainig_dataset_name, test_dataset_name+suffix)
 	plotFunnels(proteins, decoys, decoys_scores_average, output_path)
 
+def read_samples(data_path):
+	data = []
+	with open(data_path, 'r') as f:
+		f.readline()
+		for line in f:
+			sline = line.split()
+			data.append(float(sline[-1]))
+	return data
+
 if __name__=='__main__':
 	from scipy.stats import norm
 	experiment_name = 'QA_uniform'
@@ -91,22 +100,27 @@ if __name__=='__main__':
 	# 					decoy_ranging_column = 'gdt-ts',
 	# 					suffix = '_sampling')
 	
-	data_path = '../../models/%s_%s_%s/%s/epoch_0.dat'%(	experiment_name, model_name, dataset_name,
+	data_path_rt = '../../models/%s_%s_%s/%s/rot_trans_sampling_T1D1.dat'%(	experiment_name, model_name, dataset_name,
 															test_dataset_name)
-	data = []
-	with open(data_path, 'r') as f:
-		f.readline()
-		for line in f:
-			sline = line.split()
-			data.append(float(sline[-1]))
+	data_path_t = '../../models/%s_%s_%s/%s/trans_sampling_T1D1.dat'%(	experiment_name, model_name, dataset_name,
+															test_dataset_name)
+	data_path_r = '../../models/%s_%s_%s/%s/rot_sampling_T1D1.dat'%(	experiment_name, model_name, dataset_name,
+															test_dataset_name)
+	data_rt = read_samples(data_path_rt)
+	data_r = read_samples(data_path_r)
+	data_t = read_samples(data_path_t)
+	
 
-	n, bins, patches = plt.hist(data, 50, normed=1, alpha=0.75, label='Distribution of sampled scores')
-	mu, std = norm.fit(data)
+	n, bins_rt, patches_rt = plt.hist(data_rt, 50, normed=1, alpha=0.5, fill=True, label='Sampled rotations and translations')
+	n, bins_r, patches_r = plt.hist(data_r, 50, normed=1, histtype='step', linestyle=('solid'),color=('red'), lw=1.5, alpha=1.0, fill=False, label='Sampled rotations')
+	n, bins_t, patches_t = plt.hist(data_t, 50, normed=1, histtype='step', linestyle=('dashed'),color=('black'), lw=1.5, alpha=1.0, fill=False, label='Sampled translations')
+	
+	mu, std = norm.fit(data_rt)
 	# mu, sigma = 1.4, 0.4
-	y = mlab.normpdf( bins, mu, std)
-	l = plt.plot(bins, y, 'r--', linewidth=2, label='Normal distribution')
-	title = "Fit results: mu = %.2f,  std = %.2f" % (mu, std)
-	plt.title(title)
-	plt.legend()
-	plt.show()
-	# plt.savefig('sampling_dist.png')
+	y = mlab.normpdf( bins_rt, mu, std)
+	l = plt.plot(bins_rt, y, 'r--', linewidth=2, color=('green'), label='Normal distribution, mu = %.2f,  std = %.2f' % (mu, std))
+	# title = "Fit results: mu = %.2f,  std = %.2f" % (mu, std)
+	# plt.title(title)
+	plt.legend(loc = 2)
+	# plt.show()
+	plt.savefig('sampling_dist.png')

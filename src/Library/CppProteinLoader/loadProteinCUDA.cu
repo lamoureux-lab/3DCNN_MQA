@@ -158,7 +158,7 @@ extern "C"{
 						 batchInfo* batch, THCudaTensor *batch5D,
 						 bool shift, bool rot, float resolution,
 						 int assigner_type, int spatial_dim){
-		
+		// std::cout<<"Flag!"<<std::endl;
 		THGenerator *gen = THGenerator_new();
  		THRandom_seed(gen);
  		int num_atom_types;
@@ -177,7 +177,7 @@ extern "C"{
 				data_array + i*num_atom_types, n_atoms + i*num_atom_types);
 			flags[i] = res;
 		}
-
+		
 		for(int i=0; i<batch->len; i++){
 			if(flags[i]<0){
 				std::cout<<"Corrupt file detected\n";
@@ -211,6 +211,10 @@ extern "C"{
 		// 		std::cout<<"("<<n_atoms[j+i*num_atom_types]<<","<<offsets[j+i*num_atom_types]<<"), ";
 		// 	}
 		// 	std::cout<<"\n";
+		// }
+
+		// for(int i=0;i<n_atoms[1];i++){
+		// 	std::cout<<data_array[1][i]<<"\n";
 		// }
 
 		//data_array copy to gpu

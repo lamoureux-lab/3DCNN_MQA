@@ -22,6 +22,7 @@ from operator import itemgetter
 from plotTrainingProcess import read_dataset_description, read_epoch_output
 from sklearn.preprocessing import normalize
 import matplotlib.patches as mpatches
+import matplotlib.cm as cm
 
 def Hbeta(D = Math.array([]), beta = 1.0):
 	"""Compute the perplexity and the P-row for a specific value of the precision of a Gaussian distribution."""
@@ -243,25 +244,25 @@ if __name__ == "__main__":
 									Processes the activations written in a file and embeds them in 2D.
 									""")
 	parser.add_argument('--experiment_name', metavar='experiment_name', type=str, 
-                   help='Experiment name', default='QA')
+                   help='Experiment name', default='QA_uniform')
 	parser.add_argument('--training_dataset_name', metavar='training_dataset_name', type=str, 
                    help='Dataset name used for training', default='CASP_SCWRL')
 	parser.add_argument('--training_model_name', metavar='training_model_name', type=str, 
                    help='Model used for training', default='ranking_model_8')
 	parser.add_argument('--embed_dataset_name', metavar='embed_dataset_name', type=str, 
-                   help='Dataset used for embedding', default='AgregateDataset')
+                   help='Dataset used for embedding', default='CASP11Stage2_SCWRL')
 	parser.add_argument('--embed_name', metavar='embed_name', type=str, 
                    help='Additional label for embedding', default='_native_activations')
 	parser.add_argument('-generate', metavar='generate', type=bool, 
                    help='Generate embedding', default=False)
 	parser.add_argument('-pca', metavar='generate', type=bool, 
-                   help='Generate embedding', default=False)
+                   help='Generate embedding', default=True)
 	parser.add_argument('-visualize', metavar='visualize', type=bool, 
                    help='Visualize embedding', default=False)
 	parser.add_argument('-clusters', metavar='clusters', type=bool, 
                    help='Get clusters', default=False)
 	parser.add_argument('-decoys', metavar='decoys', type=bool, 
-                   help='Get clusters and rerun t-sne on them', default=False)
+                   help='Get clusters and rerun t-sne on them', default=True)
 	parser.add_argument('-folds', metavar='folds', type=bool, 
                    help='Plot tsne with folds', default=False)
 	
@@ -283,7 +284,7 @@ if __name__ == "__main__":
 		if args.decoys:
 			dataset_proteins, decoys = read_dataset_description('/home/lupoglaz/ProteinsDataset/%s/Description'%args.embed_dataset_name,'datasetDescription.dat')		
 			loss_function_values, decoys_scores = read_epoch_output(os.path.join(experiment_dir,
-																	'CASP11Stage1_SCWRL_native_activations/epoch_0.dat'))
+																	'CASP11Stage2_SCWRL_native_activations/epoch_0.dat'))
 			C = Math.zeros( (X.shape[0],))
 			for n,protein_path in enumerate(proteins):
 				i_end = protein_path.rfind('/')
@@ -293,8 +294,9 @@ if __name__ == "__main__":
 				
 			fig = plt.figure(figsize=(10,10))
 			ax = fig.add_subplot(111, projection='3d')
-			ax.scatter(Y[:,0], Y[:,1], Y[:,2], c=C)
+			plot = ax.scatter(Y[:,0], Y[:,1], Y[:,2], c=C, cmap="jet_r")
 			# plt.scatter(Y[:,0], Y[:,1])
+			plt.colorbar(plot)
 			plt.savefig(figure_pca_output_file)
 		else:
 			fig = plt.figure(figsize=(10,10))
