@@ -132,38 +132,49 @@ end
 function BN:updateGradInput(input, gradOutput)
    assert(input:dim() == 5, 'only mini-batch supported')
    assert(gradOutput:dim() == 5, 'only mini-batch supported')
-   assert(self.train == true, 'should be in training mode when self.train is true')
-   local nBatch = input:size(1)
-   local nFeature = input:size(2)
-   local iT = input:size(3)
-   local iH = input:size(4)
-   local iW = input:size(5)
-
-   self.gradInput:cmul(self.centered, gradOutput)
-   local gi_folded = self.gradInput:view(nBatch, nFeature, iT*iH*iW)
-   self.buffer2:mean(self.buffer:mean(gi_folded, 1), 3)
-   self.gradInput:repeatTensor(self.buffer2:view(1, nFeature, 1, 1, 1),
-                               nBatch, 1, iT, iH, iW)
-   self.gradInput:cmul(self.centered):mul(-1)
-   self.buffer:repeatTensor(self.std:view(1, nFeature, 1, 1, 1),
-                            nBatch, 1, iT, iH, iW)
-   self.gradInput:cmul(self.buffer):cmul(self.buffer)
-
-   self.buffer:mean(gradOutput:view(nBatch, nFeature, iT*iH*iW), 1)
-   self.buffer2:mean(self.buffer, 3)
-   self.buffer:repeatTensor(self.buffer2:view(1, nFeature, 1, 1, 1),
-                            nBatch, 1, iT, iH, iW)
-   self.gradInput:add(gradOutput):add(-1, self.buffer)
-   self.buffer:repeatTensor(self.std:view(1, nFeature, 1, 1, 1),
-                            nBatch, 1, iT, iH, iW)
-   self.gradInput:cmul(self.buffer)
-
-   if self.affine then
-      self.buffer:repeatTensor(self.weight:view(1, nFeature, 1, 1, 1),
-                               nBatch, 1, iT, iH, iW)
+    local nBatch = input:size(1)
+    local nFeature = input:size(2)
+    local iT = input:size(3)
+    local iH = input:size(4)
+    local iW = input:size(5)
+   
+   if self.train == false then      
+      self.buffer:repeatTensor(self.running_std:view(1, nFeature, 1, 1, 1), nBatch, 1, iT, iH, iW)
+      self.gradInput:copy(gradOutput)
       self.gradInput:cmul(self.buffer)
-   end
+      
+      if self.affine then
+          self.buffer:repeatTensor(self.weight:view(1, nFeature, 1, 1, 1),
+                                  nBatch, 1, iT, iH, iW)
+          self.gradInput:cmul(self.buffer)
+      end
+      return self.gradInput
+   else
+      self.gradInput:cmul(self.centered, gradOutput)
+      local gi_folded = self.gradInput:view(nBatch, nFeature, iT*iH*iW)
+      self.buffer2:mean(self.buffer:mean(gi_folded, 1), 3)
+      self.gradInput:repeatTensor(self.buffer2:view(1, nFeature, 1, 1, 1),
+                                  nBatch, 1, iT, iH, iW)
+      self.gradInput:cmul(self.centered):mul(-1)
+      self.buffer:repeatTensor(self.std:view(1, nFeature, 1, 1, 1),
+                                nBatch, 1, iT, iH, iW)
+      self.gradInput:cmul(self.buffer):cmul(self.buffer)
 
+      self.buffer:mean(gradOutput:view(nBatch, nFeature, iT*iH*iW), 1)
+      self.buffer2:mean(self.buffer, 3)
+      self.buffer:repeatTensor(self.buffer2:view(1, nFeature, 1, 1, 1),
+                                nBatch, 1, iT, iH, iW)
+      self.gradInput:add(gradOutput):add(-1, self.buffer)
+      self.buffer:repeatTensor(self.std:view(1, nFeature, 1, 1, 1),
+                                nBatch, 1, iT, iH, iW)
+      self.gradInput:cmul(self.buffer)
+
+      if self.affine then
+          self.buffer:repeatTensor(self.weight:view(1, nFeature, 1, 1, 1),
+                                  nBatch, 1, iT, iH, iW)
+          self.gradInput:cmul(self.buffer)
+      end
+   end
    return self.gradInput
 end
 

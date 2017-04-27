@@ -64,10 +64,12 @@ To train and assess our method we used the datasets of protein decoys from the C
 We took the datasets CASP7 - CASP10 as the training set and the CASP11 dataset as the test set.
 We optimized side chain conformation of the training and test sets using SCWRL program \cite{}.
 
+
+
 \subsection{Input and Model}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{../scripts/Figures/ConvnetDiagram/ConvnetDiagramV1.png}
+    \includegraphics[width=\linewidth]{Fig/ConvnetDiagramV1.png}
     \caption{The schematic representation of the convolutional neural network architecture used in this work.}
     \label{Fig:CNNModel}
 \end{figure}
@@ -101,7 +103,7 @@ $$
     8 & Oxygen in carboxyl group and terminus oxygen & ASPOD1, ASPOD2, GLUOE1, GLUOE2, \\
      & &  O-terminal, OT2-terminal, OXT-terminal \\ \hline
     9 & Sp2 carbon & ARGCZ, ASPCG, GLUCD, ACEC, \\
-     & & ASNCG, GLNCD, backbone C\\ \hline
+     & & ASNCG, GLNCD, backbone C \\ \hline
     10 & Aromatic carbon & HISCD2, HISCE1, HISCG, PHECD1 \\
      & & PHECD2, PHECE1, PHECE2, PHECG \\ 
      & & PHECZ, TRPCD1, TRPCD2, TRPCE2 \\
@@ -287,6 +289,8 @@ These datasets were preprocessed using SCWRL program to optimize side-chains.
     \label{Tbl:TestResults}
 \end{center}
 \end{table}
+
+\section{Analysis}
 
 
 \section{Discussion}

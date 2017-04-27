@@ -75,7 +75,7 @@ cmd:option('-training_model_name','ranking_model_8', 'cnn model name during trai
 cmd:option('-training_dataset_name','CASP_SCWRL', 'training dataset name')
 
 cmd:option('-test_model_name','ranking_model_8', 'cnn model name during testing')
-cmd:option('-test_dataset_name','CASP11Stage2_SCWRL', 'test dataset name')
+cmd:option('-test_dataset_name','CASP11Stage1_SCWRL', 'test dataset name')
 cmd:option('-test_dataset_subset','datasetDescription.dat', 'test dataset subset')
 -- cmd:option('-test_dataset_subset','validation_set.dat', 'test dataset subset')
 
@@ -92,7 +92,7 @@ local input_size = {	model.input_options.num_channels, model.input_options.input
 local natives_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, false, false, model.input_options.resolution)
 natives_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/'..params.test_dataset_name..'/Description', params.test_dataset_subset, 'tm-score')
 local activations_logger = cTrainingLogger.new(params.experiment_name, params.training_model_name, params.training_dataset_name, 
-										params.test_dataset_name..'_native_activations')
+										params.test_dataset_name..'_activations')
 
 
 local model_backup_dir = activations_logger.global_dir..'models/'

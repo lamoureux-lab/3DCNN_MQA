@@ -100,7 +100,7 @@ def pca(X = Math.array([]), no_dims = 50):
 	X = X - Math.tile(Math.mean(X, 0), (n, 1));
 	(l, M) = Math.linalg.eig(Math.dot(X.T, X));
 	Y = Math.dot(X, M[:,0:no_dims]);
-	return Y;
+	return Y, l
 
 
 def tsne(X = Math.array([]), no_dims = 2, initial_dims = 50, perplexity = 30.0):
@@ -250,9 +250,9 @@ if __name__ == "__main__":
 	parser.add_argument('--training_model_name', metavar='training_model_name', type=str, 
                    help='Model used for training', default='ranking_model_8')
 	parser.add_argument('--embed_dataset_name', metavar='embed_dataset_name', type=str, 
-                   help='Dataset used for embedding', default='CASP11Stage2_SCWRL')
+                   help='Dataset used for embedding', default='CASP11Stage1_SCWRL')
 	parser.add_argument('--embed_name', metavar='embed_name', type=str, 
-                   help='Additional label for embedding', default='_native_activations')
+                   help='Additional label for embedding', default='_activations')
 	parser.add_argument('-generate', metavar='generate', type=bool, 
                    help='Generate embedding', default=False)
 	parser.add_argument('-pca', metavar='generate', type=bool, 
@@ -279,25 +279,64 @@ if __name__ == "__main__":
 	if args.pca:
 		X, proteins = parse_activations_file(activations_file)
 		X = normalize(X,axis=0)
-		Y = pca(X, 3).real
+		Y, w = pca(X, 3)
+		Y = Y.real
+		print w
 		
 		if args.decoys:
 			dataset_proteins, decoys = read_dataset_description('/home/lupoglaz/ProteinsDataset/%s/Description'%args.embed_dataset_name,'datasetDescription.dat')		
 			loss_function_values, decoys_scores = read_epoch_output(os.path.join(experiment_dir,
-																	'CASP11Stage2_SCWRL_native_activations/epoch_0.dat'))
+																	'CASP11Stage1_SCWRL_activations/epoch_0.dat'))
 			C = Math.zeros( (X.shape[0],))
+			rgba = Math.zeros((X.shape[0],4))
 			for n,protein_path in enumerate(proteins):
 				i_end = protein_path.rfind('/')
 				i_beg = protein_path[:i_end].rfind('/')
 				target = protein_path[i_beg+1:i_end]
 				C[n] = decoys_scores[target][protein_path]
+				# rgba[n,3]=0.1
+			
+			for n,protein_path in enumerate(proteins):
+				if Y[n,0]<-0.5:
+					print protein_path, Y[n,:]
+
 				
-			fig = plt.figure(figsize=(10,10))
-			ax = fig.add_subplot(111, projection='3d')
-			plot = ax.scatter(Y[:,0], Y[:,1], Y[:,2], c=C, cmap="jet_r")
+			fig = plt.figure(figsize=(12,10))
+			ax = fig.add_subplot(1,1,1, projection='3d')
+			rx = Y[:,0]
+			ry = Y[:,1]
+			rz = Y[:,2]
+			mid_x = (rx.max()+rx.min()) * 0.5
+			mid_y = (ry.max()+ry.min()) * 0.5
+			mid_z = (rz.max()+rz.min()) * 0.5
+			max_range = Math.array([rx.max()-rx.min(), ry.max()-ry.min(), rz.max()-rz.min()]).max() / 2.0
+			ax.set_xlim(mid_x - max_range, mid_x + max_range)
+			ax.set_ylim(mid_y - max_range, mid_y + max_range)
+			ax.set_zlim(mid_z - max_range, mid_z + max_range)
+			plot = ax.scatter(Y[:,0], Y[:,1], Y[:,2], c = C, cmap='jet_r')
 			# plt.scatter(Y[:,0], Y[:,1])
-			plt.colorbar(plot)
-			plt.savefig(figure_pca_output_file)
+			plt.colorbar(plot) 
+			# plt.show()
+			# plt.savefig(figure_pca_output_file)
+			x = []
+			y = []
+			z = []
+			c = []
+			for n,protein_path in enumerate(proteins):
+				i_end = protein_path.rfind('/')
+				i_beg = protein_path[:i_end].rfind('/')
+				target = protein_path[i_beg+1:i_end]
+				if target == 'T0817':
+					c.append(decoys_scores[target][protein_path])
+					x.append(Y[n,0])
+					y.append(Y[n,1])
+					z.append(Y[n,2])
+					print protein_path,Y[n,:]
+
+			plot = ax.scatter(x, y, z, marker = 'X', c=(0,0,0,1))
+			
+			plt.show()
+			
 		else:
 			fig = plt.figure(figsize=(10,10))
 			ax = fig.add_subplot(111, projection='3d')
