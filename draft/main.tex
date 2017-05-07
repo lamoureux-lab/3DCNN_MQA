@@ -73,7 +73,8 @@ We see that less than 15\% of the targets in the test set have similar sequence 
 
 To assess the structural similarity of the two datasets we found the pfam family of each target in the training and the 
 test sets and computed the overlap between the families in both datasets. We used HMMER tool with the e-value cutoff 1.0 to 
-find the pfam family of a target \cite{}.
+find the pfam family of a target \cite{}. Table \ref{Tbl:SharedPFam} shows the targets in test and train sets, that share a family. We 
+estimate that approximately 25\% of test set targets share a family with roughly 10\% of the targets in the training set.
 
 \begin{figure}[H]
     \centering
@@ -112,6 +113,50 @@ find the pfam family of a target \cite{}.
     \label{Tbl:datasetsSimilarity}
 \end{center}
 \end{table}
+
+
+\begin{table}[H]
+\begin{center}
+\begin{tabular}{ l | l | l }
+
+    Common family & Test set target & Train set targets \\
+    \hline
+    PF00795.21 & T0794 & T0542 \\ \hline
+    PF13472.5 & T0776 & T0448, T0297, T0286, T0750 \\ \hline
+    PF03807.16 & T0813 & T0398, T0393, T0702 \\ \hline
+    PF00266.18 & T0801 & T0339, T0697 \\ \hline
+    PF01128.18 & T0783 & T0699, T0420 \\ \hline
+    PF07949.11 & T0780 & T0572 \\ \hline
+    PF13577.5 & T0815 & T0752, T0736 \\ \hline
+    PF12804.6 & T0783 & T0593, T0699, T0420 \\ \hline
+    PF13242.5 & T0854 & T0371, T0341, T0303, T0324, T0330, T0329, T0418 \\ \hline
+    PF13306.5 & T0768 & T0690, T0671, T0713, T0653 \\ \hline
+    PF12741.6 & T0770 & T0664, T0645, T0532 \\ \hline
+    PF00025.20 & T0798 & T0308 \\ \hline
+    PF12872.6 & T0792 & T0549 \\ \hline
+    PF03446.14 & T0813, T0851 & T0398, T0393, T0702 \\ \hline
+    PF00155.20 & T0801, T0819 & T0591, T0636, T0436, T0697 \\ \hline
+    PF13419.5 & T0854 & T0371, T0341, T0303, T0379, T0324, T0330, T0329, T0418, T0635 \\ \hline
+    PF12680.6 & T0815 & T0451, T0475 \\ \hline
+    PF06439.10 & T0772 & T0518 \\ \hline
+    PF12771.6 & T0770 & T0664, T0645, T0532 \\ \hline
+    PF08477.12 & T0798 & T0308 \\ \hline
+    PF00657.21 & T0776 & T0297, T0286, T0679 \\ \hline
+    PF00071.21 & T0798 & T0308 \\ \hline
+    PF00702.25 & T0854 & T0303, T0324, T0330, T0329, T0418, T0635 \\ \hline
+    PF01926.22 & T0798 & T0308 \\ \hline
+    PF12697.6 & T0764 & T0672 \\ \hline
+
+
+\end{tabular}
+    
+\caption {Targets from test and train sets that belong to the same PFam family \cite{}. To obtain the family of a target we used HMMER search \cite{}.
+Out of 564 targets in training and 83 targets in test sets 403 and 65 targets correspondingly had the families assigned to them. In total, this 
+table contains 25 families, that correspond to the distinct 25 PFam clans. Alltogether, this table contains 16 test targets and 42 training targets.}
+\label{Tbl:SharedPFam}
+\end{center}
+\end{table}
+
 
 \subsection{Input and Model}
 \begin{figure}[H]
