@@ -71,10 +71,18 @@ and test sets are significantly diverse we aligned all the sequences from the te
 set sequences using blasp tool \cite{}. The most significant alignments are shown in the Table \ref{Tbl:datasetsSimilarity}.
 We see that less than 15\% of the targets in the test set have similar sequence stretches to the targets in the training set.
 
-To assess the structural similarity of the two datasets we found the pfam family of each target in the training and the 
+To assess the evolutionary similarity of the two datasets we found the pfam family of each target in the training and the 
 test sets and computed the overlap between the families in both datasets. We used HMMER tool with the e-value cutoff 1.0 to 
 find the pfam family of a target \cite{}. Table \ref{Tbl:SharedPFam} shows the targets in test and train sets, that share a family. We 
 estimate that approximately 25\% of test set targets share a family with roughly 10\% of the targets in the training set.
+
+We classified the structures in the training and test sets using ECOD database \cite{}. This database provides classification of 
+RCSB PDB dataset into tree-like form with nodes being: architecture type, X-, H-, T- and F-groups. The higher the branch two protein 
+domains occupy, the more they are structuraly similar. Figure \ref{Fig:foldsGraph} shows the classification of the test set into ECOD classes. The 
+branches drawn with black are those that have at least one structure in the training set, belonging to them. The grey branches are the 
+classes unique to the test set. We see that among all architecture types, spanned by the test set, only four are overlapping completely
+between training and test sets. They are: a/b barrels, beta duplicates or obligate multimers, a+b complex topology and a+b four layers.
+
 
 \begin{figure}[H]
     \centering
@@ -157,6 +165,15 @@ table contains 25 families, that correspond to the distinct 25 PFam clans. Allto
 \end{center}
 \end{table}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{Fig/folds_graph.png}
+    \caption{The classification of the test set into ECOD structural classes (architecture type, x-, h-, f- and p- groups). The architecture 
+    types are shown in the outer circle of the diagram. The grey lines denote test set classes that have no respective representative in the 
+    training set. The black lines show the classes that have representatives in both training and test sets. We do not show the p-classes, because
+    they have no overlap among the training and test sets.}
+    \label{Fig:foldsGraph}
+\end{figure}
 
 \subsection{Input and Model}
 \begin{figure}[H]

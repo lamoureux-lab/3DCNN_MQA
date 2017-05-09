@@ -14,7 +14,7 @@ from plotLengthDistributions import read_dataset_targets, read_sequences_data
 
 
 def protein_vs_database(protein_fasta_query, database_name, output_name, num_threads = 12):
-	os.system('blastp -db %s -query %s -outfmt 5 -evalue 10 -max_target_seqs 10000 -out %s -num_threads %d'%(database_name, protein_fasta_query, output_name, num_threads))
+	os.system('blastp -db %s -query %s -outfmt 5 -evalue 0.001 -max_target_seqs 10000 -out %s -num_threads %d'%(database_name, protein_fasta_query, output_name, num_threads))
 
 
 def write_sequences(targets, target_seq, output_filename):
