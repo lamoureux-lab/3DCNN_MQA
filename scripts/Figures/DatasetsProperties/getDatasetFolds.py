@@ -19,7 +19,7 @@ from tqdm import tqdm
 import requests
 import json
 import xml.etree.ElementTree as ET
-from ete3 import Tree, TreeStyle, TextFace, faces, AttrFace, TreeStyle, NodeStyle, add_face_to_node
+# from ete3 import Tree, TreeStyle, TextFace, faces, AttrFace, TreeStyle, NodeStyle, add_face_to_node
 
 def get_pdb_codes(targets, tmp_output):
 	hits = {}
@@ -39,16 +39,17 @@ def get_pdb_codes(targets, tmp_output):
 	return hits
 
 def get_target_to_pdb_corr():
+	"""Download pdb_seqres.txt from ftp://ftp.wwpdb.org/pub/pdb/derived_data/pdb_seqres.txt"""
 	if not os.path.exists('tmp/pdb_seq_db.phr'):
-		os.system('makeblastdb -in %s -dbtype prot -out %s'%('/home/lupoglaz/ProteinsDataset/pdb_seqres.txt', 'tmp/pdb_seq_db'))
+		os.system('makeblastdb -in %s -dbtype prot -out %s'%('tmp/pdb_seqres.txt', 'tmp/pdb_seq_db'))
 	else:
 		print 'PDB Database found'
 	
 	training_dataset_targets = read_dataset_targets('/home/lupoglaz/ProteinsDataset/CASP_SCWRL/Description', 'datasetDescription.dat')
 	test_dataset_targets = read_dataset_targets('/home/lupoglaz/ProteinsDataset/CASP11Stage2_SCWRL/Description', 'datasetDescription.dat')
 
-	protein_vs_database('tmp/train_seq.fasta', 'tmp/pdb_seq_db', 'tmp/train_vs_rcsb.dat', num_threads=3)
-	protein_vs_database('tmp/test_seq.fasta', 'tmp/pdb_seq_db', 'tmp/test_vs_rcsb.dat', num_threads=3)
+	protein_vs_database('tmp/train_seq.fasta', 'tmp/pdb_seq_db', 'tmp/train_vs_rcsb.dat', num_threads=10)
+	protein_vs_database('tmp/test_seq.fasta', 'tmp/pdb_seq_db', 'tmp/test_vs_rcsb.dat', num_threads=10)
 
 	hits_train = get_pdb_codes(training_dataset_targets, 'tmp/train_vs_rcsb.dat')
 	hits_test = get_pdb_codes(training_dataset_targets, 'tmp/test_vs_rcsb.dat')
@@ -116,10 +117,11 @@ def parse_ecod_data(filename):
 	return pdb2ecod
 
 def get_ecod_classes():
+	"""Download ECOD data from  http://prodata.swmed.edu/ecod/distributions/ecod.latest.domains.txt"""
 	with open("tmp/CASP2PDB.pkl",'r') as fin:
 		casp2pdb = pkl.load(fin)
 	
-	pdb2ecod = parse_ecod_data('ecod_data/ecod.latest.domains.txt')
+	pdb2ecod = parse_ecod_data('tmp/ecod.latest.domains.txt')
 
 	casp2ecod = {}
 	for key in casp2pdb.keys():
@@ -233,6 +235,15 @@ def triplet(rgb, lettercase=LOWERCASE):
     return format(rgb[0]<<16 | rgb[1]<<8 | rgb[2], '06'+lettercase)
 
 if __name__=='__main__':
+	prepare = False
+	if prepare:
+		get_target_to_pdb_corr()
+		get_ecod_classes()
+		sys.exit()
+		
+	
+	
+	
 	norm = m_colors.Normalize(vmin=0.0, vmax=20.0)
 	cmap = colormap.get_cmap(name = "Pastel1")
 	colors = [m_colors.rgb2hex(cmap(norm(i))) for i in range(0,20)]
@@ -267,9 +278,7 @@ if __name__=='__main__':
 		ns["hz_line_type"] = 0
 		colors_dict_test[arch] = ns
 	
-
-
-	# get_ecod_classes()
+	
 	with open("tmp/CASP2ECOD.pkl",'r') as fin:
 		casp2ecod = pkl.load(fin)
 	with open("tmp/CASP2PDB.pkl",'r') as fin:
