@@ -21,196 +21,29 @@
 \end{abstract}
 
 \section{Introduction}
-Proteins are the cogs of the cell machinery. In order to understand responses of a cell to the external stimuli given their internal state, we
-have to be able to predict the function of the proteins expressed in a cell. The current paradigm dictates that the function 
-of a protein is determined mainly by its structure that dictates its interactions with other molecules present in a cell. 
-Therefore the problem of a protein structure prediction (protein folding) is one of the limiting factors in understanding and designing living
-organisms.
-
-The progress in the field of protein folding is monitored by Critical Assessment of protein Structure Prediction (CASP) \cite{moult1995large}. This 
-is a community-wide experiment to evaluate the protein folding prediction methods. Every method participating in this competition has a pipline
-that includes sampling and quality assessment (QA) steps. During the sampling part, the candidate conformations of a protein are generated. The 
-QA part of an algorithm tries to select the candidates closest to the unknown native structure.
-
-In this paper we explore the application of deep learning, a new machine learning technique to the protein decoys quality assessment problem. 
-Deep learning (DL) is a popular  approach in the field of machine learning, which recently gained considerable interest 
-in the research community \cite{lecun2015deep}, particularly in computer vision and image recognition. 
-Unlike previous ‘shallow’ approaches, DL tries to learn hierarchical representation of the 
-data in hand. It alleviates the need for feature extraction that constituted the bulk of the work done by researchers. 
-
-Recently, DL was applied to biological data and yielded remarkable results in the human splicing code prediction \cite{xiong2015human}, 
-identification of DNA- and RNA-binding  motifs \cite{alipanahi2015predicting} and predicting the effects of non-coding 
-DNA variants at single nucleotide polymorphism 
-precision \cite{zhou2015predicting}. These successes have one thing in common: they do not introduce any features 
-between the raw data and the deep learning model. 
-
-\subsection{Related work}
-Deep learning methods were also applied in the field of structure quality assessment \cite{}. In particular, 
-DeepQA \cite{} used 9 scores from other QA estimators and 
-7 physico-chemical feature estracted from a structure as the input features to the deep boltzman machine \cite{}. 
-In the DL-PRO algorithm \cite{}, authors first compute contact maps of the decoys and compress them using PCA. 
-The vectors from PCA are then fed into an autoencoder to predict the score of the decoy. 
-The authors that apply the deep learning methods use them as the ordinary 'shallow' classifiers. 
-Therefore they do not get all the advantages these new techniques offer.
+% \input{introduction.tex}
 
 
 \section{Materials and Methods}
 
-
-
-
 \subsection{Datasets}
-To train and assess our method we used the datasets of protein decoys from the CASP competition \cite{moult2014critical}. 
-We took the datasets CASP7 - CASP10 as the training set and the CASP11 dataset as the test set.
-We optimized side chain conformation of the training and test sets using SCWRL4 program \cite{krivov2009improved}.
-The training and test sets have 564 and 83 targets correspondingly. For each target the training dataset has 
-on average 282 decoys. The test dataset is split into two subsets: Stage1 with 20 selected decoys for each target and Stage2 with 150 decoys
-for each. The native structures were not included in the datasets nor during the training procedure
-neither during the testing phase. 
-
-The distribution of target sequences lengths are shown on Fig. \ref{Fig:dataLengthDist}. We see,
-that these two datasets cover the same interval of sequence lengths. However, to ensure that the training 
-and test sets are significantly different we aligned all the sequences from the test set agains all the training 
-set sequences using blasp tool \cite{altschul1990basic}. The most significant alignments are shown in the Table \ref{Tbl:datasetsSimilarity}.
-We see that less than 15\% of the targets in the test set have similar sequence stretches to the targets in the training set.
-
-To assess the evolutionary similarity of the two datasets we found the pfam family of each target in the training and the 
-test sets and computed the overlap between the families in both datasets. We used HMMER tool with the e-value cutoff 1.0 to 
-find the pfam family of a target \cite{finn2016pfam}. Table \ref{Tbl:SharedPFam} shows the targets in test and train sets, that share a family. We 
-estimate that approximately 25\% of test set targets share a family with roughly 10\% of the targets in the training set.
-
-Also, we classified the structures in the training and test sets using ECOD database \cite{cheng2014ecod}. This database provides classification of 
-RCSB PDB dataset \cite{berman2000protein} into a tree-like structure with nodes being: architecture type, X-, H-, T- and F-groups. One 
-protein chain can have multiple structural domains. 
-The higher the branch two protein 
-domains occupy, the more they are structuraly similar. Figure \ref{Fig:foldsGraph} shows the classification of the test set into ECOD classes. The 
-branches drawn with black are those that have at least one domain structure in the training set, belonging to them. The grey branches are the 
-classes unique to the test set. We see that among all the architectural types, spanned by the test set, only four are overlapping completely
-between training and test sets. They are: a/b barrels, beta duplicates or obligate multimers, a+b complex topology and a+b four layers.
-
-The overview of the train and test sets overlap is presented on Fig. \ref{Fig:summaryTable}. 
-For each target domain we computed the closest domain in the 
-training set and denoted this overlap with black tiles in the A, X, H, T, F rows. The family and clans assignment has gaps with no information, 
-denoted with grey tiles. When target in the test set has at least one target in the training set belogning to the same family or clan the black 
-tile appears. Finally, if sequences of two targets have alignment with the e-value smaller than $1\cdot10^{-4}$, the tile in the alignment row is 
-black.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{Fig/datasetLengthDistributions.png}
-    \caption{The distributions of sequence lengths for targets in training set(blue) and test set(red).}
-    \label{Fig:dataLengthDist}
-\end{figure}
-
-\begin{table}[H]
-\begin{center}
-\begin{tabular}{ c | c | l }
-    
-    Test set id & Closest training set id & E-value \\
-    \hline
-    T0768 & T0690 & 2.7e-13\\
-    T0770 & T0645 & 1.79e-13\\
-    T0772 & T0518 & 1.89-07\\
-    T0776 & T0707 & 3.98e-05\\
-    T0783 & T0699 & 1.19e-22\\
-    T0798 & T0308 & 9.57e-06\\
-    T0813 & T0398 & 2.45e-05\\
-    T0819 & T0636 & 8.66e-15\\
-    T0854 & T0324 & 2.13e-13\\
-\end{tabular}
-    
-    \caption {The closest homologs from training and test sets. The search was performed using blastp tool. The database was constructed from 
-    the training set sequences; test sequences were queried against this database. We used 1e-4 e-value cutoff to filter only significant 
-    alignments.}
-    \label{Tbl:datasetsSimilarity}
-\end{center}
-\end{table}
+% \input{datasets.tex}
 
 
-\begin{table}[H]
-\begin{center}
-\begin{tabular}{ l | l | l }
-
-    Common family & Test set target & Train set targets \\
-    \hline
-    PF00795.21 & T0794 & T0542 \\ \hline
-    PF13472.5 & T0776 & T0448, T0297, T0286, T0750 \\ \hline
-    PF03807.16 & T0813 & T0398, T0393, T0702 \\ \hline
-    PF00266.18 & T0801 & T0339, T0697 \\ \hline
-    PF01128.18 & T0783 & T0699, T0420 \\ \hline
-    PF07949.11 & T0780 & T0572 \\ \hline
-    PF13577.5 & T0815 & T0752, T0736 \\ \hline
-    PF12804.6 & T0783 & T0593, T0699, T0420 \\ \hline
-    PF13242.5 & T0854 & T0371, T0341, T0303, T0324, T0330, T0329, T0418 \\ \hline
-    PF13306.5 & T0768 & T0690, T0671, T0713, T0653 \\ \hline
-    PF12741.6 & T0770 & T0664, T0645, T0532 \\ \hline
-    PF00025.20 & T0798 & T0308 \\ \hline
-    PF12872.6 & T0792 & T0549 \\ \hline
-    PF03446.14 & T0813, T0851 & T0398, T0393, T0702 \\ \hline
-    PF00155.20 & T0801, T0819 & T0591, T0636, T0436, T0697 \\ \hline
-    PF13419.5 & T0854 & T0371, T0341, T0303, T0379, T0324, T0330, T0329, T0418, T0635 \\ \hline
-    PF12680.6 & T0815 & T0451, T0475 \\ \hline
-    PF06439.10 & T0772 & T0518 \\ \hline
-    PF12771.6 & T0770 & T0664, T0645, T0532 \\ \hline
-    PF08477.12 & T0798 & T0308 \\ \hline
-    PF00657.21 & T0776 & T0297, T0286, T0679 \\ \hline
-    PF00071.21 & T0798 & T0308 \\ \hline
-    PF00702.25 & T0854 & T0303, T0324, T0330, T0329, T0418, T0635 \\ \hline
-    PF01926.22 & T0798 & T0308 \\ \hline
-    PF12697.6 & T0764 & T0672 \\ \hline
-\end{tabular}
-    
-\caption {Targets from test and train sets that belong to the same PFam family \cite{}. To obtain the family of a target we used HMMER search \cite{}.
-Out of 564 targets in training and 83 targets in test sets 403 and 65 targets correspondingly had the families assigned to them. In total, this 
-table contains 25 families, that correspond to the distinct 25 PFam clans. Alltogether, this table contains 16 test targets and 42 training targets.}
-\label{Tbl:SharedPFam}
-\end{center}
-\end{table}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{Fig/folds_graph.png}
-    \caption{The classification of the test set into ECOD structural classes (architecture type, X-, H-, T- and F- groups). The architecture 
-    types are shown in the outer circle of the diagram. The grey lines denote test set classes that have no respective representative in the 
-    training set. The black lines show the classes that have representatives in both training and test sets. We do not show the F-groups, because
-    they have litle overlap among the training and test sets.}
-    \label{Fig:foldsGraph}
-\end{figure}
-
-\begin{figure}[H]
-    \makebox[\textwidth]{
-    \includegraphics[width=\paperwidth]{Fig/summary_table.png}
-    }
-    \caption{The overview of the overlap between training and test datasets. The first 5 rows correspond to the ECOD classification of 
-    domains (A is the architecture type and X, H, T and F are the classes). The structure in the dataset has
-    a domain that belongs to the same group as a domain from the training set with the matching class if the corresponding tile colored black.
-    The closest match for each target is shown. The family and class rows show if the target was not assigned to any family of clan (grey) or 
-    if there is a target in the training set with the same family or clan (black). The alignment row shows the targets that have an alignment
-    with a target in the training set with e-value less than $1\cdot10^{-4}$.}
-    \label{Fig:summaryTable}
-\end{figure}
-
-\subsection{Input and Model}
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{Fig/ConvnetDiagramV1.png}
-    \caption{The schematic representation of the convolutional neural network architecture used in this work.}
-    \label{Fig:CNNModel}
-\end{figure}
-The schematic representation of the model architecture is shown on the Fig \ref{Fig:CNNModel}. 
-It is comprised of three blocks of alternating convolutional, 
-volumetric batch normalization and ReLU layers and three 
-fully connected layers with ReLU nonlinearities. The final output of the network is a single number, 
-that is interpreted as a score of an input structure.
-The input of the model is the density maps of atom types in a structure. We used 11 types of atoms shown in the Table \ref{Tbl:atomTypes}. 
-Each atom type was projected on the corresponding grid and served as an input of the model. 
-The density of an atom was modeled using the function: 
+\subsection{Input}
+The protein structure is represented as the density maps of eleven atom types. 
+We used the types shown in the Table \ref{Tbl:atomTypes}. Initially 21 atom types were proposed by X.Zou et al. 
+\cite{huang2006iterative, huang2008iterative} using SYBYL rule set \cite{wang2006automatic}. In this work we clustered similar
+types due to the hardware constraints. The density of an atom was modeled using the function: 
 $$
 \rho(r) =  \begin{cases}
                e^{-\frac{r^2}{2}}&r\leq 2.0\AA~\\
                0                 &r>2.0\AA~\\
             \end{cases}
 $$
+Each atom density was projected to the grid for the corresponding atom type. The resolution of the grid was set to 1\AA~ and the size of 
+each grid to 120x120x120 cells.
+
 \begin{table}[H]
 \begin{center}
 \begin{tabular}{ c | l | l }
@@ -250,20 +83,89 @@ $$
 \end{tabular}
     
     \caption {Atom types used in this work. In the atom notation the first three letters are the name of an aminoacid and the rest is 
-    the atom name in the PDB format \cite{}}.
+    the atom name in the PDB format.}
     \label{Tbl:atomTypes}
 \end{center}
 \end{table}
-Figure \ref{Fig:atomic_densities} shows an example of atomic densities. 
-The protein used for visualization has PDB code 5eh6. Only non-zero densities are shown.
+Figure \ref{Fig:atomic_densities} shows an example of atomic densities of a peptide with the PDB code 5eh6.
+Only non-zero densities are shown.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{Fig/atomic_densities.png}
+    \includegraphics[width=\linewidth]{Fig/atomic_densities_V3.png}
     \caption{The example of the representation of a protein using atomic densities. The density map is 
-    shown using the volumetric rendering plugin for PyMol. The pdb-code of the protein used for this visualization is 5eh6.}
+    shown using the volumetric rendering plugin for PyMol. The pdb-code of the protein used for this visualization is 5eh6.
+    The isosurface level was set to $0.5$.}
     \label{Fig:atomic_densities}
 \end{figure}
+
+\subsection{Model}
+Convolutional neural networks were first proposed for the image recognition by Y.LeCun \cite{lecun1989backpropagation}, 
+but gained recognition after the 
+ImageNet 2012 competition \cite{krizhevsky2012imagenet}. 
+In this work we use 3D convolutional networks to score protein structures. The network consists of 
+basic layers that transform the input.
+The schematic representation of the model architecture is shown on the Fig \ref{Fig:CNNModel}.
+It is comprised of three blocks of alternating convolutional, 
+volumetric batch normalization and ReLU layers and three 
+fully connected layers with ReLU nonlinearities. The final output of the network is a single number, 
+that is interpreted as a score of an input structure. Further we provide a consize description of each layer.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{Fig/ConvnetDiagramV1.png}
+    \caption{The schematic representation of the convolutional neural network architecture used in this work. 
+    The arrows between the boxes denote maximum pooling layers and the connections denote 
+    consequent 3d convolutional, batch normalization and ReLU layers. The numbers xM denote the number of filters 
+    used in the corresponding 3d convolutional layer. The size of all filters and 
+    maximum pooling domains are 3x3x3. The grey stripes denote one-dimensional vectors and crossed lines between them 
+    stand for fully-connected layer with ReLU non-linearities. The details of the model parameters can be found in 
+    Supplementary Information.}
+    \label{Fig:CNNModel}
+\end{figure}
+
+The 3D convolutional layer takes $N$ input density maps and transforms them using $M$ filters
+according to the following formula:
+$$
+f^{out}_i (\mathbf{r}) = \sum^{N}_{j=1} \int F_i (\mathbf{r} - \mathbf{\tau}) \cdot f^{in}_j(\mathbf{\tau}) ~d\tau, i \in [1,M]
+$$
+where filters are denoted using $F_j$. In standard implementations convolutions are approximated by the sum on a grid.
+The ReLU nonlinearity is computed in the following way:
+$$
+f^{out}_i (\mathbf{r}) = \begin{cases}
+               f^{in}_i(\mathbf{r})& f^{in}_i(\mathbf{r})\geq 0\\
+               0                 &f^{in}_i(\mathbf{r})<0\\
+            \end{cases}, i \in [1,M]
+$$
+The batch normalization layer was introduced by S.Ioffe and C.Szegedy \cite{ioffe2015batch} to address the problem of internal convariate shift:
+the change in the distribution of subnetwork outputs due to the change in its parameters during the training. In practice, this layer takes the 
+input and normalizes its values according to the mean values and variances of the corresponding values in the subset of examples used to estimate 
+the gradient (minibatch):
+$$
+    \hat{f}^{in}_i(\mathbf{r}) = \frac{f^{in}(\mathbf{r}) - \mu_{B}}{\sqrt{\sigma^{2}_{B} + \epsilon}}, i \in [1,N_B]
+$$
+where $\mu_B(\mathbf{r}) = \frac{1}{N_B} \sum_{i=1}^{N_B} f^{in}_i(\mathbf{r})$ and 
+$\sigma^{2}_{B} = \frac{1}{N_B} \sum_{i=1}^{N_B} \left( f^{in}_i(\mathbf{r}) - \mu_B (\mathbf{r}) \right)$. 
+The constant $\epsilon$ is added to avoid division by zero, the number of 
+examples in the minibatch is denoted as $N_B$. Afterwards, the output of this layer is computed by scaling the normalized inputs:
+$$
+f^{out}_i(\mathbf{r}) = \gamma \hat{f}^{in}_i(\mathbf{r}) + \beta, i \in [1,N_B]
+$$
+The parameters $\gamma$ and $\beta$ are learned along with other parameters of the network during the training.
+
+The maximum pooling layer (MaxPool) is used to build a coarse-grained representation of the input. The output of this layer is 
+the maximum over the cubes of the size $d$, that cover the input domain without overlapping. 
+The output data domain is then $d$ times smaller than the input data box.
+
+During the coarse-graining procedures the size of the input data box eventually shrinks to a single cell. The flattening layer reshapes the array of 
+3d density maps to a single vector.
+
+Afterwards, we compute several transformations using fully-connected layers. These layers transform a vector $\mathbf{x_{in}}$ in the follosing way:
+$$
+x_{out} = \mathbf{W} \cdot x + \mathbf{b}
+$$
+where $\mathbf{W}$ is a matrix and $\mathbf{b}$ is a vector, that are learned during the training.
+
 
 \subsection{Loss functions}
 We evaluated two scoring functions: linear regression and ranking scoring function. 

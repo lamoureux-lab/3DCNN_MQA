@@ -1,0 +1,31 @@
+Proteins are the cogs of the cell machinery. In order to understand responses of a cell to the external stimuli given their internal state, we
+have to be able to predict the function of the proteins expressed in a cell. The current paradigm dictates that the function 
+of a protein is determined mainly by its structure that dictates its interactions with other molecules present in a cell. 
+Therefore the problem of a protein structure prediction (protein folding) is one of the limiting factors in understanding and designing living
+organisms.
+
+The progress in the field of protein folding is monitored by Critical Assessment of protein Structure Prediction (CASP) \cite{moult1995large}. This 
+is a community-wide experiment to evaluate the protein folding prediction methods. Every method participating in this competition has a pipline
+that includes sampling and quality assessment (QA) steps. During the sampling part, the candidate conformations of a protein are generated. The 
+QA part of an algorithm tries to select the candidates closest to the unknown native structure.
+
+In this paper we explore the application of deep learning, a new machine learning technique to the protein decoys quality assessment problem. 
+Deep learning (DL) is a popular  approach in the field of machine learning, which recently gained considerable interest 
+in the research community \cite{lecun2015deep}, particularly in computer vision and image recognition. 
+Unlike previous ‘shallow’ approaches, DL tries to learn hierarchical representation of the 
+data in hand. It alleviates the need for feature extraction that constituted the bulk of the work done by researchers. 
+
+Recently, DL was applied to biological data and yielded remarkable results in the human splicing code prediction \cite{xiong2015human}, 
+identification of DNA- and RNA-binding  motifs \cite{alipanahi2015predicting} and predicting the effects of non-coding 
+DNA variants at single nucleotide polymorphism 
+precision \cite{zhou2015predicting}. These successes have one thing in common: they do not introduce any features 
+between the raw data and the deep learning model. 
+
+\subsection{Related work}
+Deep learning methods were also applied in the field of structure quality assessment \cite{}. In particular, 
+DeepQA \cite{} used 9 scores from other QA estimators and 
+7 physico-chemical feature estracted from a structure as the input features to the deep boltzman machine \cite{}. 
+In the DL-PRO algorithm \cite{}, authors first compute contact maps of the decoys and compress them using PCA. 
+The vectors from PCA are then fed into an autoencoder to predict the score of the decoy. 
+The authors that apply the deep learning methods use them as the ordinary 'shallow' classifiers. 
+Therefore they do not get all the advantages these new techniques offer.
