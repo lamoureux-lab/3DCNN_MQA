@@ -17,7 +17,7 @@ def parse_files(filelist):
             try:
                 record_id = int(record.id[1:])
             except:
-                print 'Skipping ', record.id
+                # print 'Skipping ', record.id
                 continue
             if record_id>=283:
                 target_seq[record.id] = record.seq
@@ -25,7 +25,7 @@ def parse_files(filelist):
 
 def read_sequences_data(data_dir):
     casp_filenames = []
-    casp_dirnames = ['data']
+    casp_dirnames = [data_dir]
     for filename in os.listdir(os.path.join(data_dir)):
         if not os.path.isfile(os.path.join(data_dir,filename)):
             casp_dirnames.append(os.path.join(data_dir, filename))

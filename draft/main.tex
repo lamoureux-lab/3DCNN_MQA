@@ -23,161 +23,38 @@
 \section{Introduction}
 % \input{introduction.tex}
 
-
 \section{Materials and Methods}
 
 \subsection{Datasets}
-% \input{datasets.tex}
-
+%\input{datasets.tex}
 
 \subsection{Input}
-The protein structure is represented as the density maps of eleven atom types. 
-We used the types shown in the Table \ref{Tbl:atomTypes}. Initially 21 atom types were proposed by X.Zou et al. 
-\cite{huang2006iterative, huang2008iterative} using SYBYL rule set \cite{wang2006automatic}. In this work we clustered similar
-types due to the hardware constraints. The density of an atom was modeled using the function: 
-$$
-\rho(r) =  \begin{cases}
-               e^{-\frac{r^2}{2}}&r\leq 2.0\AA~\\
-               0                 &r>2.0\AA~\\
-            \end{cases}
-$$
-Each atom density was projected to the grid for the corresponding atom type. The resolution of the grid was set to 1\AA~ and the size of 
-each grid to 120x120x120 cells.
-
-\begin{table}[H]
-\begin{center}
-\begin{tabular}{ c | l | l }
-    
-    Type & Description & Atoms \\
-    \hline
-    1 & Sulfur containing atoms & CYSSG, METSD, MSESE \\ \hline
-    2 & Amide nitrogens & ASNND2, GLNNE2, backbone N \\ \hline
-    3 & Aromatic nitrogens & HISND1, HISNE2, TRPNE1 \\ \hline
-    4 & Guanidine nitrogens & ARGNH1, ARGNH2, ARGNE \\ \hline
-    5 & Nitrogen with three hydrogens & LYSNZ \\ \hline
-    6 & Carboxyl oxygen & ACEO, ASNOD1, GLNOE1, backbone O \\ \hline
-    7 & Oxygen in hydroxyl group & SEROG, THROG1, TYROH \\ \hline
-    8 & Oxygen in carboxyl group and terminus oxygen & ASPOD1, ASPOD2, GLUOE1, GLUOE2, \\
-     & &  O-terminal, OT2-terminal, OXT-terminal \\ \hline
-    9 & Sp2 carbon & ARGCZ, ASPCG, GLUCD, ACEC, \\
-     & & ASNCG, GLNCD, backbone C \\ \hline
-    10 & Aromatic carbon & HISCD2, HISCE1, HISCG, PHECD1 \\
-     & & PHECD2, PHECE1, PHECE2, PHECG \\ 
-     & & PHECZ, TRPCD1, TRPCD2, TRPCE2 \\
-     & & TRPCE3, TRPCG, TRPCH2, TRPCZ2 \\
-     & & TRPCZ3, TYRCD1, TYRCD2, TYRCE1 \\
-     & & TYRCE2, TYRCG, TYRCZ \\ \hline
-    11 & Sp3 carbon & ALACB, ARGCB, ARGCG, ARGCD \\
-     & & ASNCB, ASPCB, GLNCB, GLNCG \\
-     & & GLUCB, GLUCG, HISCB, HISCB \\
-     & & ILECB, ILECD1, ILECG1, ILECG2 \\
-     & & LEUCB, LEUCD1, LEUCD2, LEUCG \\
-     & & LYSCB, LYSCD, LYSCG, LYSCE \\
-     & & METCB, METCE, METCG, MSECB \\
-     & & MSECE, MSECG, PHECB, PROCB \\
-     & & PROCG, PROCD, SERCB, THRCG2 \\
-     & & TRPCB, TYRCB, VALCB, VALCG1 \\
-     & & VALCG2, ACECH3, THRCB, CYSCB \\
-     & & backbone CA \\ \hline
-    
-\end{tabular}
-    
-    \caption {Atom types used in this work. In the atom notation the first three letters are the name of an aminoacid and the rest is 
-    the atom name in the PDB format.}
-    \label{Tbl:atomTypes}
-\end{center}
-\end{table}
-Figure \ref{Fig:atomic_densities} shows an example of atomic densities of a peptide with the PDB code 5eh6.
-Only non-zero densities are shown.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{Fig/atomic_densities_V3.png}
-    \caption{The example of the representation of a protein using atomic densities. The density map is 
-    shown using the volumetric rendering plugin for PyMol. The pdb-code of the protein used for this visualization is 5eh6.
-    The isosurface level was set to $0.5$.}
-    \label{Fig:atomic_densities}
-\end{figure}
+%\input{input.tex}
 
 \subsection{Model}
-Convolutional neural networks were first proposed for the image recognition by Y.LeCun \cite{lecun1989backpropagation}, 
-but gained recognition after the 
-ImageNet 2012 competition \cite{krizhevsky2012imagenet}. 
-In this work we use 3D convolutional networks to score protein structures. The network consists of 
-basic layers that transform the input.
-The schematic representation of the model architecture is shown on the Fig \ref{Fig:CNNModel}.
-It is comprised of three blocks of alternating convolutional, 
-volumetric batch normalization and ReLU layers and three 
-fully connected layers with ReLU nonlinearities. The final output of the network is a single number, 
-that is interpreted as a score of an input structure. Further we provide a consize description of each layer.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{Fig/ConvnetDiagramV1.png}
-    \caption{The schematic representation of the convolutional neural network architecture used in this work. 
-    The arrows between the boxes denote maximum pooling layers and the connections denote 
-    consequent 3d convolutional, batch normalization and ReLU layers. The numbers xM denote the number of filters 
-    used in the corresponding 3d convolutional layer. The size of all filters and 
-    maximum pooling domains are 3x3x3. The grey stripes denote one-dimensional vectors and crossed lines between them 
-    stand for fully-connected layer with ReLU non-linearities. The details of the model parameters can be found in 
-    Supplementary Information.}
-    \label{Fig:CNNModel}
-\end{figure}
-
-The 3D convolutional layer takes $N$ input density maps and transforms them using $M$ filters
-according to the following formula:
-$$
-f^{out}_i (\mathbf{r}) = \sum^{N}_{j=1} \int F_i (\mathbf{r} - \mathbf{\tau}) \cdot f^{in}_j(\mathbf{\tau}) ~d\tau, i \in [1,M]
-$$
-where filters are denoted using $F_j$. In standard implementations convolutions are approximated by the sum on a grid.
-The ReLU nonlinearity is computed in the following way:
-$$
-f^{out}_i (\mathbf{r}) = \begin{cases}
-               f^{in}_i(\mathbf{r})& f^{in}_i(\mathbf{r})\geq 0\\
-               0                 &f^{in}_i(\mathbf{r})<0\\
-            \end{cases}, i \in [1,M]
-$$
-The batch normalization layer was introduced by S.Ioffe and C.Szegedy \cite{ioffe2015batch} to address the problem of internal convariate shift:
-the change in the distribution of subnetwork outputs due to the change in its parameters during the training. In practice, this layer takes the 
-input and normalizes its values according to the mean values and variances of the corresponding values in the subset of examples used to estimate 
-the gradient (minibatch):
-$$
-    \hat{f}^{in}_i(\mathbf{r}) = \frac{f^{in}(\mathbf{r}) - \mu_{B}}{\sqrt{\sigma^{2}_{B} + \epsilon}}, i \in [1,N_B]
-$$
-where $\mu_B(\mathbf{r}) = \frac{1}{N_B} \sum_{i=1}^{N_B} f^{in}_i(\mathbf{r})$ and 
-$\sigma^{2}_{B} = \frac{1}{N_B} \sum_{i=1}^{N_B} \left( f^{in}_i(\mathbf{r}) - \mu_B (\mathbf{r}) \right)$. 
-The constant $\epsilon$ is added to avoid division by zero, the number of 
-examples in the minibatch is denoted as $N_B$. Afterwards, the output of this layer is computed by scaling the normalized inputs:
-$$
-f^{out}_i(\mathbf{r}) = \gamma \hat{f}^{in}_i(\mathbf{r}) + \beta, i \in [1,N_B]
-$$
-The parameters $\gamma$ and $\beta$ are learned along with other parameters of the network during the training.
-
-The maximum pooling layer (MaxPool) is used to build a coarse-grained representation of the input. The output of this layer is 
-the maximum over the cubes of the size $d$, that cover the input domain without overlapping. 
-The output data domain is then $d$ times smaller than the input data box.
-
-During the coarse-graining procedures the size of the input data box eventually shrinks to a single cell. The flattening layer reshapes the array of 
-3d density maps to a single vector.
-
-Afterwards, we compute several transformations using fully-connected layers. These layers transform a vector $\mathbf{x_{in}}$ in the follosing way:
-$$
-x_{out} = \mathbf{W} \cdot x + \mathbf{b}
-$$
-where $\mathbf{W}$ is a matrix and $\mathbf{b}$ is a vector, that are learned during the training.
-
+%\input{model.tex}
 
 \subsection{Loss functions}
-We evaluated two scoring functions: linear regression and ranking scoring function. 
-Let a decoy representation be denoted as $x_i$ and therefore the output
-of the network on this decoy will be $f(x_i)$. Next, let $y_{ij}$ be the ordering coefficient of the two decoys we pick: 
+
+The problem of decoy quality assessment is essentially a ranking problem: we have to arrange decoys according to 
+the proximity to the corresponding native structure, which is quantified using GDT score. The ranking problem 
+was previously used along with neural networks to 
+
+During the training procedure we load several decoy structures of one target (minibatch) into memory, compute the 
+output of the network and the average loss:
+$$ L = \frac{1}{N^{2}_B} \sum_{i=1,j=1, i \neq j}^{N_B} L_{ij} $$ 
+where $N_B$ is the number of decoys in a minibatch. Afterwards, we compute the gradient of the average loss with respect 
+to the network parameters and update them using Adam algorithm.
+
+We used the margin ranking loss for each pair of decoys. Let a decoy representation be denoted as $x_i$ and therefore the output
+of the network on this decoy will be $f(x_i)$. Next, let $y_{ij}$ be the ordering coefficient of the two decoys we pick:
 $$
 y_{ij} = \begin{cases}
                1& gdtts_i \leq gdtts_j \\
                -1& gdtts_i > gdtts_j \\
             \end{cases}
 $$
-Here $gdtts_i$ is the GDT-TS score of the $i$-th decoy. In principle, any target function can be chosen. 
+Here $gdtts_i$ is the GDT score of the $i$-th decoy. In principle, any target function can be chosen. 
 The pairwise ranking scoring function has the following expression:
 
 $$ L_{ij} = w_{ij} \cdot \max \left[ 0, 1 - y_{ij} \left( f \left( x_i \right) - f \left( x_j \right) \right) \right] $$
@@ -191,15 +68,10 @@ w_{ij} = \begin{cases}
             \end{cases}
 $$
 
-where the $threshold$ is set to 0.1{\AA}. If the two decoys are too similar, 
-we avoid scoring them against each other during the training, because it introduces 
-the noise into the gradient and prevents optimization.
+where the $threshold$ is a constant set to 0.1{\AA}. If the two decoys are too similar, 
+we avoid scoring them against each other during the training.
 
 
-During the training procedure we load several decoys (batch) into memory and evaluate the model on them. 
-Afterwards, we compute the average loss for the batch:
-$$ L = \frac{1}{N} \sum_{i=1,j=1, i \neq j}^{M} L_ij $$ 
-where $N$ is the number of pairs of decoys with the $w_{ij} > 0$ and $M$ is the number of decoys in a batch.
 
 \subsection{Evaluation criteria}
 We evaluated our algorithm using the correlation coefficients, Z-score and loss criterions. The correlation coefficents 

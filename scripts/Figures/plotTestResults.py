@@ -11,6 +11,7 @@ def get_correlations(proteins, decoys, decoys_scores, subset=None, return_all=Fa
 	import scipy
 	correlations_average = np.array([0.0, 0.0, 0.0])
 	correlations_all = {}
+	N_exceptional = 0
 	for n,protein in enumerate(proteins):
 		if not subset is None:
 			if not protein in subset:
@@ -25,7 +26,10 @@ def get_correlations(proteins, decoys, decoys_scores, subset=None, return_all=Fa
 		correlations_prot = np.array([	scipy.stats.pearsonr(tmscores, scores)[0],
 										scipy.stats.spearmanr(tmscores, scores)[0],
 										scipy.stats.kendalltau(tmscores, scores)[0] ])
-		
+		if np.isnan(correlations_prot).any():
+			print 'Exception in ', protein
+			N_exceptional += 1
+			continue
 		correlations_average = correlations_average + correlations_prot
 		correlations_all[protein] = correlations_prot
 
@@ -33,9 +37,9 @@ def get_correlations(proteins, decoys, decoys_scores, subset=None, return_all=Fa
 		return correlations_all
 
 	if subset is None:
-		return correlations_average/float(len(proteins))
+		return correlations_average/float(len(proteins)-N_exceptional)
 	else:
-		return correlations_average/float(len(subset))
+		return correlations_average/float(len(subset)-N_exceptional)
 
 	
 
@@ -49,14 +53,23 @@ def get_best_decoy(protein, decoys, decoys_scores):
 			best_decoy = decoy
 	return best_decoy
 
-def get_top1_decoy(protein, decoys, decoys_scores):
-	min_score = float('inf')
-	for decoy in decoys[protein]:
-		tmscore = decoy[1]
-		score = decoys_scores[protein][decoy[0]]
-		if min_score>score:
-			min_score = score
-			top1_decoy = decoy
+def get_top1_decoy(protein, decoys, decoys_scores, descending=True):
+	if descending:
+		min_score = float('inf')
+		for decoy in decoys[protein]:
+			tmscore = decoy[1]
+			score = decoys_scores[protein][decoy[0]]
+			if min_score>score:
+				min_score = score
+				top1_decoy = decoy
+	else:
+		max_score = float('-inf')
+		for decoy in decoys[protein]:
+			tmscore = decoy[1]
+			score = decoys_scores[protein][decoy[0]]
+			if max_score<score:
+				max_score = score
+				top1_decoy = decoy
 	return top1_decoy
 	
 def get_zscore(proteins, decoys, decoys_scores, subset=None):
@@ -82,7 +95,7 @@ def get_zscore(proteins, decoys, decoys_scores, subset=None):
 		return zscore/float(len(subset))
 
 
-def get_average_loss(proteins, decoys, decoys_scores, subset=None, return_all=False):
+def get_average_loss(proteins, decoys, decoys_scores, subset=None, return_all=False, descending=True):
 	loss = 0.0
 	loss_all = {}
 	decoys_info = {}
@@ -90,7 +103,7 @@ def get_average_loss(proteins, decoys, decoys_scores, subset=None, return_all=Fa
 		if not subset is None:
 			if not protein in subset:
 				continue
-		top1_decoy = get_top1_decoy(protein, decoys, decoys_scores)
+		top1_decoy = get_top1_decoy(protein, decoys, decoys_scores,descending)
 		best_decoy = get_best_decoy(protein, decoys, decoys_scores)
 		loss = loss + np.abs(top1_decoy[1] - best_decoy[1])
 		loss_all[protein] = np.abs(top1_decoy[1] - best_decoy[1])
@@ -112,7 +125,8 @@ def plot_test_results(	experiment_name = 'QA',
 						test_dataset_subset = 'datasetDescription.dat',
 						decoy_ranging_column = 'gdt-ts',
 						subset = None,
-						suffix = ''):
+						suffix = '',
+						descending=True):
 	"""
 	Outputs:
 	pearson, spearman, kendall correlations 
@@ -123,9 +137,12 @@ def plot_test_results(	experiment_name = 'QA',
 
 	proteins, decoys = read_dataset_description('/home/lupoglaz/ProteinsDataset/%s/Description'%test_dataset_name,
 												test_dataset_subset, decoy_ranging=decoy_ranging_column)
-	
-	input_path = '../../models/%s_%s_%s/%s/epoch_0.dat'%(	experiment_name, model_name, trainig_dataset_name,
-															test_dataset_name+suffix)
+	if (not model_name is None) and (not trainig_dataset_name is None):
+		input_path = '../../models/%s_%s_%s/%s/epoch_0.dat'%(	experiment_name, model_name, trainig_dataset_name,
+																test_dataset_name+suffix)
+	else:
+		input_path = '../../models/%s/%s/epoch_0.dat'%(	experiment_name, test_dataset_name+suffix)
+
 	loss_function_values, decoys_scores = read_epoch_output(input_path)
 
 	correlations = get_correlations(proteins, decoys, decoys_scores, subset)
@@ -136,107 +153,104 @@ def plot_test_results(	experiment_name = 'QA',
 
 	zscore = get_zscore(proteins, decoys, decoys_scores, subset)
 	print 'Z-score:',zscore
-	loss = get_average_loss(proteins, decoys, decoys_scores, subset)
+	loss = get_average_loss(proteins, decoys, decoys_scores, subset, False, descending)
 	print 'Loss:',loss
-
-	output_path = '../../models/%s_%s_%s/%s_funnels.png'%(experiment_name, model_name, trainig_dataset_name, test_dataset_name+suffix)
+	
+	if (not model_name is None) and (not trainig_dataset_name is None):
+		output_path = '../../models/%s_%s_%s/%s_funnels.png'%(experiment_name, model_name, trainig_dataset_name, test_dataset_name+suffix)
+	else:
+		output_path = '../../models/%s/%s_funnels.png'%(	experiment_name, test_dataset_name+suffix)
 	plotFunnels(proteins, decoys, decoys_scores, output_path)
 
-def get_best_and_worst_proteins(	experiment_name = 'QA',
-									model_name = 'ranking_model_11atomTypes',
-									trainig_dataset_name = 'CASP',
-									test_dataset_name = 'CASP11Stage1',
-									test_dataset_subset = 'datasetDescription.dat',
-									decoy_ranging_column = 'gdt-ts',
-									subset = None):
-	print "Test dataset: ", test_dataset_name
-
+def get_uniformly_dist_decoys(	experiment_name = 'QA_uniform',
+								model_name = 'ranking_model_8',
+								trainig_dataset_name = 'CASP_SCWRL',
+								test_dataset_name = 'CASP11Stage2_SCWRL',
+								test_dataset_subset = 'datasetDescription.dat',
+								decoy_ranging_column = 'gdt-ts',
+								suffix = ''):
 	proteins, decoys = read_dataset_description('/home/lupoglaz/ProteinsDataset/%s/Description'%test_dataset_name,
 												test_dataset_subset, decoy_ranging=decoy_ranging_column)
-	
-	input_path = '../../models/%s_%s_%s/%s/epoch_0.dat'%(	experiment_name, model_name, trainig_dataset_name,
-															test_dataset_name)
+	if (not model_name is None) and (not trainig_dataset_name is None):
+		input_path = '../../models/%s_%s_%s/%s/epoch_0.dat'%(	experiment_name, model_name, trainig_dataset_name,
+																test_dataset_name+suffix)
+	else:
+		input_path = '../../models/%s/%s/epoch_0.dat'%(	experiment_name, test_dataset_name+suffix)
+
 	loss_function_values, decoys_scores = read_epoch_output(input_path)
-
-	correlations = get_correlations(proteins, decoys, decoys_scores, subset, return_all=True)
-	loss, decoys_info = get_average_loss(proteins, decoys, decoys_scores, subset, return_all=True)
-	sorted_loss = sorted(loss.items(), key=operator.itemgetter(1))
-	print '10 Best targets for loss'
-	for i in range(0,10):
-		print sorted_loss[i], decoys_info[sorted_loss[i][0]]
-
-	print '10 Worst targets for loss'
-	for i in range(len(sorted_loss)-1,len(sorted_loss)-10,-1):
-		print sorted_loss[i], decoys_info[sorted_loss[i][0]]
-
-
-	loss = []
-	corr = []
-	for i in range(0,len(sorted_loss)):
-		pname = sorted_loss[i][0]
-		loss.append(sorted_loss[i][1])
-		corr.append(correlations[pname][0])
-	fig = plt.figure(figsize=(10,10))
-	plt.plot(loss, corr, '.')
-	plt.plt.savefig('../../models/%s_%s_%s/%s_loss_vs_pearson.png'%(experiment_name, model_name, trainig_dataset_name, test_dataset_name))
-
-	loss = []
-	best_decoy_gdt = []
-	for i in range(0,len(sorted_loss)):
-		pname = sorted_loss[i][0]
-		loss.append(sorted_loss[i][1])
-		best_decoy_gdt.append(decoys_info[pname][1][1])
-	fig = plt.figure(figsize=(10,10))
-	plt.plot(loss, best_decoy_gdt, '.')
-	plt.plt.savefig('../../models/%s_%s_%s/%s_loss_vs_best_decoy.png'%(experiment_name, model_name, trainig_dataset_name, test_dataset_name))		
-
 	
+	protein = 'T0832'
+	selected_scores = []
+	for decoy in decoys[protein]:
+		selected_scores.append(decoys_scores[protein][decoy[0]])
+	minim = np.min(selected_scores)
+	maxim = np.max(selected_scores)
+	uniform_idx = []
+	uniform_scores = []
 
-def protein_size_filter(test_dataset_name = 'CASP11Stage1_SCWRL',
-						test_dataset_subset = 'native_set.dat',
-						size = (0,100)
-						):
-	proteins, decoys = read_dataset_description('/home/lupoglaz/ProteinsDataset/%s/Description'%test_dataset_name,
-												test_dataset_subset)
-	subset = []
-	for protein in decoys['natives']:
-		 psize = getPDBBoundingBox(protein[0])
-		 if psize >= size[0] and psize < size[1]:
-			 i1 = protein[0].rfind('/')+1
-			 i2 = protein[0].rfind('.')
-			 subset.append(protein[0][i1:i2])
-	return subset
+	for i in range(0, 5):
+		target_score = minim + i*(maxim-minim)/5.0
+		closest_idx = -1
+		closest_score = float('+inf')
+		for n,score in enumerate(selected_scores):
+			if np.abs(score - target_score) < np.abs(closest_score - target_score):
+				closest_score = score 
+				closest_idx = n
+		uniform_idx.append(closest_idx)
+		uniform_scores.append(closest_score)
+		
+	for i, score in zip(uniform_idx, uniform_scores):
+		print i, decoys[protein][i], score
 	
-
-
 
 if __name__=='__main__':
-	construct_protein_size_subsets = False
-	inspect_protein_size_subsets = False
-	inspect_best_and_worst = False
 	inspect_monomers = False
 
-	# plot_test_results(	experiment_name = 'QA_bn_gdt_ts_4',
-	# 					model_name = 'ranking_model_8',
-	# 					trainig_dataset_name = 'CASP_SCWRL',
-	# 					test_dataset_name = 'CASP_SCWRL',
-	# 					test_dataset_subset = 'validation_set.dat',
-	# 					decoy_ranging_column = 'gdt-ts')
-	
-	# plot_test_results(	experiment_name = 'QA_5',
+	# plot_test_results(	experiment_name = 'QA_pretraining_clean_e2',
 	# 					model_name = 'ranking_model_8',
 	# 					trainig_dataset_name = 'CASP_SCWRL',
 	# 					test_dataset_name = 'CASP11Stage1_SCWRL',
-	# 					decoy_ranging_column = 'gdt-ts')
+	# 					# test_dataset_name = 'CASP_SCWRL',
+	# 					test_dataset_subset = 'datasetDescription.dat',
+	# 					decoy_ranging_column = 'gdt-ts',
+	# 					suffix = '_sampling')
 
-	plot_test_results(	experiment_name = 'QA_uniform',
-						model_name = 'ranking_model_8',
-						trainig_dataset_name = 'CASP_SCWRL',
-						# test_dataset_name = 'CASP11Stage2_SCWRL',
-						test_dataset_name = 'CASP_SCWRL',
-						test_dataset_subset = 'validation_set.dat',
-						decoy_ranging_column = 'gdt-ts',
-						suffix = '')
+	# plot_test_results(	experiment_name = 'RWPlus',
+	# 					model_name = None,
+	# 					trainig_dataset_name = None,
+	# 					test_dataset_name = 'CASP11Stage2_SCWRL',
+	# 					# test_dataset_name = 'CASP_SCWRL',
+	# 					test_dataset_subset = 'datasetDescription.dat',
+	# 					decoy_ranging_column = 'gdt-ts',
+	# 					suffix = '',
+	# 					descending=True)
+	
+	# plot_test_results(	experiment_name = 'VoroMQA',
+	# 					model_name = None,
+	# 					trainig_dataset_name = None,
+	# 					test_dataset_name = 'CASP11Stage2_SCWRL',
+	# 					# test_dataset_name = 'CASP_SCWRL',
+	# 					test_dataset_subset = 'datasetDescription.dat',
+	# 					decoy_ranging_column = 'gdt-ts',
+	# 					suffix = '',
+	# 					descending=False)
+
+	# plot_test_results(	experiment_name = 'ProQ3',
+	# 					model_name = None,
+	# 					trainig_dataset_name = None,
+	# 					test_dataset_name = 'CASP11Stage1_SCWRL',
+	# 					# test_dataset_name = 'CASP_SCWRL',
+	# 					test_dataset_subset = 'datasetDescription.dat',
+	# 					decoy_ranging_column = 'gdt-ts',
+	# 					suffix = '',
+	# 					descending=False)
+	
+	# get_uniformly_dist_decoys()
+	
+	
+
+
+
 	if inspect_monomers:
 		monomer_subset = [
 			'T0759','T0760','T0762','T0766','T0767','T0769','T0773','T0777','T0778',
@@ -260,59 +274,4 @@ if __name__=='__main__':
 							decoy_ranging_column = 'gdt-ts',
 							subset = monomer_subset)
 
-	if inspect_best_and_worst:
-		get_best_and_worst_proteins(	experiment_name = 'QA',
-						model_name = 'ranking_model_8',
-						trainig_dataset_name = 'AgregateDataset',
-						test_dataset_name = 'CASP11Stage1_SCWRL',
-						decoy_ranging_column = 'gdt-ts')
-		get_best_and_worst_proteins(	experiment_name = 'QA',
-						model_name = 'ranking_model_8',
-						trainig_dataset_name = 'AgregateDataset',
-						test_dataset_name = 'CASP11Stage2_SCWRL',
-						decoy_ranging_column = 'gdt-ts')
-
-	if construct_protein_size_subsets:
-		protein_subset_0_60 = protein_size_filter(size = (0,60))
-		print len(protein_subset_0_60)
-		protein_subset_60_90 = protein_size_filter(size = (60,90))
-		print len(protein_subset_60_90)
-		protein_subset_90_1000 = protein_size_filter(size = (90,1000))
-		print len(protein_subset_90_1000)
-		with open('subset_0_60.pkl','w') as f:
-			pkl.dump(protein_subset_0_60, f)
-		with open('subset_60_90.pkl','w') as f:
-			pkl.dump(protein_subset_60_90, f)
-		with open('subset_90_1000.pkl','w') as f:
-			pkl.dump(protein_subset_90_1000, f)
-
-
-		with open('subset_0_60.pkl','w') as f:
-			pkl.dump(protein_subset_0_60, f)
-		with open('subset_60_90.pkl','w') as f:
-			pkl.dump(protein_subset_60_90, f)
-		with open('subset_90_1000.pkl','w') as f:
-			pkl.dump(protein_subset_90_1000, f)
 	
-	if inspect_protein_size_subsets:
-		with open('subset_0_60.pkl','r') as f:
-			protein_subset_0_60 = pkl.load(f)
-		with open('subset_60_90.pkl','r') as f:
-			protein_subset_60_90 = pkl.load(f)
-		with open('subset_90_1000.pkl','r') as f:
-			protein_subset_90_1000 = pkl.load(f)
-		
-		for protein_subset in [protein_subset_0_60, protein_subset_60_90, protein_subset_90_1000]:
-			print 'Subset size = ', len(protein_subset)
-			plot_test_results(	experiment_name = 'QA',
-								model_name = 'ranking_model_8',
-								trainig_dataset_name = 'AgregateDataset',
-								test_dataset_name = 'CASP11Stage1_SCWRL',
-								decoy_ranging_column = 'gdt-ts',
-								subset = protein_subset)
-			plot_test_results(	experiment_name = 'QA',
-								model_name = 'ranking_model_8',
-								trainig_dataset_name = 'AgregateDataset',
-								test_dataset_name = 'CASP11Stage2_SCWRL',
-								decoy_ranging_column = 'gdt-ts',
-								subset = protein_subset)

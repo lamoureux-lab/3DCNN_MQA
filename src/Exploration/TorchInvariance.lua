@@ -22,6 +22,7 @@ requireRel '../Logging/sampling_logger'
 
 
 function sample(dataset, model, logger, protein_name, decoy_filename, numSamples)
+    model.net:evaluate()
     for i=1, numSamples do
         local stic = torch.tic()
         local cbatch = dataset:load_batch_repeat(decoy_filename)
@@ -34,6 +35,7 @@ function sample(dataset, model, logger, protein_name, decoy_filename, numSamples
         for i=1, outputs_cpu:size(1) do
             local score = outputs_cpu[{i,1}]
             logger:set_decoy_score(protein_name, decoy_filename, score)
+            -- print(protein_name, decoy_filename, score)
         end
     end
 end
@@ -66,7 +68,7 @@ cmd:option('-training_model_name','ranking_model_8', 'cnn model name during trai
 cmd:option('-training_dataset_name','CASP_SCWRL', 'training dataset name')
 
 cmd:option('-test_model_name','ranking_model_8', 'cnn model name during testing')
-cmd:option('-test_dataset_name','CASP_SCWRL', 'test dataset name')
+cmd:option('-test_dataset_name','CASP11Stage1_SCWRL', 'test dataset name')
 cmd:option('-test_dataset_subset','datasetDescription.dat', 'test dataset subset')
 -- cmd:option('-test_dataset_subset','validation_set.dat', 'test dataset subset')
 
@@ -79,7 +81,7 @@ local adamConfig = {batch_size = optimization_parameters.batch_size	}
 local input_size = {	model.input_options.num_channels, model.input_options.input_size, 
 						model.input_options.input_size, model.input_options.input_size}
 
-local test_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, true, false, model.input_options.resolution)
+local test_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, false, false, model.input_options.resolution)
 test_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/'..params.test_dataset_name..'/Description', params.test_dataset_subset, 'tm-score')
 local test_logger = cSamplingLogger.new(params.experiment_name, params.training_model_name, params.training_dataset_name, 
 										params.test_dataset_name..'_sampling')
@@ -97,10 +99,73 @@ for i=40, 1, -1 do
 	end
 end
 
+-- model = model:float()
+-- model:save_model('/home/lupoglaz/Projects/MILA/deep_folder/models/QA_uniform_ranking_model_8_CASP_SCWRL/models/final')
+
+-- exit()
+
 model:initialize_cuda(1)
 math.randomseed( 42 )
 
-test_logger:allocate_sampling_epoch(test_dataset)
+
+-- test_logger:allocate_sampling_epoch(test_dataset)
 -- test(test_dataset, model, test_logger, adamConfig, 2)
-sample(test_dataset, model, test_logger, test_dataset.proteins[1], test_dataset.decoys[test_dataset.proteins[1]][1].filename, 100)
-test_logger:save_epoch(4)
+-- test_logger:save_epoch(0)
+
+-- local n_protein = 1
+-- for i=1, #test_dataset.proteins do
+--     if test_dataset.proteins[i]=='T0832' then
+--         n_protein = i
+--     end
+-- end
+
+-- selected_decoys = {
+--     '/home/lupoglaz/ProteinsDataset/CASP11Stage2_SCWRL/T0832/TASSER-VMT_TS4',
+--     '/home/lupoglaz/ProteinsDataset/CASP11Stage2_SCWRL/T0832/RBO_Aleph_TS3',
+--     '/home/lupoglaz/ProteinsDataset/CASP11Stage2_SCWRL/T0832/FALCON_EnvFold_TS1',
+--     '/home/lupoglaz/ProteinsDataset/CASP11Stage2_SCWRL/T0832/Pcons-net_TS1',
+--     '/home/lupoglaz/ProteinsDataset/CASP11Stage2_SCWRL/T0832/FFAS-3D_TS3'
+-- }
+-- print(selected_decoys)
+-- selected_indexes = {}
+-- for j=1, #selected_decoys do
+--     for i=1, #test_dataset.decoys[test_dataset.proteins[n_protein]] do
+--         if test_dataset.decoys[test_dataset.proteins[n_protein]][i].filename == selected_decoys[j] then 
+--             table.insert(selected_indexes, i)
+--             print(test_dataset.decoys[test_dataset.proteins[n_protein]][i].filename)
+--         end
+--     end
+-- end
+
+-- for i=1, #selected_indexes do
+--     local n_decoy = selected_indexes[i]
+--     print('Protein: ', test_dataset.proteins[n_protein], 'decoy', test_dataset.decoys[test_dataset.proteins[n_protein]][n_decoy].filename, 
+--             'gdt', test_dataset.decoys[test_dataset.proteins[n_protein]][n_decoy].gdt_ts)
+
+--     test_logger:allocate_sampling_epoch(test_dataset)
+--     sample(test_dataset, model, test_logger, test_dataset.proteins[n_protein], test_dataset.decoys[test_dataset.proteins[n_protein]][n_decoy].filename, 100)
+--     test_logger:save_epoch(i-1)
+-- end
+
+-- local n_decoy = selected_indexes[3]
+-- print('Protein: ', test_dataset.proteins[n_protein], 'decoy', test_dataset.decoys[test_dataset.proteins[n_protein]][n_decoy].filename, 
+--         'gdt', test_dataset.decoys[test_dataset.proteins[n_protein]][n_decoy].gdt_ts)
+
+-- test_dataset.rotate = false
+-- test_dataset.shift = true
+-- test_logger:allocate_sampling_epoch(test_dataset)
+-- sample(test_dataset, model, test_logger, test_dataset.proteins[n_protein], test_dataset.decoys[test_dataset.proteins[n_protein]][n_decoy].filename, 100)
+-- test_logger:save_epoch(5)
+
+-- test_dataset.rotate = true
+-- test_dataset.shift = false
+-- test_logger:allocate_sampling_epoch(test_dataset)
+-- sample(test_dataset, model, test_logger, test_dataset.proteins[n_protein], test_dataset.decoys[test_dataset.proteins[n_protein]][n_decoy].filename, 100)
+-- test_logger:save_epoch(6)
+
+-- test_dataset.rotate = true
+-- test_dataset.shift = true
+-- test_logger:allocate_sampling_epoch(test_dataset)
+-- sample(test_dataset, model, test_logger, test_dataset.proteins[n_protein], test_dataset.decoys[test_dataset.proteins[n_protein]][n_decoy].filename, 100)
+-- test_logger:save_epoch(7)
+

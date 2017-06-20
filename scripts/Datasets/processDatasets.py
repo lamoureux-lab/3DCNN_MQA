@@ -2,6 +2,7 @@ import os
 import sys
 import random
 from TMScoreParallel import make_list_parallel
+import cPickle as pkl
 
 def is_pdb_directory(path):
 	"""Returns true is a directory contains at least one pdb-file"""
@@ -249,6 +250,7 @@ if __name__=='__main__':
 	# for line in f:
 	# 	casp_excl_set.append(line.split()[0])
 	# f.close()
+
 	# dataset_make_description('/home/lupoglaz/ProteinsDataset/CASP_SCWRL',
 	# 	exclusion_set = set(casp_excl_set),
 	# 	exclude_wo_decoys = 50)
@@ -262,6 +264,25 @@ if __name__=='__main__':
 	# 							tagets_range=(283,759)) #starting with CASP7
 	# make_test_set('/home/lupoglaz/ProteinsDataset/CASP_SCWRL/Description',
 	# 				tagets_range=(759,859))
+
+	#CASP dataset without big decoys
+	# with open('data/CASP_SCWRL_exclusion.pkl','r') as fin:
+	# 	casp_excl_set = pkl.load(fin)
+
+	# dataset_make_description(
+	# 	'/home/lupoglaz/ProteinsDataset/CASP_SCWRL',
+	# 	description_dir_name='DescriptionClean', 
+	# 	exclusion_set = casp_excl_set,
+	# 	exclude_wo_decoys = 50,
+	# 	include_native_structures = False, 
+	# 	tmscore_range = (0, 1),
+	# 	gdt_ts_range = (0, 1))
+
+	# make_train_validation_split('/home/lupoglaz/ProteinsDataset/CASP_SCWRL/DescriptionClean',
+	# 							validation_fraction = 0.12,
+	# 							training_set_filename = 'training_set.dat',
+	# 							validation_set_filename = 'validation_set.dat',
+	# 							tagets_range=(283,759)) #starting with CASP7
 
 	#CASP11 Stage1 and Stage2 datasets
 	# dataset_make_lists('/home/lupoglaz/ProteinsDataset/CASP11Stage1')
@@ -291,5 +312,5 @@ if __name__=='__main__':
 	# dataset_make_description_natives('/home/lupoglaz/ProteinsDataset/on_rosetta_set')
 	# dataset_make_description_natives('/home/lupoglaz/ProteinsDataset/CASP_SCWRL')
 
-	dataset_make_lists('/home/lupoglaz/ProteinsDataset/CASP11Stage1_SCWRL_Local')
-	dataset_make_description('/home/lupoglaz/ProteinsDataset/CASP11Stage1_SCWRL_Local')
+	# dataset_make_lists('/home/lupoglaz/ProteinsDataset/CASP11Stage1_SCWRL_Local')
+	# dataset_make_description('/home/lupoglaz/ProteinsDataset/CASP11Stage1_SCWRL_Local')

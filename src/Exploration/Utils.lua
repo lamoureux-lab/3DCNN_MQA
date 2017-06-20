@@ -5,7 +5,7 @@ require 'cutorch'
 
 function writeDensityMap(filename, tensor)
     size = tensor:size(1)
-    print(torch.mean(tensor),torch.std(tensor))
+    -- print(torch.mean(tensor),torch.std(tensor))
     local file = io.open(filename,'w')
 	file:write('\n') -- line 1
     file:write(' Density map\n') --line 2
@@ -15,7 +15,7 @@ function writeDensityMap(filename, tensor)
     file:write(string.format('%12.5E%12.5E%12.5E%12.5E%12.5E%12.5E\n',size,size,size,90,90.,90.))            --line 7
     file:write('ZYX\n')
     for z=1,size do
-        print(z-1)
+        -- print(z-1)
         file:write(string.format('%8d\n',z-1))
         for y=1,size do
             for x=1,size, 6 do

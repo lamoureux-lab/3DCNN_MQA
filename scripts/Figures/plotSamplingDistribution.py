@@ -86,31 +86,42 @@ def read_samples(data_path):
 			data.append(float(sline[-1]))
 	return data
 
-if __name__=='__main__':
+def plot_several_decoys_dist():
 	from scipy.stats import norm
 	experiment_name = 'QA_uniform'
 	model_name = 'ranking_model_8'
 	dataset_name = 'CASP_SCWRL'
-	test_dataset_name = 'CASP_SCWRL_sampling'
+	test_dataset_name = 'CASP11Stage2_SCWRL_sampling'
 
-	# plot_test_results(  experiment_name = 'QA_uniform',
-	# 					model_name = 'ranking_model_8',
-	# 					trainig_dataset_name = 'CASP_SCWRL',
-	# 					test_dataset_name = 'CASP11Stage2_SCWRL',
-	# 					decoy_ranging_column = 'gdt-ts',
-	# 					suffix = '_sampling')
+	decoy_names = ['TASSER-VMT_TS4', 'RBO_Aleph_TS3', 'FALCON_EnvFold_TS1', 'Pcons-net_TS1', 'FFAS-3D_TS3']
+	for i in range(0,5):
+		data_path_rt = '../../models/%s_%s_%s/%s/epoch_%d.dat'%(	experiment_name, model_name, dataset_name,
+																test_dataset_name,i)
+		data=read_samples(data_path_rt)
+		n, bins_rt_nat, patches_rt_nat = plt.hist(data, 50, normed=1, alpha=0.5, fill=True, label=decoy_names[i])
+		print bins_rt_nat
 	
-	data_path_rt = '../../models/%s_%s_%s/%s/rot_trans_sampling_T1D1.dat'%(	experiment_name, model_name, dataset_name,
+	plt.legend(loc = 1)
+	plt.savefig('decoys_sampling_dist.png')
+
+def plot_diff_sampling():
+	from scipy.stats import norm
+	experiment_name = 'QA_uniform'
+	model_name = 'ranking_model_8'
+	dataset_name = 'CASP_SCWRL'
+	test_dataset_name = 'CASP11Stage2_SCWRL_sampling'
+
+	data_path_rt = '../../models/%s_%s_%s/%s/epoch_7.dat'%(	experiment_name, model_name, dataset_name,
 															test_dataset_name)
-	data_path_t = '../../models/%s_%s_%s/%s/trans_sampling_T1D1.dat'%(	experiment_name, model_name, dataset_name,
+	data_path_r = '../../models/%s_%s_%s/%s/epoch_6.dat'%(	experiment_name, model_name, dataset_name,
 															test_dataset_name)
-	data_path_r = '../../models/%s_%s_%s/%s/rot_sampling_T1D1.dat'%(	experiment_name, model_name, dataset_name,
+	data_path_t = '../../models/%s_%s_%s/%s/epoch_5.dat'%(	experiment_name, model_name, dataset_name,
 															test_dataset_name)
+
 	data_rt = read_samples(data_path_rt)
 	data_r = read_samples(data_path_r)
 	data_t = read_samples(data_path_t)
 	
-
 	n, bins_rt, patches_rt = plt.hist(data_rt, 50, normed=1, alpha=0.5, fill=True, label='Sampled rotations and translations')
 	n, bins_r, patches_r = plt.hist(data_r, 50, normed=1, histtype='step', linestyle=('solid'),color=('red'), lw=1.5, alpha=1.0, fill=False, label='Sampled rotations')
 	n, bins_t, patches_t = plt.hist(data_t, 50, normed=1, histtype='step', linestyle=('dashed'),color=('black'), lw=1.5, alpha=1.0, fill=False, label='Sampled translations')
@@ -124,3 +135,7 @@ if __name__=='__main__':
 	plt.legend(loc = 2)
 	# plt.show()
 	plt.savefig('sampling_dist.png')
+
+if __name__=='__main__':
+	# plot_several_decoys_dist()
+	plot_diff_sampling()

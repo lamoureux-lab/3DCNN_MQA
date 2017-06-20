@@ -100,7 +100,7 @@ def pca(X = Math.array([]), no_dims = 50):
 	X = X - Math.tile(Math.mean(X, 0), (n, 1));
 	(l, M) = Math.linalg.eig(Math.dot(X.T, X));
 	Y = Math.dot(X, M[:,0:no_dims]);
-	return Y, l
+	return Y, l, M
 
 
 def tsne(X = Math.array([]), no_dims = 2, initial_dims = 50, perplexity = 30.0):
@@ -279,9 +279,19 @@ if __name__ == "__main__":
 	if args.pca:
 		X, proteins = parse_activations_file(activations_file)
 		X = normalize(X,axis=0)
-		Y, w = pca(X, 3)
+		Y, w, M = pca(X, 3)
 		Y = Y.real
+		print w.shape
 		print w
+		print M.shape
+		m = M[:,0]
+		Msort = Math.argsort(Math.abs(m))
+		print(Msort[-10:])
+		print(M[Msort[-10:],0])
+		
+		# plt.plot(M[Msort[-100:],0])
+		# plt.show()
+
 		
 		if args.decoys:
 			dataset_proteins, decoys = read_dataset_description('/home/lupoglaz/ProteinsDataset/%s/Description'%args.embed_dataset_name,'datasetDescription.dat')		
@@ -298,7 +308,7 @@ if __name__ == "__main__":
 			
 			for n,protein_path in enumerate(proteins):
 				if Y[n,0]<-0.5:
-					print protein_path, Y[n,:]
+					print protein_path, Y[n,:], C[n]
 
 				
 			fig = plt.figure(figsize=(12,10))

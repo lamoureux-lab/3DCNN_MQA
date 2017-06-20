@@ -59,8 +59,8 @@ local Cuda = ffi_cuda.load'../Library/build/libload_protein_cuda_direct.so'
 atom_type_assigner = 2
 
 params = {  test_model_name = 'ranking_model_8',
-            experiment_name = 'QA_uniform',
-            training_dataset_name = 'CASP_SCWRL',
+            experiment_name = 'QA_pretraining',
+            training_dataset_name = '3DRobotTrainingSet',
             gpu_num = 1}
 
 local model, optimization_parameters = dofile('../ModelsDef/'..params.test_model_name..'.lua')
@@ -81,6 +81,7 @@ local init_protein_path = 'Optimization/5eh6.pdb'
 num_assigned_atoms = Cuda.getNumberOfAtoms(init_protein_path, atom_type_assigner)
 
 local coords = torch.FloatTensor(num_assigned_atoms*3)
+local initial_coords = torch.FloatTensor(num_assigned_atoms*3)
 local gradients = torch.FloatTensor(num_assigned_atoms*3)
 local num_atoms = torch.IntTensor(11)
 local indexes = torch.IntTensor(num_assigned_atoms)
@@ -89,27 +90,58 @@ local input = torch.zeros(1, 11, 120, 120, 120):cuda()
 Cuda.prepareProtein(init_protein_path, 1.0, atom_type_assigner, 120, true, 
                     coords:cdata(), num_atoms:cdata(), indexes:cdata())
 
+initial_coords:copy(coords)
+
 Cuda.saveProtein(       init_protein_path,
-                        "Optimization/optimized.pdb",
-                        coords:cdata(),
+                        "Optimization/init.pdb",
+                        initial_coords:cdata(),
                         indexes:cdata(),
                         num_assigned_atoms, atom_type_assigner)
 
 print(num_atoms)
 
-
 model.net:evaluate()
 model:initialize_cuda(params.gpu_num)
 local adamConfig = {
-    learningRate = 0.1
+    learningRate = 0.50
 }
-for i=0, 1000 do
+segment = {1,2,{60,65},{60,65},{65,70}}
+optim_indexes = {}
+for i=num_atoms[1]+1, num_atoms[1]+3*num_atoms[2], 3 do
+    x = coords[i] 
+    y = coords[i+1]
+    z = coords[i+2]
+    if (60<x and x<65) and (60<y and y<65) and (65<z and z<75) then
+        coords[i] = coords[i] + 0.5*torch.normal()
+        coords[i+1] = coords[i+1] + 0.5*torch.normal()
+        coords[i+2] = coords[i+2] + 0.5*torch.normal()
+        print(i, x, y, z)
+        table.insert(optim_indexes, i)
+        table.insert(optim_indexes, i+1)
+        table.insert(optim_indexes, i+2)
+    end
+end
+
+Cuda.saveProtein(       init_protein_path,
+                        "Optimization/corrupted.pdb",
+                        coords:cdata(),
+                        indexes:cdata(),
+                        num_assigned_atoms, atom_type_assigner)
+
+-- optim_indexes = torch.LongTensor(optim_indexes)
+
+for i=0, 500 do
     local feval = function(x)
+        for i=1, #optim_indexes do 
+            initial_coords[optim_indexes[i]] = coords[optim_indexes[i]]
+        end
+
+        coords:copy(initial_coords)        
         input:fill(0.0)
         gradients:fill(0.0)
         input:fill(0.0)
         Cuda.protProjectToTensor(cutorch.getState(),input:cdata(),coords:cdata(),num_atoms:cdata(), 120, 1.0)
-            
+        
         local outputs_gpu = model.net:forward(input)
         local outputs_cpu = outputs_gpu:clone():float()
         print(i, outputs_cpu[1])
@@ -148,5 +180,6 @@ for i=0, 1000 do
         return outputs_cpu[1], gradients
     end
 
-    optim.sgd(feval, coords, adamConfig)
+    optim.adam(feval, coords, adamConfig)
+
 end

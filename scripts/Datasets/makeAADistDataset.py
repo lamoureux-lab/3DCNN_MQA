@@ -73,6 +73,7 @@ def process_output( filename, proteins_output_path=[None, None], aa_dist_path=No
 	return
 
 def process_single_decoy(args, output_path):
+	print output_path
 	decoy_path = os.path.join(args.dataset_path,args.target_name,args.decoy_name)
 	native_path = os.path.join(args.dataset_path,args.target_name,args.target_name+'.pdb')
 	run_TMAlign_superimpose((decoy_path, native_path, 'tmp.sup'))
@@ -87,9 +88,10 @@ def process_single_target(args):
 	output_target_path = os.path.join(args.output_dataset_path,args.target_name)
 	if not os.path.exists(output_target_path):
 		os.mkdir(output_target_path)
-
+	print target_path
 	for root, dirs, files in os.walk(target_path):
 		for filename in tqdm(files, desc=args.target_name):
+			
 			if filename.find('.dat')!=-1:
 				continue
 			args.decoy_name = filename
@@ -105,13 +107,13 @@ if __name__ == "__main__":
 									Prepare dataset of amino acid divergences from the native structure.
 									""")
 	parser.add_argument('--dataset_path', metavar='dataset_path', type=str, 
-				   help='Dataset path', default='/home/lupoglaz/ProteinsDataset/CASP11Stage1_SCWRL')
+				   help='Dataset path', default='/home/lupoglaz/ProteinsDataset/CASP11Stage2_SCWRL')
 	parser.add_argument('--output_dataset_path', metavar='output_dataset_path', type=str, 
-				   help='Output dataset path', default='/home/lupoglaz/ProteinsDataset/CASP11Stage1_SCWRL_AA')
+				   help='Output dataset path', default='/home/lupoglaz/ProteinsDataset/CASP11Stage2_SCWRL_AA')
 	parser.add_argument('--target_name', metavar='target_name', type=str, 
-				   help='Target name', default='T0129')
+				   help='Target name', default='T0776')
 	parser.add_argument('--decoy_name', metavar='decoy_name', type=str, 
-				   help='Decoy name', default='T0129TS002_5')
+				   help='Decoy name', default='all')
 	args = parser.parse_args()
 	if args.target_name!='all':
 		if args.decoy_name!='all':
