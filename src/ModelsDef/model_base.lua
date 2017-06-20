@@ -62,19 +62,20 @@ function cModelBase.save_model(self, dir_path)
 	for i=1,self.net:size() do
 		local layer = self.net:get(i)
 		if not( string.find(tostring(layer),'nn.VolumetricConvolution')==nil) then
-			torch.save(dir_path..'/VC'..tostring(i)..'W.dat', layer.weight)
-			torch.save(dir_path..'/VC'..tostring(i)..'B.dat', layer.bias)
+			torch.save(dir_path..'/VC'..tostring(i)..'W.dat', layer.weight:float())
+			torch.save(dir_path..'/VC'..tostring(i)..'B.dat', layer.bias:float())
 		end
 		if not( string.find(tostring(layer),'nn.Linear') == nil ) then
-			torch.save(dir_path..'/FC'..tostring(i)..'W.dat', layer.weight)
-			torch.save(dir_path..'/FC'..tostring(i)..'B.dat', layer.bias)
+			torch.save(dir_path..'/FC'..tostring(i)..'W.dat', layer.weight:float())
+			torch.save(dir_path..'/FC'..tostring(i)..'B.dat', layer.bias:float())
 		end
 		if not( string.find(tostring(layer),'nn.VolumetricBatchNormalizationMy') == nil ) then
 			if layer.affine then
-				torch.save(dir_path..'/BN'..tostring(i)..'W.dat', layer.weight)
-				torch.save(dir_path..'/BN'..tostring(i)..'B.dat', layer.bias)
-				torch.save(dir_path..'/BN'..tostring(i)..'RM.dat', layer.running_mean)
-				torch.save(dir_path..'/BN'..tostring(i)..'RS.dat', layer.running_std)
+				torch.save(dir_path..'/BN'..tostring(i)..'W.dat', layer.weight:float())
+				torch.save(dir_path..'/BN'..tostring(i)..'B.dat', layer.bias:float())
+				torch.save(dir_path..'/BN'..tostring(i)..'RM.dat', layer.running_mean:float())
+				torch.save(dir_path..'/BN'..tostring(i)..'RS.dat', layer.running_std:float())
+				print(layer.weight:float())
 			end
 		end
 	end
@@ -105,12 +106,12 @@ function cModelBase.print_model(self)
 			input_size = {input_size[1], output_x, output_y, output_z}
 			print(tostring(i)..':MaxPool\t\t'..tostring(input_size[1]).."x"..tostring(input_size[2]).."x"..tostring(input_size[3]).."x"..tostring(input_size[4]))
 		end
-		-- if tostring(layer) == 'nn.VolumetricBatchNormalization' then
-		-- 	print('BatchNorm')
-		-- end
-		-- if tostring(layer) == 'nn.ReLU' then
-		-- 	print('ReLU')
-		-- end
+		if tostring(layer) == 'nn.VolumetricBatchNormalization' then
+			print(tostring(i)..':BatchNorm')
+		end
+		if tostring(layer) == 'nn.ReLU' then
+			print(tostring(i)..':ReLU')
+		end
 		if not( string.find(tostring(layer),'nn.Linear') == nil ) then
 			print(tostring(i)..':Linear\t\t'..layer.weight:size()[2]..'->'..layer.weight:size()[1])
 		end

@@ -73,8 +73,8 @@ TARGET_LINK_LIBRARIES(load_protein TH PROTEINLOADER)
 #target_link_libraries (Test_ProteinVisualization TH GLFRAMEWORK PROTEINLOADER TENSORVIS)
 
 #Test tensor math library
-#add_executable(Test_TensorMathUtils Math/Test_TensorMathUtils.cpp)
-#target_link_libraries (Test_TensorMathUtils TH TH_MATH)
+add_executable(Test_TensorMathUtils Math/Test_TensorMathUtils.cpp)
+target_link_libraries (Test_TensorMathUtils TH TH_MATH)
 
 #External function to visualize a tensor and a protein from lua
 #ADD_LIBRARY(visualizeTensorAndProtein SHARED VolumeVisualization/visualizeTensorAndProtein.cpp)

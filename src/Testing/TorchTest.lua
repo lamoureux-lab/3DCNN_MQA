@@ -18,7 +18,7 @@ require 'optim'
 
 requireRel '../Library/DataProcessing/utils'
 requireRel '../Library/DataProcessing/dataset_homogenious'
-requireRel '../Logging/training_logger'
+requireRel '../Logging/sampling_logger'
 
 
 function test(dataset, model, logger, adamConfig)
@@ -68,12 +68,13 @@ cmd:text()
 cmd:text('Testing a network')
 cmd:text()
 cmd:text('Options')
-cmd:option('-experiment_name','QA_uniform', 'training experiment name')
+-- cmd:option('-experiment_name','QA_uniform', 'training experiment name')
+cmd:option('-experiment_name','QA_pretraining_clean_e2', 'training experiment name')
 cmd:option('-training_model_name','ranking_model_8', 'cnn model name during training')
 cmd:option('-training_dataset_name','CASP_SCWRL', 'training dataset name')
 
 cmd:option('-test_model_name','ranking_model_8', 'cnn model name during testing')
-cmd:option('-test_dataset_name','CASP11Stage2', 'test dataset name')
+cmd:option('-test_dataset_name','CASP11Stage1_SCWRL', 'test dataset name')
 cmd:option('-test_dataset_subset','datasetDescription.dat', 'test dataset subset')
 -- cmd:option('-test_dataset_subset','validation_set.dat', 'test dataset subset')
 

@@ -147,6 +147,7 @@ cmd:option('-gpu_num',0,'gpu number')
 cmd:option('-do_init_validation',false,'whether to perform validation on initialized model')
 cmd:option('-restart', false, 'restart from the last saved model')
 cmd:option('-restart_epoch', -1, 'restart from this epoch')
+cmd:option('-restart_dir', 'none', 'restart from this Directory')
 cmd:text()
 
 params = cmd:parse(arg)
@@ -172,11 +173,11 @@ local batchRankingLoss = cBatchRankingLoss.new(params.gap_weight, params.tm_scor
 
 --Initializing datasets
 local training_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, true, true, model.input_options.resolution)
-training_dataset:load_dataset(params.datasets_dir..params.dataset_name..'/Description','training_set.dat', params.decoys_ranking_mode)
+training_dataset:load_dataset(params.datasets_dir..params.dataset_name..'/DescriptionClean','training_set.dat', params.decoys_ranking_mode)
 local training_logger = cTrainingLogger.new(params.experiment_name, modelName, params.dataset_name, 'training')
 
 local validation_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, false, false, model.input_options.resolution)
-validation_dataset:load_dataset(params.datasets_dir..params.dataset_name..'/Description','validation_set.dat')
+validation_dataset:load_dataset(params.datasets_dir..params.dataset_name..'/DescriptionClean','validation_set.dat')
 local validation_logger = cTrainingLogger.new(params.experiment_name, modelName, params.dataset_name, 'validation')
 
 local model_backup_dir = training_logger.global_dir..'models/'
@@ -189,8 +190,15 @@ local start_epoch = 1
 if params.restart then
 	if params.restart_epoch == -1 then
 		for i=params.max_epoch, 1, -1 do 
-			local epoch_model_backup_dir = model_backup_dir..'epoch'..tostring(i)
-			local adam_state_backup = model_backup_dir..'adam_epoch'..tostring(i)..'.t7'
+			local epoch_model_backup_dir = ''
+			local adam_state_backup = ''
+			if params.restart_dir == 'none' then 
+				epoch_model_backup_dir = model_backup_dir..'epoch'..tostring(i)
+				adam_state_backup = model_backup_dir..'adam_epoch'..tostring(i)..'.t7'
+			else
+				epoch_model_backup_dir = params.restart_dir..'epoch'..tostring(i)
+				adam_state_backup = params.restart_dir..'adam_epoch'..tostring(i)..'.t7'
+			end
 			if file_exists(epoch_model_backup_dir) then 
 				model:load_model(epoch_model_backup_dir)
 				adamState = torch.load(adam_state_backup)
@@ -199,8 +207,15 @@ if params.restart then
 			end
 		end
 	else 
-		local epoch_model_backup_dir = model_backup_dir..'epoch'..tostring(params.restart_epoch)
-		local adam_state_backup = model_backup_dir..'adam_epoch'..tostring(params.restart_epoch)..'.t7'
+		local epoch_model_backup_dir = ''
+		local adam_state_backup = ''
+		if params.restart_dir == 'none' then 
+			epoch_model_backup_dir = model_backup_dir..'epoch'..tostring(params.restart_epoch)
+			adam_state_backup = model_backup_dir..'adam_epoch'..tostring(params.restart_epoch)..'.t7'
+		else
+			epoch_model_backup_dir = params.restart_dir..'epoch'..tostring(params.restart_epoch)
+			adam_state_backup = params.restart_dir..'adam_epoch'..tostring(params.restart_epoch)..'.t7'
+		end
 		if file_exists(epoch_model_backup_dir) then 
 			model:load_model(epoch_model_backup_dir)
 			adamState = torch.load(adam_state_backup)
