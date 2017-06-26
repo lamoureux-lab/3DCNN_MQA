@@ -26,13 +26,13 @@
 \section{Materials and Methods}
 
 \subsection{Datasets}
-%\input{datasets.tex}
+% \input{datasets.tex}
 
 \subsection{Input}
-%\input{input.tex}
+% \input{input.tex}
 
 \subsection{Model}
-\input{model.tex}
+% \input{model.tex}
 
 \subsection{Loss functions}
 
@@ -141,18 +141,30 @@ The table \ref{Tbl:TrainingResults} summarizes the performance metrics on the tr
 During the training of the model we randomly sampled rotational and translational degrees of freedom of a decoy structure. Ideally, we 
 want the score assigned by the model to a decoy to be invariant under these transformations. However Fig \ref{Fig:ScoreDistribution} 
 shows that the distribution
-of scores under rotations and translations follows the gaussian distribution. Therefore, to approximate the average score of a decoy we 
+of scores under rotations and translations follows the gaussian distribution. The Fig. \ref{Fig:DecoysScoreDistribution} 
+shows the distributions of scores for several decoys. We see that the difference between the scores of different decoys is 
+bigger than the variance of the score under ratations and translations. However, estimating the overlap between 
+the distributions can influence the final results. Therefore, to approximate the average score of a decoy we 
 sample a score under random translation and rotation 20 times for each decoy in the test set. The final score is then the average of these 
 samples.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{Fig/sampling_dist.png}
-    \caption{The distribution of scores under random translations and rotations of the decoy LOOPP\_TS1 for the target T0342. The distributions 
+    \caption{The distribution of scores under random translations and rotations of the decoy 
+    FALCON\_EnvFold\_TS1 for the target T0832. The distributions 
     os scores under rotations only and translations only are shown with the dashed and solid lines respectively.
     The normal distribution fitted into the sampled scores under both rotations and translations is show with the dashed line. 
     The parameters of the normal distribution are: the average $\mu = 1.38$ and the standard deviation $\sigma = 0.42$.}
     \label{Fig:ScoreDistribution}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{Fig/decoys_sampling_dist.png}
+    \caption{The distribution of scores under random translations and rotations of several decoys for the target T0832. The 
+    names arrangement from top to bottom corresponds to the increase of the score.}
+    \label{Fig:DecoysScoreDistribution}
 \end{figure}
 
 
@@ -167,17 +179,19 @@ These datasets were preprocessed using SCWRL program to optimize side-chains.
 
     QA method & Loss & Pearson & Spearmann & Kendall \\
     \hline
-    ProQ2   &0.090 &0.643 &0.506 &0.379 \\
+    \textbf{3DCNN}   &0.072 &0.530 &0.415 &0.318 \\
+    ProQ2   &0.081 &0.656 &0.534 &0.408 \\
     Qprob   &0.097 &0.631 &0.517 &0.389 \\
-    \textbf{3DCNN}   &\textbf{0.072} &0.530 &0.415 &0.318 \\
-    RWplus  &0.135 &0.536 &0.433 &0.433 \\ \hline
+    VoroMQA &0.095 &0.621 &0.504 &0.382 \\
+    RWplus  &0.128 &0.500 &0.387 &0.291 \\ \hline
     
     \multicolumn{5}{ c }{Stage 2} \\ \hline
     
-    ProQ2   &\textbf{0.058} &0.372 &0.366 &0.256 \\ 
+    ProQ2   &0.058 &0.372 &0.366 &0.256 \\
+    \textbf{3DCNN}   &0.064 &0.415 &0.402 &0.283 \\
+    VoroMQA &0.069 &0.444 &0.437 &0.313 \\ 
     Qprob   &0.068 &0.381 &0.387 &0.272 \\
-    \textbf{3DCNN}     &\textbf{0.064} &\textbf{0.415} &\textbf{0.402} &\textbf{0.283} \\
-    RWplus  &0.084 &0.295 &0.314 &0.220 \\ \hline
+    RWplus  &0.095 &0.202 &0.246 &0.175 \\ \hline
 
 \end{tabular}
     

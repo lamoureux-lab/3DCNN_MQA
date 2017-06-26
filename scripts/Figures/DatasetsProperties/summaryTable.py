@@ -28,6 +28,7 @@ def assemble_targets_properties( targets_dataset, families_dataset, clans_datase
 	prop_dict = {}
 	for target in targets_dataset:
 		if (not target in casp2pdb.keys()) or (not target in casp2ecod.keys()):
+			print 'Target excluded:', target
 			continue
 		pdb_key = casp2pdb[target]
 		chain = pdb_key[-1:]
@@ -88,7 +89,7 @@ if __name__=='__main__':
 	target_indexes = {}
 	for n, target in enumerate(target_list):
 		target_indexes[target[0]] = n
-	
+	print len(test_dataset_targets)
 	N = len(target_list)
 	matrix = np.zeros((N, 8))
 	
@@ -108,10 +109,23 @@ if __name__=='__main__':
 	test_prop_dict = assemble_targets_properties( test_dataset_targets, test_families, test_clans, casp2pdb, casp2ecod)
 	train_prop_dict = assemble_targets_properties( training_dataset_targets, train_families, train_clans, casp2pdb, casp2ecod)
 
+	print 'CASP2PDB excluded targets:'
+	for key in test_dataset_targets:
+		if not key in casp2pdb.keys():
+			print key
+	
+	match_data = {}
+
 	for target_test in test_prop_dict.keys():
 		for var_test in test_prop_dict[target_test]:
 			match = prop_find_best_match(var_test, train_prop_dict)
-			matrix[target_indexes[target_test],:] = match
+		
+			if np.sum(matrix[target_indexes[target_test],:])<np.sum(match):
+				match_data[target_test] = match
+				matrix[target_indexes[target_test],:] = match
+	
+	with open('data/match_data.pkl', 'w') as fout:
+		pkl.dump(match_data, fout)
 
 	# adding sequence alignment info
 	_, hits = parse_alignment(training_dataset_targets, test_dataset_targets, 'tmp/train_vs_test.dat')

@@ -156,6 +156,7 @@ function outputLocalQualityMap(decoy_path, model, cnn_gb, output_path, dens)
     Protein.protProjectToTensor(cutorch.getState(),batch:cdata(),coords:cdata(),num_atoms:cdata(), 120, 1.0)
     
     local output = model.net:forward(batch)
+    print('Score:', output[1])
     local outputs_gpu = cnn_gb:forward(batch)
     local n_feature = 1
     local doutput = torch.FloatTensor(output:size()):fill(0):cuda()
@@ -181,11 +182,49 @@ function outputLocalQualityMap(decoy_path, model, cnn_gb, output_path, dens)
                                         num_assigned_atoms, atom_type_assigner, cpu_gcam:cdata())
 end
 
-local target = 'T0776'
-local decoy = 'Distill_TS3'
+-- local target = 'T0776'
+-- local decoy = 'Distill_TS3'
 -- local decoy = 'T0776.pdb'
 -- local decoy = 'BAKER-ROSETTASERVER_TS3'
 
-outputLocalQualityMap(  string.format('/home/lupoglaz/ProteinsDataset/CASP11Stage2_SCWRL/%s/%s', target, decoy),
+-- local target = 'T0822'
+-- local decoy = 'Seok-server_TS3'
+-- local decoy = '3D-Jigsaw-V5_1_TS4'
+
+-- local target = 'T0825'
+-- local decoy = 'myprotein-me_TS1'
+-- local decoy = 'nns_TS5'
+
+-- local target = 'T0816'
+-- local decoy = 'FUSION_TS2'
+-- local decoy = 'Zhang-Server_TS2'
+
+-- local target = 'T0829'
+-- local decoy = 'TASSER-VMT_TS2'
+-- local decoy = 'Zhang-Server_TS4'
+
+-- local target = 'T0832'
+-- local decoy = 'TASSER-VMT_TS4'
+-- local decoy = 'RBO_Aleph_TS3'
+-- local decoy = 'FALCON_EnvFold_TS1'
+-- local decoy = 'Pcons-net_TS1'
+-- local decoy = 'FFAS-3D_TS3'
+-- local decoy = 'T0832.pdb'
+
+-- outputLocalQualityMap(  string.format('/home/lupoglaz/ProteinsDataset/CASP11Stage2_SCWRL/%s/%s', target, decoy),
+--                         model, cnn_gb, 
+--                         string.format("GradCAM/%s/proj_%s.pdb",target,decoy), 1)
+
+local target = '1gak_A'
+-- local decoy = '1gak_A.pdb'
+-- local decoy = 'decoy1_27.pdb'
+-- local decoy = 'decoy2_30.pdb'
+-- local decoy = 'decoy9_9.pdb'
+-- local decoy = 'decoy5_36.pdb'
+
+-- local decoy = '1gak_A_hbond.pdb'
+-- local decoy = '1gak_A_helix.pdb'
+
+outputLocalQualityMap(  string.format('/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet/%s/%s', target, decoy),
                         model, cnn_gb, 
-                        string.format("GradCAM/proj_%s.pdb",decoy), 1)
+                        string.format("GradCAM/%s/proj_%s.pdb",target,decoy), 1)

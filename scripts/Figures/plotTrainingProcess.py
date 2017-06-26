@@ -35,7 +35,7 @@ def read_dataset_description(dataset_description_dir, dataset_description_filena
 		fin.close()
 	return proteins, decoys
 
-def read_epoch_output(filename):
+def read_epoch_output(filename, average = True):
 	loss_function_values = []
 	decoys_scores = {}
 	f = open(filename, 'r')
@@ -52,8 +52,19 @@ def read_epoch_output(filename):
 			decoys_scores[proteinName]={}
 		decoys_path = a[1]
 		score = float(a[2])
-		decoys_scores[proteinName][decoys_path]=score
-
+		if not decoys_path in decoys_scores[proteinName]:
+			decoys_scores[proteinName][decoys_path] = []	
+		decoys_scores[proteinName][decoys_path].append(score)
+	
+	if average:
+		output_decoys_scores = {}
+		for proteinName in decoys_scores.keys():
+			output_decoys_scores[proteinName] = {}
+			for decoy_path in decoys_scores[proteinName]:
+				output_decoys_scores[proteinName][decoy_path] = np.average(decoys_scores[proteinName][decoy_path])
+	else:
+		output_decoys_scores = decoys_scores
+	
 	for line in f:
 		sline = line.split()
 		try:
@@ -61,7 +72,7 @@ def read_epoch_output(filename):
 		except:
 			break
 
-	return loss_function_values, decoys_scores
+	return loss_function_values, output_decoys_scores
 
 def plotFunnels(proteins, decoys, decoys_scores, outputFile):
 	from matplotlib import pylab as plt

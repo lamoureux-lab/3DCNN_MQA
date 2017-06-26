@@ -201,54 +201,209 @@ def get_uniformly_dist_decoys(	experiment_name = 'QA_uniform',
 		
 	for i, score in zip(uniform_idx, uniform_scores):
 		print i, decoys[protein][i], score
-	
 
+def plot_matched_results(	experiment_name = 'QA',
+							model_name = 'ranking_model_11atomTypes',
+							trainig_dataset_name = 'CASP',
+							test_dataset_name = 'CASP11Stage1',
+							test_dataset_subset = 'datasetDescription.dat',
+							decoy_ranging_column = 'gdt-ts',
+							subset = None,
+							suffix = '',
+							descending=True):
+	"""
+	Outputs:
+	pearson, spearman, kendall correlations 
+	<Z-score>, <Loss>
+	plots funnels 
+	"""	
+	with open('DatasetsProperties/data/match_data.pkl', 'r') as fin:
+		match_data = pkl.load(fin)
+	
+	proteins, decoys = read_dataset_description('/home/lupoglaz/ProteinsDataset/%s/Description'%test_dataset_name,
+												test_dataset_subset, decoy_ranging=decoy_ranging_column)
+	if (not model_name is None) and (not trainig_dataset_name is None):
+		input_path = '../../models/%s_%s_%s/%s/epoch_0.dat'%(	experiment_name, model_name, trainig_dataset_name,
+																test_dataset_name+suffix)
+	else:
+		input_path = '../../models/%s/%s/epoch_0.dat'%(	experiment_name, test_dataset_name+suffix)
+
+	loss_function_values, decoys_scores = read_epoch_output(input_path)
+	match_targets = {}
+	print set(decoys_scores.keys()) - set(match_data.keys())
+	match_targets[0] = []
+	for target in (set(decoys_scores.keys()) - set(match_data.keys())):
+		match_targets[0].append(target)
+
+	for target in match_data.keys():
+		idx =  int(np.sum(match_data[target][:5]))
+		if not idx in match_targets:
+			match_targets[idx] = []
+		match_targets[idx].append(target)
+	
+	
+	res = []
+	for idx in range(0,6):
+		if idx in match_targets.keys():
+			loss = get_average_loss(match_targets[idx], decoys, decoys_scores, subset, False, descending)
+			print idx, len(match_targets[idx]), loss
+			res.append(loss)
+		else:
+			print idx, 'No match'
+			# res.append(0)
+	print res
+	return res
+
+def plot_test_outliers(	experiment_name = 'QA',
+						model_name = 'ranking_model_11atomTypes',
+						trainig_dataset_name = 'CASP',
+						test_dataset_name = 'CASP11Stage1',
+						test_dataset_subset = 'datasetDescription.dat',
+						decoy_ranging_column = 'gdt-ts',
+						subset = None,
+						suffix = '',
+						descending=True):
+	"""
+	Outputs:
+	pearson, spearman, kendall correlations 
+	<Z-score>, <Loss>
+	plots funnels 
+	"""
+	print "Test dataset: ", test_dataset_name
+
+	proteins, decoys = read_dataset_description('/home/lupoglaz/ProteinsDataset/%s/Description'%test_dataset_name,
+												test_dataset_subset, decoy_ranging=decoy_ranging_column)
+	if (not model_name is None) and (not trainig_dataset_name is None):
+		input_path = '../../models/%s_%s_%s/%s/epoch_0.dat'%(	experiment_name, model_name, trainig_dataset_name,
+																test_dataset_name+suffix)
+	else:
+		input_path = '../../models/%s/%s/epoch_0.dat'%(	experiment_name, test_dataset_name+suffix)
+
+	loss_function_values, decoys_scores = read_epoch_output(input_path)
+	losses, decoys_descr = get_average_loss(proteins, decoys, decoys_scores, subset, True, descending)
+	print sorted(losses, key=losses.__getitem__)
+	print sorted(losses.values())
+	protein = 'T0832'
+	top1_decoy = get_top1_decoy(protein, decoys, decoys_scores, descending=True)
+	best_decoy = get_best_decoy(protein, decoys, decoys_scores)
+	print top1_decoy, decoys_scores[protein][top1_decoy[0]]
+	print best_decoy, decoys_scores[protein][best_decoy[0]]
+	
+	bottom1_decoy = decoys_scores[protein].keys()[0]
+	bottom1_decoy_score = decoys_scores[protein][bottom1_decoy]
+	for decoy in decoys_scores[protein].keys():
+		if decoys_scores[protein][decoy]>bottom1_decoy_score:
+			bottom1_decoy = decoy 
+			decoys_scores[protein][bottom1_decoy]
+	print bottom1_decoy
+	print bottom1_decoy_score
+
+
+	
+	
 if __name__=='__main__':
+	testResults = False
 	inspect_monomers = False
+	lossVsEcod = False
+	getOutliers = True
+	uniformDecoys = True
+	if testResults:
+		plot_test_results(	experiment_name = 'QA_uniform',
+							model_name = 'ranking_model_8',
+							trainig_dataset_name = 'CASP_SCWRL',
+							test_dataset_name = 'CASP11Stage2_SCWRL',
+							# test_dataset_name = 'CASP_SCWRL',
+							test_dataset_subset = 'datasetDescription.dat',
+							decoy_ranging_column = 'gdt-ts',
+							suffix = '_sFinal')
 
-	# plot_test_results(	experiment_name = 'QA_pretraining_clean_e2',
-	# 					model_name = 'ranking_model_8',
-	# 					trainig_dataset_name = 'CASP_SCWRL',
-	# 					test_dataset_name = 'CASP11Stage1_SCWRL',
-	# 					# test_dataset_name = 'CASP_SCWRL',
-	# 					test_dataset_subset = 'datasetDescription.dat',
-	# 					decoy_ranging_column = 'gdt-ts',
-	# 					suffix = '_sampling')
+		plot_test_results(	experiment_name = 'RWPlus',
+							model_name = None,
+							trainig_dataset_name = None,
+							test_dataset_name = 'CASP11Stage2_SCWRL',
+							# test_dataset_name = 'CASP_SCWRL',
+							test_dataset_subset = 'datasetDescription.dat',
+							decoy_ranging_column = 'gdt-ts',
+							suffix = '',
+							descending=True)
+		
+		plot_test_results(	experiment_name = 'VoroMQA',
+							model_name = None,
+							trainig_dataset_name = None,
+							test_dataset_name = 'CASP11Stage2_SCWRL',
+							# test_dataset_name = 'CASP_SCWRL',
+							test_dataset_subset = 'datasetDescription.dat',
+							decoy_ranging_column = 'gdt-ts',
+							suffix = '',
+							descending=False)
 
-	# plot_test_results(	experiment_name = 'RWPlus',
-	# 					model_name = None,
-	# 					trainig_dataset_name = None,
-	# 					test_dataset_name = 'CASP11Stage2_SCWRL',
-	# 					# test_dataset_name = 'CASP_SCWRL',
-	# 					test_dataset_subset = 'datasetDescription.dat',
-	# 					decoy_ranging_column = 'gdt-ts',
-	# 					suffix = '',
-	# 					descending=True)
-	
-	# plot_test_results(	experiment_name = 'VoroMQA',
-	# 					model_name = None,
-	# 					trainig_dataset_name = None,
-	# 					test_dataset_name = 'CASP11Stage2_SCWRL',
-	# 					# test_dataset_name = 'CASP_SCWRL',
-	# 					test_dataset_subset = 'datasetDescription.dat',
-	# 					decoy_ranging_column = 'gdt-ts',
-	# 					suffix = '',
-	# 					descending=False)
+		# plot_test_results(	experiment_name = 'ProQ3',
+		# 					model_name = None,
+		# 					trainig_dataset_name = None,
+		# 					test_dataset_name = 'CASP11Stage1_SCWRL',
+		# 					# test_dataset_name = 'CASP_SCWRL',
+		# 					test_dataset_subset = 'datasetDescription.dat',
+		# 					decoy_ranging_column = 'gdt-ts',
+		# 					suffix = '',
+		# 					descending=False)
 
-	# plot_test_results(	experiment_name = 'ProQ3',
-	# 					model_name = None,
-	# 					trainig_dataset_name = None,
-	# 					test_dataset_name = 'CASP11Stage1_SCWRL',
-	# 					# test_dataset_name = 'CASP_SCWRL',
-	# 					test_dataset_subset = 'datasetDescription.dat',
-	# 					decoy_ranging_column = 'gdt-ts',
-	# 					suffix = '',
-	# 					descending=False)
+		# plot_test_results(	experiment_name = 'ProQ2',
+		# 					model_name = None,
+		# 					trainig_dataset_name = None,
+		# 					test_dataset_name = 'CASP11Stage1_SCWRL',
+		# 					# test_dataset_name = 'CASP_SCWRL',
+		# 					test_dataset_subset = 'datasetDescription.dat',
+		# 					decoy_ranging_column = 'gdt-ts',
+		# 					suffix = '',
+		# 					descending=False)
+	if uniformDecoys:
+		get_uniformly_dist_decoys()
 	
-	# get_uniformly_dist_decoys()
 	
-	
+	if lossVsEcod:
+		resVMQA=plot_matched_results(	experiment_name = 'VoroMQA',
+								model_name = None,
+								trainig_dataset_name = None,
+								test_dataset_name = 'CASP11Stage2_SCWRL',
+								test_dataset_subset = 'datasetDescription.dat',
+								decoy_ranging_column = 'gdt-ts',
+								suffix = '',
+								descending=False)
 
+		resRW=plot_matched_results(	experiment_name = 'RWPlus',
+								model_name = None,
+								trainig_dataset_name = None,
+								test_dataset_name = 'CASP11Stage2_SCWRL',
+								test_dataset_subset = 'datasetDescription.dat',
+								decoy_ranging_column = 'gdt-ts',
+								suffix = '',
+								descending=True)
+
+		resCNN=plot_matched_results(	experiment_name = 'QA_uniform',
+							model_name = 'ranking_model_8',
+							trainig_dataset_name = 'CASP_SCWRL',
+							test_dataset_name = 'CASP11Stage2_SCWRL',
+							# test_dataset_name = 'CASP_SCWRL',
+							test_dataset_subset = 'datasetDescription.dat',
+							decoy_ranging_column = 'gdt-ts',
+							suffix = '_sFinal')
+		
+		fig = plt.figure(figsize=(12,10))
+		ax = fig.add_subplot(111)
+		ind = np.arange(5)
+		width = 0.35
+		plt.bar(ind, resVMQA, width/4.0, label = 'VoroMQA')
+		plt.bar(ind+width/3.0, resRW, width/4.0, label = 'RWPlus', color = 'y')
+		plt.bar(ind+2.0*width/3.0, resCNN, width/4.0, label = '3DCNN', color = 'r')
+		ax.set_xticklabels(['No information', 'A','A+X','A+X+H+T','A+X+H+T+F'], rotation=90)
+		ax.set_xticks(ind+width/2.0, minor=False)
+		plt.tick_params(axis='x', which='major', labelsize=16)
+		ax.set_xlim([-0.5,4.5])
+		ax.set_aspect(25)
+		plt.ylabel('Loss',fontsize=16)
+		plt.legend()
+		plt.savefig("LossVsECOD.png")
+		
 
 
 	if inspect_monomers:
@@ -274,4 +429,12 @@ if __name__=='__main__':
 							decoy_ranging_column = 'gdt-ts',
 							subset = monomer_subset)
 
-	
+	if getOutliers:
+		plot_test_outliers(	experiment_name = 'QA_uniform',
+							model_name = 'ranking_model_8',
+							trainig_dataset_name = 'CASP_SCWRL',
+							test_dataset_name = 'CASP11Stage2_SCWRL',
+							# test_dataset_name = 'CASP_SCWRL',
+							test_dataset_subset = 'datasetDescription.dat',
+							decoy_ranging_column = 'gdt-ts',
+							suffix = '_sFinal')

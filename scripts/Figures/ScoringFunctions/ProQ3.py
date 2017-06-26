@@ -86,13 +86,13 @@ def get_scores(dataset_name, proq3_output_dir):
 	
 	return scores_dict
 
-def write_scores(proq3_output_dir, scores):
+def write_scores(proq3_output_dir, scores, score_num = 3):
 	with open(os.path.join(proq3_output_dir, 'epoch_0.dat'), 'w') as fout:
 		fout.write("Decoys scores:\n")
 		for protein in scores.keys():
 			for decoy_path, score in scores[protein]:
 				# print score
-				fout.write("%s\t%s\t%f\n"%(protein, decoy_path, score[3]))
+				fout.write("%s\t%s\t%f\n"%(protein, decoy_path, score[score_num]))
 
 		fout.write("Loss function values:\n")
 		fout.write("Decoys activations:\n")
@@ -106,6 +106,9 @@ if __name__=='__main__':
 	# score_dataset('/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3/CASP11Stage2_SCWRL', 
 	# profiles_dataset_dir = '/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3/CASP11Stage1_SCWRL') 
 
+	# scores = get_scores('CASP11Stage1_SCWRL', '/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3/CASP11Stage1_SCWRL')
+	# write_scores('/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3/CASP11Stage1_SCWRL', scores)
+
 	scores = get_scores('CASP11Stage1_SCWRL', '/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3/CASP11Stage1_SCWRL')
-	write_scores('/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3/CASP11Stage1_SCWRL', scores)
+	write_scores('/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ2/CASP11Stage1_SCWRL', scores, 0)
 	# print scores
