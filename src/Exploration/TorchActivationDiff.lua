@@ -38,7 +38,8 @@ end
 local ffi_prot = require 'ffi'
 ffi_prot.cdef[[   
     int getNumberOfAtoms(   const char* proteinPath, 
-                            int assigner_type
+                            int assigner_type,
+                            const char* skip_res
                         );
     int prepareProtein( const char* proteinPath, 
                         float resolution, 
@@ -47,7 +48,8 @@ ffi_prot.cdef[[
                         bool center,
                         THFloatTensor *data_pointer, 
                         THIntTensor *n_atoms,
-                        THIntTensor *flat_indexes);
+                        THIntTensor *flat_indexes,
+                        const char* skip_res);
 
     int protProjectToTensor(    THCState *state,
                                 THCudaTensor *batch4D,
@@ -127,125 +129,69 @@ for i=40, 1, -1 do
 	end
 end
 
-
-
-local cnn_gb = model.net:clone()
-cnn_gb:replace(utils.guidedbackprop)
-cnn_gb = cnn_gb:cuda()
 model:initialize_cuda(1)
+local net_reference = model.net:clone()
 
 model.net:evaluate()
-cnn_gb:evaluate()        
+net_reference:evaluate()    
+
+local layers_diff = {}
+for i=1, net_reference:size() do
+    local layer = net_reference:get(i)
+    if not( string.find(tostring(layer), 'nn.VolumetricConvolution')==nil) then
+        num_filters = layer.nOutputPlane
+        layers_diff[i] = torch.zeros(num_filters):cuda()
+    end
+end    
 
 
-function outputLocalQualityMap(decoy_path, model, cnn_gb, output_path, dens, grad)
+function getFiltersDifference(decoy_path, net, net_reference, output_path, layers_diff)
     local atom_type_assigner = 2
-    local init_protein_path = decoy_path
-    local num_assigned_atoms = Protein.getNumberOfAtoms(init_protein_path, atom_type_assigner)
+    local num_assigned_atoms_s = Protein.getNumberOfAtoms(decoy_path, atom_type_assigner, "ALA")
 
-    local coords = torch.FloatTensor(num_assigned_atoms*3)
-    local initial_coords = torch.FloatTensor(num_assigned_atoms*3)
-    local gradients = torch.FloatTensor(num_assigned_atoms*3)
+    local coords = torch.FloatTensor(num_assigned_atoms_s*3)
     local num_atoms = torch.IntTensor(11)
-    local indexes = torch.IntTensor(num_assigned_atoms)
+    local indexes = torch.IntTensor(num_assigned_atoms_s)
     local batch = torch.zeros(1, 11, 120, 120, 120):cuda()
 
-    Protein.prepareProtein( init_protein_path, 1.0, atom_type_assigner, 120, true, 
-                            coords:cdata(), num_atoms:cdata(), indexes:cdata())
-
+    Protein.prepareProtein( decoy_path, 1.0, atom_type_assigner, 120, true, 
+                            coords:cdata(), num_atoms:cdata(), indexes:cdata(), "ALA")
     Protein.protProjectToTensor(cutorch.getState(),batch:cdata(),coords:cdata(),num_atoms:cdata(), 120, 1.0)
     
-    local output = model.net:forward(batch)
-    print('Score:', output[1])
-    local outputs_gpu = cnn_gb:forward(batch)
-    local n_feature = 1
-    local doutput = torch.FloatTensor(output:size()):fill(0):cuda()
-    doutput[n_feature]=1.0
-    local gcam = utils.grad_cam(model.net, 10, doutput)
-    local cpu_gcam = torch.FloatTensor(120, 120, 120)
-    
-    upsample(gcam[1], cpu_gcam)
-    local mean = torch.mean(cpu_gcam)
-    cpu_gcam = cpu_gcam - mean
-    local std = torch.std(cpu_gcam)
-    if std>0.1 then 
-        cpu_gcam = cpu_gcam/std
-    end
-    print( std, mean)
-    if dens == 1 then
-        writeDensityMap(string.format('%s.xplor', output_path), cpu_gcam)
-    end
-    Protein.projectTensorOnProtein(     init_protein_path,
-                                        output_path,
-                                        coords:cdata(),
-                                        indexes:cdata(),
-                                        num_assigned_atoms, atom_type_assigner, cpu_gcam:cdata())
-    if grad == 1 then
-        local all_grad = torch.zeros(120,120,120):cuda()
-        local df_do = torch.zeros(1)
-        df_do:fill(1.0)
-        cnn_gb:backward(batch, df_do:cuda())
-        local gpu_gcam = cpu_gcam:cuda()
-        for i=1, 11 do
-            local gradInput = cnn_gb:get(1).gradInput[{1, i, {},{},{}}]
-            gradInput:cmul(gpu_gcam)
-            local mean = torch.mean(torch.abs(gradInput))
-            print('Mean ', i, mean)
-            -- if mean>0.0001 then
-                print('Saving grad ', i)
-                all_grad = all_grad + gradInput
-                -- writeDensityMap(string.format('%s_grad_at%d.xplor', output_path, i), gradInput:float())
-                
-            -- end
-            
+
+
+    local num_assigned_atoms = Protein.getNumberOfAtoms(decoy_path, atom_type_assigner, "nil")
+    local coords_ref = torch.FloatTensor(num_assigned_atoms*3)
+    local num_atoms_ref = torch.IntTensor(11)
+    local indexes_ref = torch.IntTensor(num_assigned_atoms)
+    local batch_ref = torch.zeros(1, 11, 120, 120, 120):cuda()
+
+    Protein.prepareProtein( decoy_path, 1.0, atom_type_assigner, 120, true, 
+                            coords_ref:cdata(), num_atoms_ref:cdata(), indexes_ref:cdata(), "nil")
+    Protein.protProjectToTensor(cutorch.getState(),batch_ref:cdata(),coords_ref:cdata(),num_atoms_ref:cdata(), 120, 1.0)
+    print(torch.sum(torch.abs(batch-batch_ref)))
+    local output = net:forward(batch)
+    local output_reference = net_reference:forward(batch_ref)
+    print(output[1], output_reference[1])
+
+    for i=1,net_reference:size() do
+		local layer_ref = net_reference:get(i)
+        local layer = net:get(i)
+        if not( string.find(tostring(layer_ref), 'nn.VolumetricConvolution')==nil) then
+            num_filters = layer_ref.nOutputPlane
+            print(i, torch.sum(layers_diff[i]))
+            for j=1, num_filters do 
+                layers_diff[i][j] = layers_diff[i][j] + torch.sum(torch.abs(layer_ref.output[1][j] - layer.output[1][j]))
+            end
+            print(i, torch.sum(layers_diff[i]))
         end
-        writeDensityMap(string.format('%s_grad_all.xplor', output_path), all_grad:float())
     end
 end
 
--- local target = 'T0776'
--- local decoy = 'Distill_TS3'
--- local decoy = 'T0776.pdb'
--- local decoy = 'BAKER-ROSETTASERVER_TS3'
+local target = 'T0776'
+local decoy = 'Distill_TS3'
+getFiltersDifference(  string.format('/home/lupoglaz/ProteinsDataset/CASP11Stage2_SCWRL/%s/%s', target, decoy),
+                        model.net, net_reference, 
+                        string.format("GradCAM/%s/proj_%s.pdb",target,decoy), layers_diff)
 
--- local target = 'T0822'
--- local decoy = 'Seok-server_TS3'
--- local decoy = '3D-Jigsaw-V5_1_TS4'
-
--- local target = 'T0825'
--- local decoy = 'myprotein-me_TS1'
--- local decoy = 'nns_TS5'
-
--- local target = 'T0816'
--- local decoy = 'FUSION_TS2'
--- local decoy = 'Zhang-Server_TS2'
-
--- local target = 'T0829'
--- local decoy = 'TASSER-VMT_TS2'
--- local decoy = 'Zhang-Server_TS4'
-
--- local target = 'T0832'
--- local decoy = 'TASSER-VMT_TS4'
--- local decoy = 'RBO_Aleph_TS3'
--- local decoy = 'FALCON_EnvFold_TS1'
--- local decoy = 'Pcons-net_TS1'
--- local decoy = 'FFAS-3D_TS3'
--- local decoy = 'T0832.pdb'
-
-outputLocalQualityMap(  string.format('/home/lupoglaz/ProteinsDataset/CASP11Stage2_SCWRL/%s/%s', target, decoy),
-                        model, cnn_gb, 
-                        string.format("GradCAM/%s/proj_%s.pdb",target,decoy), 1, 1)
-
--- local target = '1gak_A'
--- local decoy = '1gak_A.pdb'
--- local decoy = 'decoy1_27.pdb'
--- local decoy = 'decoy2_30.pdb'
--- local decoy = 'decoy9_9.pdb'
--- local decoy = 'decoy5_36.pdb'
-
--- local decoy = '1gak_A_hbond.pdb'
--- local decoy = '1gak_A_helix.pdb'
-
--- outputLocalQualityMap(  string.format('/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet/%s/%s', target, decoy),
---                         model, cnn_gb, 
---                         string.format("GradCAM/%s/proj_%s.pdb",target,decoy), 1)
+        

@@ -33,6 +33,7 @@ function utils.deconv(m)
   require 'misc.DeconvReLU'
   local name = torch.typename(m)
   if name == 'nn.ReLU' or name == 'cudnn.ReLU' then
+    
     return nn.DeconvReLU()
   else
     return m
@@ -44,6 +45,7 @@ function utils.guidedbackprop(m)
   require 'misc.GuidedBackpropReLU'
   local name = torch.typename(m)
   if name == 'nn.ReLU' or name == 'cudnn.ReLU' then
+    print('Replacing with backReLU')
     return nn.GuidedBackpropReLU()
   else
     return m

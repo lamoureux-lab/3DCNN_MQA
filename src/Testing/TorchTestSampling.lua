@@ -71,6 +71,8 @@ cmd:option('-test_dataset_name','CASP11Stage1_SCWRL', 'test dataset name')
 cmd:option('-test_dataset_subset','datasetDescription.dat', 'test dataset subset')
 cmd:option('-sample_num_batches', 10, 'num batches to sample')
 
+cmd:option('-datasets_dir', '/home/lupoglaz/ProteinsDataset/', 'Directory with the datasets')
+
 cmd:text()
 
 params = cmd:parse(arg)
@@ -81,7 +83,7 @@ local input_size = {	model.input_options.num_channels, model.input_options.input
 						model.input_options.input_size, model.input_options.input_size}
 
 local test_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, true, true, model.input_options.resolution)
-test_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/'..params.test_dataset_name..'/Description', params.test_dataset_subset, 'tm-score')
+test_dataset:load_dataset(params.datasets_dir..params.test_dataset_name..'/Description', params.test_dataset_subset, 'tm-score')
 local test_logger = cSamplingLogger.new(params.experiment_name, params.training_model_name, params.training_dataset_name, 
 										params.test_dataset_name..'_sFinal')
 

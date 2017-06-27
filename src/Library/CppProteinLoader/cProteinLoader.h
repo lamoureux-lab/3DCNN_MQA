@@ -35,7 +35,7 @@ public:
 	int loadPDB(std::string filename);
 	int savePDB(std::string filename);
 	
-	int assignAtomTypes(int assigner_type); // 1 - 4 atom types; 2 - 10 atom types
+	int assignAtomTypes(int assigner_type, const char* skip_res = NULL); // 1 - 4 atom types; 2 - 10 atom types
 	void projectToTensor(THFloatTensor *grid);
 
 	void save_binary(std::string filename);

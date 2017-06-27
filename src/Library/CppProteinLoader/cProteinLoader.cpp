@@ -15,6 +15,10 @@
 #include <algorithm>
 #include <memory>
 #include <cstdio>
+#include <cstdlib>
+#include <ctime>
+
+
 
 template<typename ... Args>
 std::string string_format( const std::string& format, Args ... args )
@@ -26,6 +30,7 @@ std::string string_format( const std::string& format, Args ... args )
 }
 
 cProteinLoader::cProteinLoader() {
+	std::srand(std::time(0));
 	num_atom_types = -1;
 }
 
@@ -77,12 +82,13 @@ int cProteinLoader::savePDB(std::string filename){
 	
 }
 
-int cProteinLoader::assignAtomTypes(int assigner_type){
+int cProteinLoader::assignAtomTypes(int assigner_type, const char* skip_res){
 	std::string xStr, yStr, zStr, atom_name, res_name;
 	int atom_type;
 	//getting terminal residue number
 	int term_res_num = std::stoi(lines[lines.size()-1].substr(23,4));
-
+	bool skipped = false;
+	std::cout<<"Skipping "<<skip_res<<"\n";
 	for(int i=0;i<lines.size();i++){
 	
 		if( assigner_type == 1){
@@ -93,6 +99,18 @@ int cProteinLoader::assignAtomTypes(int assigner_type){
 		}else if ( assigner_type == 2){
 			atom_name = lines[i].substr(13,4);
 			res_name = lines[i].substr(17,3);
+			if(skip_res!=NULL && !skipped){
+				// std::cout<<res_name<<std::endl;
+				if(res_name == std::string(skip_res)){
+					float random_variable = float(std::rand())/float(RAND_MAX);
+					// std::cout<<random_variable<<std::endl;
+					if(random_variable>0.5){
+						std::cout<<"Skipping "<<lines[i]<<"\n";
+						skipped=true;
+						continue;
+					}
+				}
+			}
 			int res_num = std::stoi(lines[i].substr(23,4));
 			atom_type = get11AtomType(res_name, atom_name, res_num == term_res_num);
 			if(atom_type<0) continue;

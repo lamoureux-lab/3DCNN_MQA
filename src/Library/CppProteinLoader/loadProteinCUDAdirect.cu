@@ -87,13 +87,14 @@
 
 extern "C"{
     int getNumberOfAtoms( const char* proteinPath, 
-                        int assigner_type){
+                        int assigner_type,
+                        const char* skip_res = NULL){
         /*
         Return number of atoms to which an atom type was assigned.
         */
         cProteinLoader pL;
 		pL.loadPDB(proteinPath);
-		if(pL.assignAtomTypes(assigner_type)<0){
+		if(pL.assignAtomTypes(assigner_type, skip_res)<0){
 			return -1;
 		}
         int num_assigned = 0;
@@ -110,7 +111,8 @@ extern "C"{
                         bool center,
                         THFloatTensor *data_pointer, 
                         THIntTensor *n_atoms,
-                        THIntTensor *flat_indexes){
+                        THIntTensor *flat_indexes,
+                        const char* skip_res = NULL){
         /*
         Prepares protein for projecting on the grid.
         Returns 
@@ -120,7 +122,7 @@ extern "C"{
         */
 		cProteinLoader pL;
 		pL.loadPDB(proteinPath);
-		if(pL.assignAtomTypes(assigner_type)<0){
+		if(pL.assignAtomTypes(assigner_type, skip_res)<0){
 			return -1;
 		}
 		

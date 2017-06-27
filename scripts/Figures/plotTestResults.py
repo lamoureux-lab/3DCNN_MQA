@@ -116,7 +116,41 @@ def get_average_loss(proteins, decoys, decoys_scores, subset=None, return_all=Fa
 	else:
 		return loss/float(len(subset))
 	
+def plotFunnelsSpecial(proteins, correlations, decoys, decoys_scores, outputFile):
+	from matplotlib import pylab as plt
+	import numpy as np
+	fig = plt.figure(figsize=(20,10))
 
+	N = len(proteins)
+	nrows = 2
+	ncols = int(N/nrows)
+	if nrows*ncols<N: ncols+=1
+
+	from mpl_toolkits.axes_grid1 import Grid
+	grid = Grid(fig, rect=111, nrows_ncols=(nrows,ncols),
+	            axes_pad=0.25, label_mode='L',share_x=False,share_y=False)
+	
+	for n,protein in enumerate(proteins):
+		tmscores = []
+		scores = []
+		for decoy in decoys[protein]:
+			tmscores.append(decoy[1])
+			scores.append(decoys_scores[protein][decoy[0]])
+			
+		grid[n].plot(tmscores,scores,'.')
+		# plt.xlim(-0.1, max(tmscores)+0.1)
+		# plt.ylim(min(scores)-1, max(scores)+1)
+		
+		grid[n].set_title(protein[:4] + ', R = %.2f'%correlations[protein][0], fontsize=16)
+		grid[n].set_xlabel('GDT_TS', fontsize=18)
+		grid[n].set_ylabel('3DCNN score', fontsize=16)
+		grid[n].tick_params(axis='x', which='major', labelsize=16)
+		grid[n].tick_params(axis='y', which='major', labelsize=16)
+	
+	#plt.tight_layout()
+		
+	plt.tick_params(axis='both', which='minor', labelsize=8)
+	plt.savefig(outputFile)
 
 def plot_test_results(	experiment_name = 'QA',
 						model_name = 'ranking_model_11atomTypes',
@@ -126,7 +160,8 @@ def plot_test_results(	experiment_name = 'QA',
 						decoy_ranging_column = 'gdt-ts',
 						subset = None,
 						suffix = '',
-						descending=True):
+						descending=True,
+						best_worst=False):
 	"""
 	Outputs:
 	pearson, spearman, kendall correlations 
@@ -160,7 +195,17 @@ def plot_test_results(	experiment_name = 'QA',
 		output_path = '../../models/%s_%s_%s/%s_funnels.png'%(experiment_name, model_name, trainig_dataset_name, test_dataset_name+suffix)
 	else:
 		output_path = '../../models/%s/%s_funnels.png'%(	experiment_name, test_dataset_name+suffix)
-	plotFunnels(proteins, decoys, decoys_scores, output_path)
+	if best_worst:
+		from collections import OrderedDict
+		correlations_all = get_correlations(proteins, decoys, decoys_scores, subset, return_all=True)
+		correlations_all_sorted = OrderedDict(sorted(correlations_all.items(), key=lambda x: x[1][0]))
+		print correlations_all_sorted
+		best = correlations_all_sorted.keys()[:4]
+		worst = correlations_all_sorted.keys()[-4:]
+		selected_proteins = best+worst
+		plotFunnelsSpecial(selected_proteins, correlations_all, decoys, decoys_scores, output_path)
+	else:
+		plotFunnels(proteins, decoys, decoys_scores, output_path)
 
 def get_uniformly_dist_decoys(	experiment_name = 'QA_uniform',
 								model_name = 'ranking_model_8',
@@ -302,12 +347,21 @@ def plot_test_outliers(	experiment_name = 'QA',
 	
 	
 if __name__=='__main__':
-	testResults = False
+	testResults = True
 	inspect_monomers = False
 	lossVsEcod = False
-	getOutliers = True
-	uniformDecoys = True
+	getOutliers = False
+	uniformDecoys = False
 	if testResults:
+		# plot_test_results(	experiment_name = 'QA_uniform',
+		# 					model_name = 'ranking_model_8',
+		# 					trainig_dataset_name = 'CASP_SCWRL',
+		# 					test_dataset_name = '3DRobot_set',
+		# 					# test_dataset_name = 'CASP_SCWRL',
+		# 					test_dataset_subset = 'datasetDescription.dat',
+		# 					decoy_ranging_column = 'gdt-ts',
+		# 					suffix = '_sFinal', best_worst=True)
+
 		plot_test_results(	experiment_name = 'QA_uniform',
 							model_name = 'ranking_model_8',
 							trainig_dataset_name = 'CASP_SCWRL',
@@ -317,25 +371,25 @@ if __name__=='__main__':
 							decoy_ranging_column = 'gdt-ts',
 							suffix = '_sFinal')
 
-		plot_test_results(	experiment_name = 'RWPlus',
-							model_name = None,
-							trainig_dataset_name = None,
-							test_dataset_name = 'CASP11Stage2_SCWRL',
-							# test_dataset_name = 'CASP_SCWRL',
-							test_dataset_subset = 'datasetDescription.dat',
-							decoy_ranging_column = 'gdt-ts',
-							suffix = '',
-							descending=True)
+		# plot_test_results(	experiment_name = 'RWPlus',
+		# 					model_name = None,
+		# 					trainig_dataset_name = None,
+		# 					test_dataset_name = 'CASP11Stage2_SCWRL',
+		# 					# test_dataset_name = 'CASP_SCWRL',
+		# 					test_dataset_subset = 'datasetDescription.dat',
+		# 					decoy_ranging_column = 'gdt-ts',
+		# 					suffix = '',
+		# 					descending=True)
 		
-		plot_test_results(	experiment_name = 'VoroMQA',
-							model_name = None,
-							trainig_dataset_name = None,
-							test_dataset_name = 'CASP11Stage2_SCWRL',
-							# test_dataset_name = 'CASP_SCWRL',
-							test_dataset_subset = 'datasetDescription.dat',
-							decoy_ranging_column = 'gdt-ts',
-							suffix = '',
-							descending=False)
+		# plot_test_results(	experiment_name = 'VoroMQA',
+		# 					model_name = None,
+		# 					trainig_dataset_name = None,
+		# 					test_dataset_name = 'CASP11Stage2_SCWRL',
+		# 					# test_dataset_name = 'CASP_SCWRL',
+		# 					test_dataset_subset = 'datasetDescription.dat',
+		# 					decoy_ranging_column = 'gdt-ts',
+		# 					suffix = '',
+		# 					descending=False)
 
 		# plot_test_results(	experiment_name = 'ProQ3',
 		# 					model_name = None,
