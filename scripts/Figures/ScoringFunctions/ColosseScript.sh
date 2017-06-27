@@ -3,7 +3,9 @@
 #PBS -l walltime=05:00:00
 #PBS -l nodes=21:ppn=8
 #PBS -r n
- 
+
+cd $SCRATCH/lupoglaz/deep_folder/scripts/Figures/ScoringFunctions
+
 python ProQ3Helios.py --dataset_name=CASP11Stage1_SCWRL --start_num=0 --end_num=4 > output &
 python ProQ3Helios.py --dataset_name=CASP11Stage1_SCWRL --start_num=4 --end_num=8 > output &
 python ProQ3Helios.py --dataset_name=CASP11Stage1_SCWRL --start_num=8 --end_num=12 > output &

@@ -22,8 +22,7 @@ def prepare_dataset(dataset_name, output_dir):
 	target_seq = read_sequences_data('../DatasetsProperties/data')
 	dataset_path = '/scratch/ukg-030-aa/lupoglaz/%s/Description'%dataset_name
 	test_dataset_targets = read_dataset_targets(dataset_path, 'datasetDescription.dat')
-	proteins, decoys = read_dataset_description('/scratch/ukg-030-aa/%s/Description'%dataset_name,
-												'datasetDescription.dat', decoy_ranging='gdt-ts')
+	proteins, decoys = read_dataset_description(dataset_path, 'datasetDescription.dat', decoy_ranging='gdt-ts')
 	if not os.path.exists(output_dir):
 		os.mkdir(output_dir)
 	results_dir = os.path.join(output_dir,dataset_name)
