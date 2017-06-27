@@ -52,16 +52,16 @@ def score_decoys_preprofiled(decoys_list_path, profile_path, output_path ):
 	os.chdir(os.path.realpath(__file__)[:os.path.realpath(__file__).rfind('/')])
 
 def score_dataset(dataset_dir, profiles_dataset_dir=None, target_beg = None, target_end = None):
-    for n,target in enumerate(os.listdir(dataset_dir)):
-        if (n >= target_beg) and (n<target_end):
-            target_dir = os.path.join(dataset_dir, target)
-            decoys_list_path = os.path.join(target_dir, 'decoys.txt')
-            sequence_path = os.path.join(target_dir, 'seq.fasta')
-            if profiles_dataset_dir is None:
-                score_decoys(decoys_list_path, sequence_path, target_dir)
-            else:
-                profile_path = os.path.join(profiles_dataset_dir, target, 'seq.fasta')
-                score_decoys_preprofiled(decoys_list_path, profile_path, target_dir)
+	for n,target in enumerate(os.listdir(dataset_dir)):
+		if (n >= target_beg) and (n<target_end):
+			target_dir = os.path.join(dataset_dir, target)
+			decoys_list_path = os.path.join(target_dir, 'decoys.txt')
+			sequence_path = os.path.join(target_dir, 'seq.fasta')
+			if profiles_dataset_dir is None:
+				score_decoys(decoys_list_path, sequence_path, target_dir)
+			else:
+				profile_path = os.path.join(profiles_dataset_dir, target, 'seq.fasta')
+				score_decoys_preprofiled(decoys_list_path, profile_path, target_dir)
 
 def get_scores(dataset_name, proq3_output_dir):
 	proteins, decoys = read_dataset_description('/scratch/ukg-030-aa/lupoglaz/%s/Description'%dataset_name,
@@ -100,17 +100,17 @@ def write_scores(proq3_output_dir, scores, score_num = 3):
 		fout.write("Decoys activations:\n")
 
 if __name__=='__main__':
-	parser = argparse.ArgumentParser(prog='Tsne', 
+	parser = argparse.ArgumentParser(prog='ProQ3Script', 
 									formatter_class=argparse.RawDescriptionHelpFormatter,
 									description="""\
-									Processes the activations written in a file and embeds them in 2D.
+									Runs ProQ3 for targets in a dataset.
 									""")
 	parser.add_argument('--dataset_name', metavar='dataset_name', type=str, 
-                   help='Dataset name', default='CASP11Stage1_SCWRL')
+				   help='Dataset name', default='CASP11Stage1_SCWRL')
 	parser.add_argument('--start_num', metavar='start_num', type=int, 
-                   help='Starting number of target', default=0)
-    parser.add_argument('--end_num', metavar='end_num', type=int, 
-                   help='Ending number of target', default=1)
+				   help='Starting number of target', default=0)
+	parser.add_argument('--end_num', metavar='end_num', type=int, 
+				   help='Ending number of target', default=1)
 		
 	args = parser.parse_args()
 	prepare_dataset('CASP11Stage1_SCWRL', '/scratch/ukg-030-aa/lupoglaz/models/ProQ3') 
