@@ -31,6 +31,10 @@ def prepare_dataset(dataset_name, output_dir):
 	
 	for n,protein in enumerate(proteins):
 		print protein
+		try:
+			os.rmdir(os.path.join(results_dir, protein))
+		except:
+			pass
 		os.mkdir(os.path.join(results_dir, protein))
 		decoys_output_filename = os.path.join(results_dir, protein, 'decoys.txt')
 		fasta_output_filename = os.path.join(results_dir, protein, 'seq.fasta')
