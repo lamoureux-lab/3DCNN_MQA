@@ -18,7 +18,7 @@ from plotTrainingProcess import read_dataset_description, read_epoch_output, plo
 
 ProQ3Path = '/home/lupoglaz/ProteinQA/proq3'
 
-def prepare_dataset(dataset_name, output_dir):
+def prepare_dataset(dataset_name, output_dir, target_beg = None, target_end = None):
 	target_seq = read_sequences_data('../DatasetsProperties/data')
 	dataset_path = '/scratch/ukg-030-aa/lupoglaz/%s/Description'%dataset_name
 	test_dataset_targets = read_dataset_targets(dataset_path, 'datasetDescription.dat')
@@ -30,19 +30,19 @@ def prepare_dataset(dataset_name, output_dir):
 		os.mkdir(results_dir)
 	
 	for n,protein in enumerate(proteins):
-		print protein
-		try:
-			os.rmdir(os.path.join(results_dir, protein))
-		except:
-			pass
-		os.mkdir(os.path.join(results_dir, protein))
-		decoys_output_filename = os.path.join(results_dir, protein, 'decoys.txt')
-		fasta_output_filename = os.path.join(results_dir, protein, 'seq.fasta')
-		with open(decoys_output_filename,'w') as fout:
-			for decoy in decoys[protein]:
-				fout.write('%s\n'%(decoy[0]))
-		with open(fasta_output_filename, 'w') as fout:
-			SeqIO.write(SeqRecord(target_seq[protein],id=protein), fout, "fasta")
+		if (n >= target_beg) and (n<target_end):
+			print protein
+			try:
+				os.mkdir(os.path.join(results_dir, protein))
+			except:
+				pass
+			decoys_output_filename = os.path.join(results_dir, protein, 'decoys.txt')
+			fasta_output_filename = os.path.join(results_dir, protein, 'seq.fasta')
+			with open(decoys_output_filename,'w') as fout:
+				for decoy in decoys[protein]:
+					fout.write('%s\n'%(decoy[0]))
+			with open(fasta_output_filename, 'w') as fout:
+				SeqIO.write(SeqRecord(target_seq[protein],id=protein), fout, "fasta")
 
 def score_decoys(decoys_list_path, sequence_path, output_path):
 	os.chdir(ProQ3Path)
@@ -116,6 +116,6 @@ if __name__=='__main__':
 				   help='Ending number of target', default=1)
 		
 	args = parser.parse_args()
-	prepare_dataset('CASP11Stage1_SCWRL', '/scratch/ukg-030-aa/lupoglaz/models/ProQ3') 
+	prepare_dataset('CASP11Stage1_SCWRL', '/scratch/ukg-030-aa/lupoglaz/models/ProQ3', target_beg=args.start_num, target_end=args.end_num) 
 	score_dataset('/scratch/ukg-030-aa/lupoglaz/models/ProQ3/CASP11Stage1_SCWRL', target_beg=args.start_num, target_end=args.end_num)
 	
