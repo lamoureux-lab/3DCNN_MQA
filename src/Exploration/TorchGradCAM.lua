@@ -78,6 +78,16 @@ ffi_prot.cdef[[
                                     int n_atoms,
                                     int assigner_type, 
                                     THFloatTensor *map);
+
+
+    int prepareProteinSR( const char* proteinPath, 
+                        float resolution, 
+                        int assigner_type, 
+                        int spatial_dim, 
+                        bool center,
+                        THFloatTensor *data_pointer, 
+                        THIntTensor *n_atoms,
+                        THIntTensor *flat_indexes);
 ]]
 
 local Protein = ffi_prot.load'../Library/build/libload_protein_cuda_direct.so'
@@ -150,7 +160,7 @@ function outputLocalQualityMap(decoy_path, model, cnn_gb, output_path, dens, gra
     local indexes = torch.IntTensor(num_assigned_atoms)
     local batch = torch.zeros(1, 11, 120, 120, 120):cuda()
 
-    Protein.prepareProtein( init_protein_path, 1.0, atom_type_assigner, 120, true, 
+    Protein.prepareProteinSR( init_protein_path, 1.0, atom_type_assigner, 120, true, 
                             coords:cdata(), num_atoms:cdata(), indexes:cdata())
 
     Protein.protProjectToTensor(cutorch.getState(),batch:cdata(),coords:cdata(),num_atoms:cdata(), 120, 1.0)
@@ -203,10 +213,20 @@ function outputLocalQualityMap(decoy_path, model, cnn_gb, output_path, dens, gra
     end
 end
 
--- local target = 'T0776'
--- local decoy = 'Distill_TS3'
--- local decoy = 'T0776.pdb'
+local target = 'T0776'
+-- local decoy = 'Distill_TS3' --5.43 | 1.3
+local decoy = 'T0776.pdb'
 -- local decoy = 'BAKER-ROSETTASERVER_TS3'
+
+-- local decoy = 'PhyreX_TS2' -- 2.47 | 0.5
+-- local decoy = 'FALCON_TOPO_TS3' -- 2.90 | -0.79
+-- local decoy = '3D-Jigsaw-V5_1_TS2' -- 3.00 | 1.29
+-- local decoy = 'BhageerathH_TS2' -- 4.30 | 0.086
+
+local target = 'T0766'
+local decoy = 'FALCON_TOPO_TS4'
+-- local decoy = 'BhageerathH_TS5'
+local decoy = 'FFAS03_TS1'
 
 -- local target = 'T0822'
 -- local decoy = 'Seok-server_TS3'
@@ -231,10 +251,11 @@ end
 -- local decoy = 'Pcons-net_TS1'
 -- local decoy = 'FFAS-3D_TS3'
 -- local decoy = 'T0832.pdb'
-
-outputLocalQualityMap(  string.format('/home/lupoglaz/ProteinsDataset/CASP11Stage2_SCWRL/%s/%s', target, decoy),
-                        model, cnn_gb, 
-                        string.format("GradCAM/%s/proj_%s.pdb",target,decoy), 1, 1)
+for i=1, 100 do
+    outputLocalQualityMap(  string.format('/home/lupoglaz/ProteinsDataset/CASP11Stage2_SCWRL/%s/%s', target, decoy),
+                            model, cnn_gb, 
+                            string.format("GradCAM/%s/rs%d_%s.pdb",target,i,decoy), 0, 0)
+end
 
 -- local target = '1gak_A'
 -- local decoy = '1gak_A.pdb'

@@ -164,6 +164,98 @@ extern "C"{
         std::cout<<"Loaded protein: \n natoms = "<<indexes.size()<<"\n ncoords = "<<coords.size()<<"\n";
 		return 1;
 	}
+
+    int prepareProteinSR( const char* proteinPath, 
+                        float resolution, 
+                        int assigner_type, 
+                        int spatial_dim, 
+                        bool center,
+                        THFloatTensor *data_pointer, 
+                        THIntTensor *n_atoms,
+                        THIntTensor *flat_indexes){
+        /*
+        Prepares protein for projecting on the grid.
+        Returns 
+        data_pointer: array of all the flattened coordinates x,y,z in the order of atom types
+        n_atoms: number of atoms of each type
+        flat_indexes: indexes of atoms in the flattened format, corresponding to the real indexes in cProteinLoader
+        */
+        THGenerator *gen = THGenerator_new();
+ 		THRandom_seed(gen);
+		cProteinLoader pL;
+		pL.loadPDB(proteinPath);
+		if(pL.assignAtomTypes(assigner_type, NULL)<0){
+			return -1;
+		}
+		
+		pL.res = resolution;
+        pL.computeBoundingBox();
+        pL.shiftProtein( -0.5*(pL.b0 + pL.b1) ); 
+        
+			float u1 = THRandom_uniform(gen,0,1.0);
+			float u2 = THRandom_uniform(gen,0,1.0);
+			float u3 = THRandom_uniform(gen,0,1.0);
+			float q[4];
+			q[0] = sqrt(1-u1) * sin(2.0*M_PI*u2);
+			q[1] = sqrt(1-u1) * cos(2.0*M_PI*u2);
+			q[2] = sqrt(u1) * sin(2.0*M_PI*u3);
+			q[3] = sqrt(u1) * cos(2.0*M_PI*u3);
+			cMatrix33 random_rotation;
+			random_rotation.m[0][0] = q[0]*q[0] + q[1]*q[1] - q[2]*q[2] - q[3]*q[3];
+			random_rotation.m[0][1] = 2.0*(q[1]*q[2] - q[0]*q[3]);
+			random_rotation.m[0][2] = 2.0*(q[1]*q[3] + q[0]*q[2]);
+
+			random_rotation.m[1][0] = 2.0*(q[1]*q[2] + q[0]*q[3]);
+			random_rotation.m[1][1] = q[0]*q[0] - q[1]*q[1] + q[2]*q[2] - q[3]*q[3];
+			random_rotation.m[1][2] = 2.0*(q[2]*q[3] - q[0]*q[1]);
+
+			random_rotation.m[2][0] = 2.0*(q[1]*q[3] - q[0]*q[2]);
+			random_rotation.m[2][1] = 2.0*(q[2]*q[3] + q[0]*q[1]);
+			random_rotation.m[2][2] = q[0]*q[0] - q[1]*q[1] - q[2]*q[2] + q[3]*q[3];
+			pL.rotateProtein(random_rotation);
+
+            float dx_max = fmax(0, spatial_dim*pL.res/2.0 - (pL.b1[0]-pL.b0[0])/2.0)*0.5;
+			float dy_max = fmax(0, spatial_dim*pL.res/2.0 - (pL.b1[1]-pL.b0[1])/2.0)*0.5;
+			float dz_max = fmax(0, spatial_dim*pL.res/2.0 - (pL.b1[2]-pL.b0[2])/2.0)*0.5;
+			float dx = THRandom_uniform(gen,-dx_max,dx_max);
+		 	float dy = THRandom_uniform(gen,-dy_max,dy_max);
+		 	float dz = THRandom_uniform(gen,-dz_max,dz_max);
+		 	pL.shiftProtein(cVector3(dx,dy,dz));
+            
+            
+        pL.shiftProtein( 0.5*cVector3(spatial_dim, spatial_dim, spatial_dim)*pL.res );
+        // std::cout<<n_atoms->nDimension<<"\n";
+
+        // n_atoms = THIntTensor_newWithSize1d(pL.num_atom_types);
+        std::vector<float> coords; // vector of plain coords of a particular atom type
+        std::vector<int> indexes;
+		for(int i=0; i<pL.num_atom_types; i++){
+            THIntTensor_set1d(n_atoms, i, 0);
+			for(int j=0; j<pL.atomType.size();j++){
+				if(pL.atomType[j]==i){
+					coords.push_back(pL.r[j].v[0]);
+					coords.push_back(pL.r[j].v[1]);
+					coords.push_back(pL.r[j].v[2]);
+                    indexes.push_back(j);
+                    int inatoms = THIntTensor_get1d(n_atoms, i);
+                    THIntTensor_set1d(n_atoms, i, inatoms+1);
+				}
+			}
+            std::cout<<"Type:"<<i<<" num atoms = "<<THIntTensor_get1d(n_atoms, i)<<"\n";
+		}
+        // data_pointer = THFloatTensor_newWithSize1d(coords.size());
+        for(int i=0; i<coords.size(); i++){
+            THFloatTensor_set1d(data_pointer, i, coords[i]);
+        }
+        // flat_indexes = THIntTensor_newWithSize1d(indexes.size());
+        for(int i=0; i<indexes.size(); i++){
+            THIntTensor_set1d(flat_indexes, i, indexes[i]);
+        }
+        std::cout<<"Loaded protein: \n natoms = "<<indexes.size()<<"\n ncoords = "<<coords.size()<<"\n";
+        THGenerator_free(gen);
+		return 1;
+	}
+
     int saveProtein(    const char* initProteinPath,
                         const char* outputProteinPath,
                         THFloatTensor *data_pointer, 
