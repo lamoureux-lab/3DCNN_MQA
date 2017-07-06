@@ -1,31 +1,62 @@
-Proteins are the cogs of the cell machinery. In order to understand responses of a cell to the external stimuli given their internal state, we
-have to be able to predict the function of the proteins expressed in a cell. The current paradigm dictates that the function 
-of a protein is determined mainly by its structure that dictates its interactions with other molecules present in a cell. 
-Therefore the problem of a protein structure prediction (protein folding) is one of the limiting factors in understanding and designing living
-organisms.
+% Some of this will have to be adapted to the readership of Proteins
+% (It's sometimes a bit too elementary.)
 
-The progress in the field of protein folding is monitored by Critical Assessment of protein Structure Prediction (CASP) \cite{moult1995large}. This 
-is a community-wide experiment to evaluate the protein folding prediction methods. Every method participating in this competition has a pipline
-that includes sampling and quality assessment (QA) steps. During the sampling part, the candidate conformations of a protein are generated. The 
-QA part of an algorithm tries to select the candidates closest to the unknown native structure.
 
-In this paper we explore the application of deep learning, a new machine learning technique to the protein decoys quality assessment problem. 
-Deep learning (DL) is a popular  approach in the field of machine learning, which recently gained considerable interest 
-in the research community \cite{lecun2015deep}, particularly in computer vision and image recognition. 
-Unlike previous ‘shallow’ approaches, DL tries to learn hierarchical representation of the 
-data in hand. It alleviates the need for feature extraction that constituted the bulk of the work done by researchers. 
+The protein folding problem \cite{dill2012folding} remains one of the
+outstanding challenges in structural biology. While it is usually
+defined as the task of predicting the three-dimensional (3D) structure
+of a protein from its amino acid sequence, it can be cast as a ranking
+problem: Given a number of structural models of various quality, can
+we computationally predict how close each of these models is to the
+native fold of the protein?
 
-Recently, DL was applied to biological data and yielded remarkable results in the human splicing code prediction \cite{xiong2015human}, 
-identification of DNA- and RNA-binding  motifs \cite{alipanahi2015predicting} and predicting the effects of non-coding 
-DNA variants at single nucleotide polymorphism 
-precision \cite{zhou2015predicting}. These successes have one thing in common: they do not introduce any features 
-between the raw data and the deep learning model. 
+Progress in the field is monitored through the Critical Assessment of
+protein Structure Prediction (CASP) competition \cite{moult1995large},
+a community-wide experiment to evaluate the accuracy of protein
+folding methods at predicting protein structures ahead of their
+publication. Most methods participating in the competition include a
+conformational sampling step, which generates a number of plausible
+protein conformations, and a quality assessment (QA) step, which
+attempts to select those conformations closest to the unknown native
+structure.
+
+In this paper we explore the application of deep learning to the
+problem of protein decoys quality assessment. Deep learning (DL) has
+recently garnered considerable interest in the research
+community \cite{lecun2015deep}, particularly in computer vision and
+image recognition. Unlike more ``shallow'' machine learning
+approaches, DL improves model performance by learning a hierarchical
+representation of the data at hand. It alleviates the need for feature
+engineering, which has traditionally constituted the bulk of the work
+done by researchers.
+
+DL has recently been applied to biological data and has yielded
+remarkable results for predicting the effects of genetic variations on
+human RNA splicing \cite{xiong2015human}, for identifying DNA- and
+RNA-binding motifs \cite{alipanahi2015predicting}, and for predicting
+the effects of non-coding DNA variants with single nucleotide
+precision \cite{zhou2015predicting}. These successes have one thing in
+common: they use raw data directly as input and do not attempt to
+engineer features from them.
 
 \subsection{Related work}
-Deep learning methods were also applied in the field of structure quality assessment \cite{}. In particular, 
-DeepQA \cite{} used 9 scores from other QA estimators and 
-7 physico-chemical feature estracted from a structure as the input features to the deep boltzman machine \cite{}. 
-In the DL-PRO algorithm \cite{}, authors first compute contact maps of the decoys and compress them using PCA. 
-The vectors from PCA are then fed into an autoencoder to predict the score of the decoy. 
-The authors that apply the deep learning methods use them as the ordinary 'shallow' classifiers. 
-Therefore they do not get all the advantages these new techniques offer.
+Deep learning methods have also been applied in the field of protein
+structure quality assessment \cite{nguyen2014dlpro, cao2016deepqa,
+uziela2017proq3d}. For instance, DeepQA \cite{cao2016deepqa} uses 9
+scores from other QA models and 7 physico-chemical features extracted
+from the structure as input features to a deep Boltzmann
+machine \cite{}. In the DL-PRO algorithm \cite{nguyen2014dlpro},
+authors first compute contact maps of the decoys and compress them
+using PCA. The vectors from PCA are then fed into an autoencoder to
+predict the score of the decoy. The authors that apply the deep
+learning methods use them as the ordinary 'shallow' classifiers.
+Therefore they do not get all the advantages these new techniques
+offer.
+
+More in line with the ``end-to-end'' spirit of deep learning, methods
+using as input a 3D representation of the structure have been
+developed to score protein-ligand
+poses \cite{ragoza2017ligandscoring}, to predict ligand-binding
+protein pockets \cite{jimenez2017deepsite}, or to predict the effect
+of a mutation \cite{torng2017}.
+% Say something about what is bad and what is good about them.
