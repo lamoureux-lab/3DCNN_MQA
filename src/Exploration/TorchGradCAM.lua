@@ -215,18 +215,18 @@ end
 
 local target = 'T0776'
 -- local decoy = 'Distill_TS3' --5.43 | 1.3
-local decoy = 'T0776.pdb'
--- local decoy = 'BAKER-ROSETTASERVER_TS3'
+-- local decoy = 'T0776.pdb'
+local decoy = 'BAKER-ROSETTASERVER_TS3'
 
 -- local decoy = 'PhyreX_TS2' -- 2.47 | 0.5
 -- local decoy = 'FALCON_TOPO_TS3' -- 2.90 | -0.79
 -- local decoy = '3D-Jigsaw-V5_1_TS2' -- 3.00 | 1.29
 -- local decoy = 'BhageerathH_TS2' -- 4.30 | 0.086
 
-local target = 'T0766'
-local decoy = 'FALCON_TOPO_TS4'
+-- local target = 'T0766'
+-- local decoy = 'FALCON_TOPO_TS4'
 -- local decoy = 'BhageerathH_TS5'
-local decoy = 'FFAS03_TS1'
+-- local decoy = 'FFAS03_TS1'
 
 -- local target = 'T0822'
 -- local decoy = 'Seok-server_TS3'

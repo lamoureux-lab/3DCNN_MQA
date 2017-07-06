@@ -8,11 +8,12 @@ if __name__=='__main__':
     # decoy = 'FALCON_TOPO_TS3'
     # decoy = 'Distill_TS3'
     decoy = 'T0776.pdb'
+    decoy = 'BAKER-ROSETTASERVER_TS3'
 
-    target = 'T0766'
-    decoy = 'BhageerathH_TS5'
-    decoy = 'FALCON_TOPO_TS4'
-    decoy = 'FFAS03_TS1'
+    # target = 'T0766'
+    # decoy = 'BhageerathH_TS5'
+    # decoy = 'FALCON_TOPO_TS4'
+    # decoy = 'FFAS03_TS1'
 
     bfactors = {}
     for i in range(1,101):
@@ -28,13 +29,13 @@ if __name__=='__main__':
                     pass
     filename_in = 'GradCAM/%s/rs%d_%s.pdb'%(target,1,decoy)
     filename_out = 'GradCAM/%s/average_%s.pdb'%(target,decoy)
-    all_b = []
-    for i in bfactors.keys():
-        if len(bfactors[i])>0:
-            all_b.append(np.mean(bfactors[i]))
+    # all_b = []
+    # for i in bfactors.keys():
+    #     if len(bfactors[i])>0:
+    #         all_b.append(np.mean(bfactors[i]))
     with open(filename_in,'r') as f_in:
         with open(filename_out,'w') as f_out:
             for n,line in enumerate(f_in):
                 if len(bfactors[n])>0:
-                    f_out.write(line[:61] + '%.2f\n'%(np.mean(bfactors[n])/(np.max(all_b) - np.min(all_b))))
+                    f_out.write(line[:61] + '%.2f\n'%(np.mean(bfactors[n])))#/(np.max(all_b) - np.min(all_b))))
     
