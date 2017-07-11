@@ -124,5 +124,5 @@ if __name__=='__main__':
 		
 	args = parser.parse_args()
 	prepare_dataset('CASP11Stage1_SCWRL', '/scratch/ukg-030-aa/lupoglaz/models/ProQ3', target_beg=args.start_num, target_end=args.end_num, subset=stage1_unprocessed) 
-	score_dataset('/scratch/ukg-030-aa/lupoglaz/models/ProQ3/CASP11Stage1_SCWRL', target_beg=args.start_num, target_end=args.end_num, subset=stage1_unprocessed)
+	score_dataset('/scratch/ukg-030-aa/lupoglaz/models/ProQ3/CASP11Stage1_SCWRL', target_beg=args.start_num, target_end=args.end_num)
 	
