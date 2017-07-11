@@ -18,7 +18,7 @@ from plotTrainingProcess import read_dataset_description, read_epoch_output, plo
 
 ProQ3Path = '/home/lupoglaz/ProteinQA/proq3'
 
-def prepare_dataset(dataset_name, output_dir, target_beg = None, target_end = None):
+def prepare_dataset(dataset_name, output_dir, target_beg = None, target_end = None, subset = None):
 	target_seq = read_sequences_data('../DatasetsProperties/data')
 	dataset_path = '/scratch/ukg-030-aa/lupoglaz/%s/Description'%dataset_name
 	test_dataset_targets = read_dataset_targets(dataset_path, 'datasetDescription.dat')
@@ -28,6 +28,9 @@ def prepare_dataset(dataset_name, output_dir, target_beg = None, target_end = No
 	results_dir = os.path.join(output_dir,dataset_name)
 	if not os.path.exists(results_dir):
 		os.mkdir(results_dir)
+
+	if not (subset is None):
+		proteins = subset
 	
 	for n,protein in enumerate(proteins):
 		if (n >= target_beg) and (n<target_end):
@@ -114,8 +117,12 @@ if __name__=='__main__':
 				   help='Starting number of target', default=0)
 	parser.add_argument('--end_num', metavar='end_num', type=int, 
 				   help='Ending number of target', default=1)
+
+	stage1_unprocessed = ['T0781', 'T0824', 'T0843', 'T0817', 'T0774', 'T0790', 'T0811', 'T0772', 'T0820', 'T0776', 'T0814', 'T0759', 'T0838', 'T0801', 'T0767', 'T0807', 'T0857', 'T0777', 'T0766', 'T0816', 'T0785', 'T0829', 'T0815', 'T0773', 'T0789', 'T0855', 'T0848', 'T0836', 'T0853', 'T0821', 'T0827', 'T0837', 'T0831', 'T0819', 'T0760', 'T0797', 'T0810', 'T0822', 'T0792', 'T0832']
+
+	stage2_unprocessed = ['T0824', 'T0784', 'T0786', 'T0782', 'T0817', 'T0774', 'T0805', 'T0772', 'T0764', 'T0820', 'T0776', 'T0814', 'T0780', 'T0759', 'T0838', 'T0818', 'T0801', 'T0767', 'T0807', 'T0849', 'T0762', 'T0857', 'T0777', 'T0768', 'T0852', 'T0854', 'T0800', 'T0766', 'T0808', 'T0816', 'T0785', 'T0794', 'T0796', 'T0856', 'T0773', 'T0825', 'T0789', 'T0855', 'T0830', 'T0803', 'T0771', 'T0836', 'T0845', 'T0853', 'T0821', 'T0788', 'T0783', 'T0841', 'T0837', 'T0831', 'T0819', 'T0760', 'T0797', 'T0835', 'T0810', 'T0822', 'T0832']
 		
 	args = parser.parse_args()
-	prepare_dataset('CASP11Stage1_SCWRL', '/scratch/ukg-030-aa/lupoglaz/models/ProQ3', target_beg=args.start_num, target_end=args.end_num) 
-	score_dataset('/scratch/ukg-030-aa/lupoglaz/models/ProQ3/CASP11Stage1_SCWRL', target_beg=args.start_num, target_end=args.end_num)
+	prepare_dataset('CASP11Stage1_SCWRL', '/scratch/ukg-030-aa/lupoglaz/models/ProQ3', target_beg=args.start_num, target_end=args.end_num, subset=stage1_unprocessed) 
+	score_dataset('/scratch/ukg-030-aa/lupoglaz/models/ProQ3/CASP11Stage1_SCWRL', target_beg=args.start_num, target_end=args.end_num, subset=stage1_unprocessed)
 	
