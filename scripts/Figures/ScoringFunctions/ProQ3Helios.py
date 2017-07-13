@@ -123,6 +123,6 @@ if __name__=='__main__':
 	stage2_unprocessed = ['T0824', 'T0784', 'T0786', 'T0782', 'T0817', 'T0774', 'T0805', 'T0772', 'T0764', 'T0820', 'T0776', 'T0814', 'T0780', 'T0759', 'T0838', 'T0818', 'T0801', 'T0767', 'T0807', 'T0849', 'T0762', 'T0857', 'T0777', 'T0768', 'T0852', 'T0854', 'T0800', 'T0766', 'T0808', 'T0816', 'T0785', 'T0794', 'T0796', 'T0856', 'T0773', 'T0825', 'T0789', 'T0855', 'T0830', 'T0803', 'T0771', 'T0836', 'T0845', 'T0853', 'T0821', 'T0788', 'T0783', 'T0841', 'T0837', 'T0831', 'T0819', 'T0760', 'T0797', 'T0835', 'T0810', 'T0822', 'T0832']
 		
 	args = parser.parse_args()
-	prepare_dataset('CASP11Stage1_SCWRL', '/scratch/ukg-030-aa/lupoglaz/models/ProQ3', target_beg=args.start_num, target_end=args.end_num, subset=stage1_unprocessed) 
-	score_dataset('/scratch/ukg-030-aa/lupoglaz/models/ProQ3/CASP11Stage1_SCWRL', target_beg=args.start_num, target_end=args.end_num)
+	prepare_dataset('CASP11Stage2_SCWRL', '/scratch/ukg-030-aa/lupoglaz/models/ProQ3', target_beg=args.start_num, target_end=args.end_num, subset=stage2_unprocessed) 
+	score_dataset('/scratch/ukg-030-aa/lupoglaz/models/ProQ3/CASP11Stage2_SCWRL', target_beg=args.start_num, target_end=args.end_num)
 	

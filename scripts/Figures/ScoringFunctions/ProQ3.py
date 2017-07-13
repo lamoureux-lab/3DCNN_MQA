@@ -59,8 +59,16 @@ def scan_dataset(dataset_name, output_dir):
 			unprocessed_targets.append(protein)
 		elif len(target_list) < 14:
 			unprocessed_targets.append(protein)
-		elif len(target_list) < 191 and len(target_list) >= 14:
-			incomplete_targets.append(protein)
+		else:
+			complete = True
+			for decoy in decoys[protein]:
+				decoy_name = decoy[0].split('/')[-1]
+				if not os.path.exists(os.path.join(target_output_dir,decoy_name+'pdb.proq3.global')):
+					complete=False
+					break
+			if not complete:
+				incomplete_targets.append(protein)
+
 		print protein, len(target_list)
 	return unprocessed_targets, incomplete_targets
 
@@ -163,7 +171,7 @@ if __name__=='__main__':
 	
 	un_targets, in_targets = scan_dataset('CASP11Stage1_SCWRL', '/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3D') 
 	print len(un_targets), len(in_targets)
-	print un_targets
+	print in_targets
 	finish_score_dataset('CASP11Stage1_SCWRL', '/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3D/CASP11Stage1_SCWRL', in_targets)
 	# prepare_dataset('CASP11Stage2_SCWRL', '/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3') 
 
