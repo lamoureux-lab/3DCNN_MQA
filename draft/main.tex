@@ -202,6 +202,20 @@ These datasets were preprocessed using SCWRL program to optimize side-chains.
 \end{center}
 \end{table}
 
+Figure \ref{} shows the performance of the algorithms depending on the presense in the training set of the structures in the same ECOD 
+class. The degree to which the algorithm performs better on the structures closely related to the training ones can indicate 
+the proportion of memorization of an algorithm. We see, that our algorithm has the same performance gains for the proteins 
+similar to ones in the test set as the VoroMQA and ProQ2. The algorithm that stands out in this metric is the RWPlus, which 
+seems to be indifferent to the homology. However, its performance is also lower than that of the other contenders.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{Fig/LossVsECOD.png}
+    \caption{Loss of different QA-algorithms on the subsets of the CASP11 test set Stage2. The subsets are chosen according to the presense in the
+    training set of the structures classified into the same ECOD categories.}
+    \label{Fig:LossVsECOD}
+\end{figure}
+
 \section{Analysis}
 Deep neural networks are famous for their obscurity. The interpretation of the results obtained using these techniques can be as challenging 
 as obtaining results themselves. The difficulty of interpretation brews the suspiction that the neural network learns 

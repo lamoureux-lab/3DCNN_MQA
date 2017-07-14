@@ -40,15 +40,53 @@ def prepare_dataset(dataset_name, output_dir):
 		with open(fasta_output_filename, 'w') as fout:
 			SeqIO.write(SeqRecord(target_seq[protein],id=protein), fout, "fasta")
 
+def scan_dataset(dataset_name, output_dir):
+	target_seq = read_sequences_data('../DatasetsProperties/data')
+	dataset_path = '/home/lupoglaz/ProteinsDataset/%s/Description'%dataset_name
+	test_dataset_targets = read_dataset_targets(dataset_path, 'datasetDescription.dat')
+	proteins, decoys = read_dataset_description('/home/lupoglaz/ProteinsDataset/%s/Description'%dataset_name,
+												'datasetDescription.dat', decoy_ranging='gdt-ts')
+	unprocessed_targets = []
+	incomplete_targets = []
+	results_dir = os.path.join(output_dir,dataset_name)
+	for n,protein in enumerate(proteins):
+		target_output_dir = os.path.join(results_dir, protein)
+		if not os.path.exists(target_output_dir):
+			unprocessed_targets.append(protein)
+			continue
+		target_list = os.listdir(target_output_dir)
+		if len(target_list) == 2:
+			unprocessed_targets.append(protein)
+		elif len(target_list) < 14:
+			unprocessed_targets.append(protein)
+		else:
+			complete = True
+			for decoy in decoys[protein]:
+				decoy_name = decoy[0].split('/')[-1]
+				if not os.path.exists(os.path.join(target_output_dir,decoy_name+'pdb.proq3.global')):
+					complete=False
+					break
+			if not complete:
+				incomplete_targets.append(protein)
+
+		print protein, len(target_list)
+	return unprocessed_targets, incomplete_targets
+
 def score_decoys(decoys_list_path, sequence_path, output_path):
 	os.chdir(ProQ3Path)
-	os.system('bash run_proq3.sh -l %s -fasta %s -deep no -outpath %s'%(decoys_list_path, sequence_path, output_path))
+	os.system('bash run_proq3.sh -l %s -fasta %s -deep yes -outpath %s'%(decoys_list_path, sequence_path, output_path))
 	os.chdir(os.path.realpath(__file__)[:os.path.realpath(__file__).rfind('/')])
 
 def score_decoys_preprofiled(decoys_list_path, profile_path, output_path ):
 	os.chdir(ProQ3Path)
-	os.system('bash run_proq3.sh -l %s -profile %s -deep no -outpath %s'%(decoys_list_path, profile_path, output_path))
+	os.system('bash run_proq3.sh -l %s -profile %s -deep yes -outpath %s'%(decoys_list_path, profile_path, output_path))
 	os.chdir(os.path.realpath(__file__)[:os.path.realpath(__file__).rfind('/')])
+
+def score_decoy_preprofiled(decoy_path, profile_path, output_path):
+	os.chdir(ProQ3Path)
+	os.system('bash run_proq3.sh -profile %s %s -deep yes -outpath %s'%(profile_path, decoy_path, output_path))
+	os.chdir(os.path.realpath(__file__)[:os.path.realpath(__file__).rfind('/')])
+
 
 def score_dataset(dataset_dir, profiles_dataset_dir=None):
 	for target in os.listdir(dataset_dir):
@@ -60,6 +98,38 @@ def score_dataset(dataset_dir, profiles_dataset_dir=None):
 		else:
 			profile_path = os.path.join(profiles_dataset_dir, target, 'seq.fasta')
 			score_decoys_preprofiled(decoys_list_path, profile_path, target_dir)
+
+def finish_score_dataset(dataset_name, dataset_dir, subset):
+	data_proteins, data_decoys = read_dataset_description('/home/lupoglaz/ProteinsDataset/%s/Description'%dataset_name,
+												'datasetDescription.dat', decoy_ranging='gdt-ts')
+	data_decoys_path = {}
+	for target in data_proteins:
+		data_decoys_path[target] = {}
+		for decoy in data_decoys[target]:
+			decoy_name = decoy[0].split('/')[-1]
+			data_decoys_path[target][decoy_name] = decoy[0]
+
+	for target in subset:
+		target_dir = os.path.join(dataset_dir, target)
+		decoys_list_path = os.path.join(target_dir, 'decoys.txt')
+		sequence_path = os.path.join(target_dir, 'seq.fasta')
+
+		to_do = []
+		print 'TO Do list', target
+		with open(decoys_list_path,'r') as fin:
+			for line in fin:
+				decoy = line.split('/')[-1][:-1]
+				if os.path.exists(os.path.join(target_dir, decoy+'.pdb.proq3.global')):
+					continue
+				print decoy
+				to_do.append(decoy)
+		
+		for decoy in to_do:
+			decoy_path = data_decoys_path[target][decoy]
+			profile_path = os.path.join(target_dir, 'seq.fasta')
+		 	score_decoy_preprofiled(decoy_path, profile_path, target_dir)
+		
+
 
 def get_scores(dataset_name, proq3_output_dir):
 	proteins, decoys = read_dataset_description('/home/lupoglaz/ProteinsDataset/%s/Description'%dataset_name,
@@ -99,7 +169,10 @@ def write_scores(proq3_output_dir, scores, score_num = 3):
 
 if __name__=='__main__':
 	
-	# prepare_dataset('CASP11Stage1_SCWRL', '/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3') 
+	un_targets, in_targets = scan_dataset('CASP11Stage1_SCWRL', '/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3D') 
+	print len(un_targets), len(in_targets)
+	print in_targets
+	finish_score_dataset('CASP11Stage1_SCWRL', '/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3D/CASP11Stage1_SCWRL', in_targets)
 	# prepare_dataset('CASP11Stage2_SCWRL', '/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3') 
 
 	# score_dataset('/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3/CASP11Stage1_SCWRL') 
@@ -109,6 +182,6 @@ if __name__=='__main__':
 	# scores = get_scores('CASP11Stage1_SCWRL', '/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3/CASP11Stage1_SCWRL')
 	# write_scores('/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3/CASP11Stage1_SCWRL', scores)
 
-	scores = get_scores('CASP11Stage1_SCWRL', '/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3/CASP11Stage1_SCWRL')
-	write_scores('/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ2/CASP11Stage1_SCWRL', scores, 0)
+	# scores = get_scores('CASP11Stage1_SCWRL', '/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3/CASP11Stage1_SCWRL')
+	# write_scores('/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ2/CASP11Stage1_SCWRL', scores, 0)
 	# print scores
