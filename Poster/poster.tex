@@ -28,10 +28,32 @@
 Protein folding remains one of the outstanding challenges in structural biology. 
 The key part of any workflow of protein structure prediction is the decoy quality assessment. 
 During this step an algorithm selects the best candidate structure out of the pool of candidates. The final 
-Success of the folded structure prediction largely depends on the performance of this algorithm.
+success of the folded structure prediction largely depends on the performance during this step.
+
+In this work we propose an algorithm that learns ranking of the protein candidate structures using 
+only atomic densities distributions. The key advantages of our algorithm are:
+\begin{itemize}
+\item No need for the feature engineering.
+
+other approaches use pre-engineered feature sets, which they feed to a machine learning or optimization 
+algorithm to obtain quality score. However the process of obtaining the features can be tedious and time 
+consuming. Here we show, that it can be skipped alltogether.
+
+\item Incorporation of the spatial data into the algorithm
+
+electrostatics and solvent density distribution are extremely important for prediciton of the protein 
+structure and its function. However, this information is not directly accessible to the QA methods 
+because it is defined as a function on a 3D grid. Previous approaches incorporate the information 
+about electrostatics and the solvent indirectly. Our approach enables straightforward access to any 
+physical descriptions of a protein structure defined in the 3D space.
+\end{itemize}
 \end{block}
 
 \begin{block}{Input and model}
+
+The input of the model is a set of atomic densities. First we assign atomic types to the heavy atoms of a structure, 
+then we project the density of each atomic type to the corresponding grid. The density of each atom is represented 
+as a gaussian. The atomic types are inspired by the SYBYL classification.
 
 \begin{figure}[H]
     \centering
@@ -41,6 +63,9 @@ Success of the folded structure prediction largely depends on the performance of
     The isosurface level was set to $0.5$.}
     \label{Fig:atomic_densities}
 \end{figure}
+
+We use convolutional neural network to predict the quality of a candidate protein structure. The 
+schematic representation of the model architecture is presented on the figure below.
 
 \begin{figure}[H]
     \centering
@@ -54,6 +79,18 @@ Success of the folded structure prediction largely depends on the performance of
     Supplementary Information.}
     \label{Fig:CNNModel}
 \end{figure}
+
+Finally, the loss function of the model is the pairwise ranking loss:
+$$ L_{ij} = w_{ij} \cdot \max \left[ 0, 1 - y_{ij} \left( f \left( x_i \right) - f \left( x_j \right) \right) \right] $$
+where $w_{ij}$ is zero when the GDT\_TS of two decoys is too close and one otherwise and $y_{ij}$ is the coefficient that defines the ordering:
+$$
+y_{ij} = \begin{cases}
+               1& gdtts_i \leq gdtts_j \\
+               -1& gdtts_i > gdtts_j \\
+            \end{cases}
+$$
+During the training procedure we optimize the loss function with respect to the parameters of the model using stochastic 
+gradient descent.
 
 \end{block}
 
