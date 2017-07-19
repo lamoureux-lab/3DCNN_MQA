@@ -1,6 +1,6 @@
 \documentclass[final, unknownkeysallowed]{beamer}
 \usetheme{RJH}
-\usepackage[orientation=portrait,size=a2,scale=1.4,debug]{beamerposter}
+\usepackage[orientation=portrait,size=a0,scale=1.0,debug]{beamerposter}
 \usepackage[absolute,overlay]{textpos}
 \setlength{\TPHorizModule}{1cm}
 \setlength{\TPVertModule}{1cm}
@@ -14,7 +14,16 @@
 \begin{document}
 \begin{frame}{}
 
-\begin{textblock}{19.5}(1,5)
+\begin{textblock}{6}(0.5,0.2)
+\includegraphics[width=10.0cm]{Logo/ConULogo_K}
+\end{textblock}
+\begin{textblock}{6}(76.,0.2)
+\includegraphics[width=7.0cm]{Logo/CERMM_transparent.png}
+\end{textblock}
+
+
+
+\begin{textblock}{39.0}(2,5)
 \begin{block}{Introduction}
 Protein folding remains one of the outstanding challenges in structural biology. 
 The key part of any workflow of protein structure prediction is the decoy quality assessment. 
@@ -91,7 +100,7 @@ neither during the testing phase.
 \end{textblock}
 
 
-\begin{textblock}{19.3}(21.8,5)
+\begin{textblock}{39.0}(43.5,5)
 
 \begin{block}{Results}
 The loss criterion is the deviation of the GDT-TS of the best decoys for a protein from the GDT-TS score of the decoy with the lowest score:
