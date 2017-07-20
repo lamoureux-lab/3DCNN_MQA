@@ -8,14 +8,14 @@
 
 \title{Deep convolutional networks for protein structure quality assessment}
 \author{Georgy Derevyanko, Guillaume Lamoureux}
-\institute[CLS]{Concordia University, QC, Canada}
-\footer{Footer}
+\institute[CLS]{Department of Chemistry and Biochemistry and Centre for Research in Molecular Modeling (CERMM), Concordia University, Montréal, Canada}
+\footer{}
 \date{\today}
 
 \begin{document}
 \begin{frame}{}
 
-\begin{textblock}{6}(0.5,0.2)
+\begin{textblock}{6}(64.5,0.5)
 \includegraphics[width=10.0cm]{Logo/ConULogo_K}
 \end{textblock}
 \begin{textblock}{6}(76.,0.2)
@@ -24,7 +24,7 @@
 
 
 
-\begin{textblock}{39.0}(2,5)
+\begin{textblock}{39.0}(2,6)
 \begin{block}{Introduction}
 Protein folding remains one of the outstanding challenges in structural biology. 
 The key part of any workflow of protein structure prediction is the decoy quality assessment. 
@@ -128,7 +128,7 @@ ECOD structural classification \cite{cheng2014ecod}.
 % \end{figure}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\linewidth]{../draft/Fig/folds_graph.png}
+    \includegraphics[width=0.55\linewidth]{../draft/Fig/folds_graph.png}
 %
     \caption{Classification of the test set structures into the lower
     four ECOD structural levels (from the center out): architecture
@@ -153,7 +153,7 @@ ECOD structural classification \cite{cheng2014ecod}.
 \end{textblock}
 
 
-\begin{textblock}{39.0}(43.5,5)
+\begin{textblock}{39.0}(43.5,6)
 
 \begin{block}{Results}
 To assess the performance of our method (3DCNN) we used different correlation coefficients and the loss.
@@ -240,10 +240,15 @@ the projection of activation maps obtained using GradCAM on the heavy atoms of a
 \end{figure}
 \end{block}
 
+\begin{block}{Acknowledgements}
+This research was supported by CERMM grant .
+We thank our collaborators from MILA lab for comments and suggestions.
+\end{block}
 
 \begin{block}{Citations}
-\bibliography{../draft/citations.bib}{}
-\bibliographystyle{plain}
+{\small
+\bibliography{../draft/citations.bib}{}}
+\bibliographystyle{ieeetr}
 \end{block}
 
 \end{textblock}
