@@ -2,6 +2,7 @@
 \usetheme{RJH}
 \usepackage[orientation=portrait,size=a0,scale=1.0,debug]{beamerposter}
 \usepackage[absolute,overlay]{textpos}
+\usepackage{subcaption}
 \setlength{\TPHorizModule}{1cm}
 \setlength{\TPVertModule}{1cm}
 
@@ -57,7 +58,7 @@ as a gaussian. The atomic types are inspired by the SYBYL classification.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{../draft/Fig/atomic_densities_V3.png}
+    \includegraphics[width=0.7\linewidth]{../draft/Fig/atomic_densities_V3.png}
     \caption{The example of the representation of a protein using atomic densities. The density map is 
     shown using the volumetric rendering plugin for PyMol. The pdb-code of the protein used for this visualization is 5eh6.
     The isosurface level was set to $0.5$.}
@@ -101,37 +102,52 @@ We optimized side chain conformation of the training and test sets using SCWRL4 
 The training and test sets have 564 and 83 targets correspondingly. For each target the training dataset has 
 on average 282 decoys. The test dataset is split into two subsets: Stage1 with 20 selected decoys for each target and Stage2 with 150 decoys
 for each. The native structures were not included in the datasets nor during the training procedure
-neither during the testing phase.
+neither during the testing phase. Fig. \ref{Fig:foldsGraph} shows the overlap between the training and the test sets in terms of 
+ECOD structural classification \cite{cheng2014ecod}.
+% \begin{figure}[H]
+%     \makebox[\textwidth]{
+%     \includegraphics[width=\textwidth]{../draft/Fig/summary_table.png}
+%     }
+% %
+%     \caption{Overlap of the training set on each target domain of the
+%     test set (from T0759 to T0858). The first 5 rows of tiles
+%     correspond to the ECOD classification of protein domains (A-, X-,
+%     H-, T-, and F-groups). A black tile in any of these rows indicates
+%     that at least one structure from the training set belongs to the
+%     same ECOD group as the target. Targets for which no ECOD
+%     classification is available are left empty.
+%     A black tile in the ``Family'' row indicates that at least one
+%     structure from the training set belongs to the same Pfam family as
+%     the target. (A grey tile indicates that no Pfam family information
+%     is available for the target.) The ``Clan'' row shows similar
+%     information for Pfam clans. A black tile in the ``Alignment'' row
+%     indicates that at least one sequence in the training set aligns to
+%     the target sequence with an E-value smaller than $10^{-4}$.}
+% %
+%     \label{Fig:summaryTable}
+% \end{figure}
 \begin{figure}[H]
-    \makebox[\textwidth]{
-    \includegraphics[width=\textwidth]{../draft/Fig/summary_table.png}
-    }
+    \centering
+    \includegraphics[width=0.6\linewidth]{../draft/Fig/folds_graph.png}
 %
-    \caption{Overlap of the training set on each target domain of the
-    test set (from T0759 to T0858). The first 5 rows of tiles
-    correspond to the ECOD classification of protein domains (A-, X-,
-    H-, T-, and F-groups). A black tile in any of these rows indicates
-    that at least one structure from the training set belongs to the
-    same ECOD group as the target. Targets for which no ECOD
-    classification is available are left empty.
-%%% I see that all targets excluded from the analysis have an empty
-%%% row of squares. Is T0838 excluded as well? What about the targets
-%%% that are not in the list? (775, 778, 779, 791, 793, 795, 799, 802,
-%%% 804, 809, 826, 828, 839, 842, 844, 846, 850) Were they all
-%%% excluded from the CASP competition? The CASP11 QA paper mentions
-%%% that the following targets were cancelled by the organizers: 778,
-%%% 779, 791, 809, 842, 844, 846, 850. What about the other ones?
-    A black tile in the ``Family'' row indicates that at least one
-    structure from the training set belongs to the same Pfam family as
-    the target. (A grey tile indicates that no Pfam family information
-    is available for the target.) The ``Clan'' row shows similar
-    information for Pfam clans. A black tile in the ``Alignment'' row
-    indicates that at least one sequence in the training set aligns to
-    the target sequence with an E-value smaller than $10^{-4}$.}
+    \caption{Classification of the test set structures into the lower
+    four ECOD structural levels (from the center out): architecture
+    (A), possible homology (X), homology (H), and topology (T). The
+    names of the architecture types are shown in the outer circle of
+    the diagram.
+%%% Why do you have two different architecture names in the same A
+%%% group? (brown color: ``alpha complex topology'' and ``alpha
+%%% arrays'')
+    The grey lines denote test set classes that have no
+    respective representative in the training set. The black lines
+    show the classes that have representatives in both training and
+    test sets. We do not show the F-groups because they have litle
+    overlap among the training and test sets.
+%%% Why not showing the F-groups?
+}
 %
-    \label{Fig:summaryTable}
+    \label{Fig:foldsGraph}
 \end{figure}
-
 \end{block}
 
 \end{textblock}
@@ -140,10 +156,15 @@ neither during the testing phase.
 \begin{textblock}{39.0}(43.5,5)
 
 \begin{block}{Results}
+To assess the performance of our method (3DCNN) we used different correlation coefficients and the loss.
 The loss criterion is the deviation of the GDT-TS of the best decoys for a protein from the GDT-TS score of the decoy with the lowest score:
 $$ 
 Loss = | max_i( gdtts_i ) - gdtts( argmin(f(x_i) ) |
 $$ 
+
+Table \ref{Tbl:TestResults} shows the comparisson of our model with the state of art methods: ProQ2 \cite{ray2012proq2}, 
+VoroMQA \cite{olechnovivc2017voromqa}, QProb \cite{cao2016protein} and RWPlus \cite{zhang2010novel} used for the decoy quality assessement. 
+To evaluate the performance we used CASP11 stages 1 and 2 datasets.
 
 \begin{table}[H]
 \begin{center}
@@ -169,8 +190,7 @@ $$
 \end{tabular}
     
     \caption {Results of our method(3DCNN) and the other state-of-art quality assessment programs on the CASP11 dataset Stage 1 and 2.
-            Table shows the absolute average values of correlation coefficients. The averaging was performed for each target in the 
-            dataset. Afterwards all the values were averaged over all the targets.}
+            Table shows the absolute average values of the correlation coefficients.}
     \label{Tbl:TestResults}
 \end{center}
 \end{table}
@@ -178,13 +198,39 @@ $$
 \end{block}
 
 \begin{block}{Analysis}
+
+During the training of the model we randomly sampled rotational and translational degrees of freedom of a decoy structure. Ideally, we 
+want the score assigned by the model to a decoy to be invariant under these transformations. The Fig. \ref{Fig:DecoysScoreDistribution} 
+shows the distributions of scores for several decoys.
+
+
+Figure \ref{Fig:LossVsECOD} shows the performance of the algorithms depending on the presense in the training set of the structures in the same ECOD 
+class. We see, that our algorithm has the same performance gains for the proteins 
+similar to ones in the test set as the VoroMQA and ProQ2. The algorithm that stands out in this metric is the RWPlus, which 
+seems to be indifferent to the homology. However, its performance is also lower than that of the other contenders.
+
 \begin{figure}[H]
     \centering
+    \begin{subfigure}{.5\textwidth}
     \includegraphics[width=\linewidth]{../draft/Fig/decoys_sampling_dist.png}
     \caption{The distribution of scores under random translations and rotations of several decoys for the target T0832. The 
     names arrangement from top to bottom corresponds to the increase of the score.}
     \label{Fig:DecoysScoreDistribution}
+    \end{subfigure}%
+    \begin{subfigure}{.5\textwidth}
+    \includegraphics[width=\linewidth]{../draft/Fig/LossVsECOD.png}
+    \caption{Loss of different QA-algorithms on the subsets of the CASP11 test set Stage2. The subsets are chosen according to the presense in the
+    training set of the structures classified into the same ECOD categories.}
+    \label{Fig:LossVsECOD}
+    \end{subfigure}
 \end{figure}
+
+The method we use was proposed 
+by Selvaraju R. \cite{selvaraju2016grad}. The key idea of this technique is to propagate the gradient to a certain layer and take the sum of the 
+activations of this layer weighted by gradient. The weighted activation maps are then upscaled to the whole reception field of the network.
+They indicate which parts of the input contributes the most to the gradient of the network output. Fig. \ref{Fig:GradCAMT0776_more} shows 
+the projection of activation maps obtained using GradCAM on the heavy atoms of a protein.
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{../draft/Fig/T0776.png}
@@ -196,7 +242,8 @@ $$
 
 
 \begin{block}{Citations}
-\emph{Journal of Irreproducible Results}.
+\bibliography{../draft/citations.bib}{}
+\bibliographystyle{plain}
 \end{block}
 
 \end{textblock}
