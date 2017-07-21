@@ -8,7 +8,7 @@
 
 \title{Deep convolutional networks for protein structure quality assessment}
 \author{Georgy Derevyanko\inst{1}, Sergei Grudinin\inst{2}, Guillaume Lamoureux\inst{1}}
-\institute[shortinst]{ \hspace{2cm}{\small \inst{1} Department of Chemistry and Biochemistry and Centre for Research in Molecular Modeling (CERMM), Concordia University, Montréal, Canada \hspace{2cm}
+\institute[shortinst]{ \hspace{2cm}{\small \inst{1} Department of Chemistry and Biochemistry and Centre for Research in Molecular Modeling (CERMM), Concordia University, Montr{\'e}al, Canada \hspace{2cm}
 \inst{2} NANO-D, INRIA Rhone-Alpes Research Center, Grenoble, France}}
 \footer{}
 \date{\today}
@@ -27,100 +27,129 @@
 
 \begin{textblock}{39.0}(2,6)
 \begin{block}{Introduction}
-Protein structure prediction remains one of the outstanding challenges in structural biology. 
-The progress in this field is assessed during the worldwide competition called CASP \cite{moult2014critical}.
-During this biannual event competitors are given the sequences of the proteins whose structures are 
-on the verge of being solved using X-Ray crystallography. The goal of contestants is to predict these 
+Protein structure prediction remains one of the outstanding challenges
+in structural biology.  Progress in this field is assessed during the
+biennial CASP competition \cite{moult2014critical}, in which
+contestants are given the sequences of a number of proteins for which
+structures are about to be solved, and are attempting to predict their
 structures.
 
+\vspace{0.5cm}
+A key part of all prediction pipelines competing in CASP is the decoy
+quality assessment (QA). During this step, an algorithm selects the
+best structure out of a pool of computer-generated candidate
+structures (``decoys''). The final success of a prediction method
+largely depends on the performance of the QA step.
 
-The key part of all the workflows competing in CASP is the decoy quality assessment.
-During this step an algorithm selects the best candidate structure out of the pool of generated candidates (decoys). 
-The final success largely depends on the performance during this step.
-
-In this work we propose an algorithm that learns ranking of the protein candidate structures using 
-only atomic densities distributions. The key advantages of our algorithm are:
+\vspace{0.5cm}
+In this work we propose an algorithm that learns the ranking of
+protein candidate structures using only atomic densities. The key
+advantages of our algorithm are:
 \begin{itemize}
-\item It avoids the feature engineering.
-
-other approaches use pre-engineered feature sets. 
-Those are fed to a machine learning or optimization algorithm. 
-However the process of obtaining the features can be tedious and time consuming. 
-Our algorithm predicts the score of a decoy based only on the atomic densities distributions.
-
-\item It can learn from spatial data
-
-electrostatics and solvent are extremely important for protein stability. 
-However, this information is not directly accessible to the state-of-art QA methods.
-Our approach enables straightforward access to any physical descriptions of a protein structure defined in the 3D space.
+\item \emph{It avoids feature engineering.} Standard approaches use a
+  pre-engineered set of features, fed to a machine learning model or
+  an optimization algorithm.  However, the process of obtaining these
+  features can be tedious and time-consuming.  Moreover, any list of
+  features extracted from raw structural data is by definition
+  incomplete and excludes potentially useful information. Our
+  algorithm predicts the score of a decoy based only on the atomic
+  densities.
+\item \emph{It can learn from any type of spatial data.}
+  Electrostatics and solvent are extremely important for protein
+  stability.  However, this information is not directly accessible to
+  current state-of-the-art QA methods.  Our approach enables
+  straightforward access to any physical property defined in 3D space,
+  such as atomic/electronic densities, electrostatic potential,
+  solvent distribution, etc.
 \end{itemize}
 \end{block}
 
 \begin{block}{Input and model}
 
-The input of the model is a set of atomic densities. 
-First we assign atomic types to the heavy atoms of a structure. 
-Then we project the density of each atomic type to the corresponding grid. 
-The density of each atom is represented as a gaussian. 
-The atomic types are inspired by the SYBYL classification.
+The input of the model is a set of atomic densities. We assign atomic
+types to each heavy atom of the structure, then we project the density
+of each atom to the grid corresponding to its atom type (see
+Fig.~\ref{Fig:atomic_densities}).  The density of each atom is
+represented as a Gaussian.  The atom types are inspired by the SYBYL
+classification.
+
+\vspace{0.5cm}
+We use 3D convolutional neural networks to predict the quality of a
+candidate protein structure.  The schematic representation of the
+model architecture is presented below (Fig.~\ref{Fig:CNNModel}).
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\linewidth]{../draft/Fig/atomic_densities_V3.png}
-    \caption{The example of the representation of a protein using atomic densities. The density map is 
-    shown using the isosurface at the level $ = 0.5$.}
+    \includegraphics[width=0.6\linewidth]{../draft/Fig/atomic_densities_V3.png}
+    \captionsetup{width=0.8\linewidth}
+    \caption{Example of the representation of a protein structure
+      using atomic densities. The density maps are represented by
+      isosurfaces at the half-maximum level.}
     \label{Fig:atomic_densities}
 \end{figure}
-
-We use convolutional neural network to predict the quality of a candidate protein structure. 
-The schematic representation of the model architecture is presented on the figure below.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{../draft/Fig/ConvnetDiagramV1.png}
-    \caption{The convolutional neural network used in this work. 
-    The arrows between the boxes denote maximum pooling layers; the connections denote 
-    consequent 3d convolutional, batch normalization and ReLU layers. The $xM$ are the number of filters 
-    used in the corresponding 3d convolutional layer.}
+    \captionsetup{width=0.8\linewidth}
+    \caption{Convolutional neural network used in this work. Line
+      connections across boxes denote the consecutive application of a
+      3D convolutional layer, a batch normalization layer, and a ReLU
+      layer. Arrows between boxes denote maximum pooling layers. The
+      labels ``$\times M$'' denote the number of filters used in the
+      corresponding 3D convolutional layer.}
     \label{Fig:CNNModel}
 \end{figure}
 
-To train the model we use the ranking loss function. 
-The ranks for the decoys in the training dataset are defined by the precomputed GDT\_TS scores.
-In particular, we use the pairwise ranking loss:
-$$ L_{ij} = w_{ij} \cdot \max \left[ 0, 1 - y_{ij} \left( f \left( x_i \right) - f \left( x_j \right) \right) \right] $$
-where $w_{ij}$ is zero when the two decoys are too similar and one otherwise. 
-The $y_{ij}$ is the coefficient that defines the ordering:
+We train the model to minimize the ranking loss function.  The ranks
+for the decoys in the training dataset are defined using precomputed
+GDT\_TS scores.  In particular, we use the pairwise ranking loss:
+$$
+L_{ij} = w_{ij} \cdot \max \left[ 0, 1 - y_{ij} \left( f(x_i) - f(x_j) \right) \right]
+$$
+where $w_{ij}$ is zero when the two decoys have too similar scores and is one
+otherwise.  The $y_{ij}$ coefficients define the score ordering:
 $$
 y_{ij} = \begin{cases}
-               1& \textrm{GDT\_TS}_i \leq \textrm{GDT\_TS}_j \\
-               -1& \textrm{GDT\_TS}_i > \textrm{GDT\_TS}_j \\
-            \end{cases}
+                1& \text{if } \textrm{GDT\_TS}_i \leq \textrm{GDT\_TS}_j \\
+               -1& \text{if } \textrm{GDT\_TS}_i > \textrm{GDT\_TS}_j \\
+           \end{cases}
 $$
-During the training procedure we optimize the loss function with respect to the parameters of the model.
+%During the training procedure, we optimize the loss function with
+%respect to the parameters of the model.
 
 \end{block}
 
 \begin{block}{Datasets}
-   To train and assess our method we used the decoys from previous CASP competitions. 
-We took the submissions of contestants during CASP7 - CASP10 as the training set.
-The decoys from CASP11 dataset served as the test set.
+
+We train and assess our method using the decoys from previous CASP
+competitions. We use the submissions from contestants of the CASP7 to
+CASP10 competitions as training set and the decoys from the CASP11
+competition as test set.
 \begin{itemize}
-\item Side chain conformation of the training and test sets were optimized using SCWRL4 program \cite{krivov2009improved}.
-\item The training and test sets have 564 and 83 targets correspondingly. Each target in the training dataset has on average 282 decoys.
-\item The test dataset is split into two subsets: Stage1 with 20 selected decoys for each target and Stage2 with 150 decoys
-for each.
-\item The native structures were not included in the datasets nor during the training procedure neither during the testing phase. 
+\item The side chains of all structures from the training and test
+  sets are optimized using SCWRL4 \cite{krivov2009improved}.
+\item The training and test sets have 564 and 83 targets
+  correspondingly. Each target in the training dataset has on average
+  282 decoys.
+\item The test dataset is split into two subsets: Stage 1 with 20
+  selected decoys for each target and Stage 2 with 150 decoys for each
+  target.
+\item The native structures are excluded from both the training and
+  test datasets, and are used only to precompute the GDT\_TS scores.
 \end{itemize}
 
-Fig. \ref{Fig:foldsGraph} shows the homology between the training and the test sets in terms of 
-ECOD structural classification \cite{cheng2014ecod}. 
-This information is later used to assess the degree of overfitting of our algorithm.
+\vspace{0.5cm}
+Fig. \ref{Fig:foldsGraph} shows the homology between the training and
+the test sets in terms of ECOD structural classification
+\cite{cheng2014ecod}.  This information is later used to assess the
+degree of overfitting of our algorithm.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.50\linewidth]{../draft/Fig/folds_graph.png}
 %
+    \captionsetup{width=0.8\linewidth}
     \caption{Classification of the test set structures into the lower
     four ECOD structural levels (from the center out): architecture
     (A), possible homology (X), homology (H), and topology (T). The
@@ -147,14 +176,20 @@ This information is later used to assess the degree of overfitting of our algori
 \begin{textblock}{39.0}(43.5,6)
 
 \begin{block}{Results}
-To assess the performance of our method (3DCNN) we used different correlation coefficients and the loss criterion.
-The former is the deviation of the GDT\_TS of the best decoy from the GDT\_TS of the decoy with the lowest score:
+
+We assess the performance of our method (3DCNN) using different rank
+correlation coefficients, and using the loss criterion, defined as the
+deviation of the GDT\_TS of the best decoy from the GDT\_TS of the
+decoy with the lowest score:
 $$ 
-Loss = \left| \max_i \left( \textrm{GDT\_TS}(x_i) \right) - \textrm{GDT\_TS} \left[ \textrm{argmin}_i \left( \textrm{3DCNN}(x_i) \right) \right] \right|
+\text{Loss} = \left| \max_i( \textrm{GDT\_TS}(x_i) ) - \textrm{GDT\_TS} [ \textrm{argmin}_i( \textrm{3DCNN}(x_i) ) ] \right|
 $$ 
 
-Table \ref{Tbl:TestResults} shows the comparisson of our algorithm (3DCNN) with the state of art methods: 
-ProQ2 \cite{ray2012proq2}, VoroMQA \cite{olechnovivc2017voromqa}, QProb \cite{cao2016protein} and RWPlus \cite{zhang2010novel}.
+\vspace{0.5cm}
+Table \ref{Tbl:TestResults} shows the comparison of our algorithm
+(3DCNN) with state-of-the-art methods ProQ2 \cite{ray2012proq2},
+VoroMQA \cite{olechnovivc2017voromqa}, Qprob \cite{cao2016protein},
+and RWplus \cite{zhang2010novel}.
 
 \begin{table}[H]
 \begin{center}
@@ -178,9 +213,12 @@ ProQ2 \cite{ray2012proq2}, VoroMQA \cite{olechnovivc2017voromqa}, QProb \cite{ca
     RWplus  &0.095 &0.202 &0.246 &0.175 \\ \hline
 
 \end{tabular}
-    
-    \caption {Results of our method(3DCNN) and the other state-of-art quality assessment programs on the CASP11 dataset Stage 1 and 2.
-            Table shows the absolute, per-target average values of the correlation coefficients and loss.}
+\vspace{0.25cm}    
+    \captionsetup{width=0.8\linewidth}
+    \caption {Performance of our method (3DCNN) on the CASP11 dataset
+      (Stages 1 and 2), compared to other state-of-the-art QA
+      programs. The table shows the absolute, per-target average
+      values of the loss and the correlation coefficients.}
     \label{Tbl:TestResults}
 \end{center}
 \end{table}
@@ -210,14 +248,20 @@ However, its performance is also lower than that of the other contenders.
     \centering
     \begin{subfigure}{.5\textwidth}
     \includegraphics[width=\linewidth]{../draft/Fig/decoys_sampling_dist.png}
-    \caption{The distribution of scores under random translations and rotations of several decoys for the target T0832. The 
-    names arrangement from top to bottom corresponds to the increase of the score.}
+    \captionsetup{width=\linewidth}
+    \caption{Distributions of scores under random translations and
+      rotations of several decoys for target T0832. The names
+      arrangement from top to bottom corresponds to the increase of
+      the score.}
     \label{Fig:DecoysScoreDistribution}
     \end{subfigure}%
     \begin{subfigure}{.5\textwidth}
     \includegraphics[width=\linewidth]{../draft/Fig/LossVsECOD.png}
-    \caption{Loss of different QA-algorithms on the subsets of the CASP11 test set Stage2. The subsets are chosen according to the presense in the
-    training set of the structures classified into the same ECOD categories.}
+    \captionsetup{width=\linewidth}
+    \caption{Loss of different QA-algorithms on the subsets of the
+      CASP11 test set Stage2. The subsets are chosen according to the
+      presense in the training set of the structures classified into
+      the same ECOD categories.}
     \label{Fig:LossVsECOD}
     \end{subfigure}
 \end{figure}
@@ -232,8 +276,11 @@ We see that it highlights the regions at the surface of the protein that are lik
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{../draft/Fig/T0776.png}
-    \caption{The scaled gradient weighted activation maps of the network projected onto the atoms of the decoys. 
-    Each decoy is aligned to the native structure (shown with the transparent cartoon).}
+    \captionsetup{width=0.8\linewidth}
+    \caption{The scaled gradient weighted activation maps of the
+      network projected onto the atoms of the decoys.  Each decoy is
+      aligned to the native structure (shown with the transparent
+      cartoon).}
     \label{Fig:GradCAMT0776_more}
 \end{figure}
 
@@ -246,12 +293,12 @@ For this purpose we used 3DRobot dataset \cite{deng20163drobot}. The pearson cor
 
 
 
-\begin{block}{Acknowledgements}
-This research was supported by CERMM grant .
+\begin{block}{Acknowledgments}
+This research was supported by an NSERC Discovery Grant to G.L.
 We thank our collaborators from MILA lab for comments and suggestions.
 \end{block}
 
-\begin{block}{Citations}
+\begin{block}{References}
 {\small
 \bibliography{../draft/citations.bib}{}}
 \bibliographystyle{ieeetr}
