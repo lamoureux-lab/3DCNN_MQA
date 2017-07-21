@@ -20,13 +20,13 @@ the memory footprint of the model.
 % Type 11 = C3C, C3A, C3X
 %
 The density of an atom is modeled using the function
-$$
+\begin{equation}
+\label{eq:rho}
 \rho(r) =  \begin{cases}
                e^{-\frac{r^2}{2}}&\text{if } r\leq 2.0\text{ \AA} \\
                0                 &\text{if } r>2.0\text{ \AA} \\
             \end{cases}
-\label{eq:rho}
-$$
+\end{equation}
 The atom density is projected to the grid corresponding to its atom
 type. Each grid has a resolution of 1~\AA\ and a size of each grid to
 $120\times 120\times 120$ cells.
@@ -89,7 +89,7 @@ shown.
 
     \caption{Representation of a protein structure (PDB code 5eh6)
     using atomic densities. The density maps are calculated according
-    to Eq. \ref{eq:rho} and rendered using Pymol \cite{} with an
+    to Eq.~\ref{eq:rho} and rendered using Pymol \cite{} with an
     isosurface level of $0.5$.}
 
     \label{Fig:atomic_densities}
