@@ -1,7 +1,7 @@
 \ProvidesPackage{beamerthemeRJH} % this style was created by Rob J Hyndman and is an adapation of i6dv by David Vilar
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\selectcolormodel{cmyk}
+\selectcolormodel{HTML}
 \mode<presentation>
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -9,39 +9,34 @@
 \setbeamertemplate{bibliography item}{\insertbiblabel}
 
 % custom colors
-\definecolor{i6blue}{cmyk}{1,0.305,0,0.06}
-\definecolor{i6bluedark}{rgb}{0.0156,0.2578,0.5625} 
 \definecolor{i6colorscheme1}{HTML}{FF6518}  % e.g. for block title
-\definecolor{i6colorblockbg}{HTML}{0033cc}
-\definecolor{i6colorblockfg}{HTML}{FCE94F}
-% \definecolor{i6colorscheme2}{HTML}{000000}  % e.g. title in headline
-\definecolor{i6colorscheme3}{HTML}{C3DFFF}  % e.g. for poster background
-\definecolor{i6colorscheme4}{HTML}{000000} 
-%\definecolor{i6colorschemeHeadline}{HTML}{0033cc}  % for headline bg
-\definecolor{i6colorschemeHeadline}{HTML}{55ECF1}  % for headline bg
-
-\definecolor{i6colorschemeFootline}{HTML}{100D09}  % for headline bg
+\definecolor{concordiaBurgundy}{HTML}{932439}
+%\definecolor{concordiaBurgundy}{cmyk}{0,100,60,46}
+\definecolor{concordiaGold}{HTML}{CBB576}
+%\definecolor{concordiaGold}{cmyk}{0,25,50,35}
+\definecolor{concordiaGold2}{cmyk}{0,15,30,21}
+\definecolor{concordiaMauve}{cmyk}{70,80,0,0}
+\definecolor{concordiaOrange}{cmyk}{0,80,100,0}
+\definecolor{concordiaTurquoise}{cmyk}{100,0,50,15}
+\definecolor{concordiaMagenta}{cmyk}{0,100,0,0}
 
 % headline colors and fonts
-\setbeamercolor{headline}{fg=white,bg=i6colorschemeHeadline}
-% \setbeamercolor{title in headline}{fg=white}
+\setbeamercolor{headline}{fg=white,bg=concordiaGold}
 \setbeamercolor{title in headline}{fg=black}
 \setbeamercolor{author in headline}{fg=black}
-% \setbeamercolor{institute in headline}{fg=lightgray}
 \setbeamercolor{institute in headline}{fg=darkgray}
-\setbeamercolor{logo in headline}{fg=black,bg=lightgray}
-\setbeamercolor{separation line}{bg=i6colorscheme1}
+\setbeamercolor{separation line}{bg=concordiaBurgundy}
 
 % footline colors and fonts
-\setbeamercolor{footline}{fg=white,bg=i6colorschemeHeadline}
+\setbeamercolor{footline}{fg=white,bg=concordiaGold}
 \setbeamerfont{footline}{fg=white, size=\normalsize}
 
 % body colors and fonts
-\setbeamercolor*{normal text}{fg=black,bg=i6colorscheme3}
+\setbeamercolor*{normal text}{fg=white,bg=white}
 
 % block environment
-\setbeamercolor*{block body}{bg=white,fg=black}
-\setbeamercolor*{block title}{fg=i6colorblockfg,bg=i6colorblockbg}
+\setbeamercolor*{block body}{fg=black,bg=white}
+\setbeamercolor*{block title}{fg=white,bg=concordiaBurgundy}
 \setbeamerfont{block title}{size=\large,series=\bf}
 
 % example environment
