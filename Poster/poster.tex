@@ -3,6 +3,7 @@
 \usepackage[orientation=portrait,size=a0,scale=1.0,debug]{beamerposter}
 \usepackage[absolute,overlay]{textpos}
 \usepackage{subcaption}
+\captionsetup[subfigure]{labelformat=parens}
 \setlength{\TPHorizModule}{1cm}
 \setlength{\TPVertModule}{1cm}
 
@@ -12,6 +13,14 @@
 \inst{2} NANO-D, INRIA Rhone-Alpes Research Center, Grenoble, France}}
 \footer{}
 \date{\today}
+
+\makeatletter
+\newcommand\nocaption{%
+    \renewcommand\p@subfigure{}
+    \renewcommand\thesubfigure{\thefigure\alph{subfigure}}
+}
+\makeatother
+
 
 \begin{document}
 \begin{frame}{}
@@ -245,8 +254,9 @@ The algorithm that stands out in this metric is the RWPlus, which seems to be in
 However, its performance is also lower than that of the other contenders.
 
 \begin{figure}[H]
+\nocaption
     \centering
-    \begin{subfigure}{.5\textwidth}
+    \begin{subfigure}[t]{.5\textwidth}
     \includegraphics[width=\linewidth]{../draft/Fig/decoys_sampling_dist.png}
     \captionsetup{width=\linewidth}
     \caption{Distributions of scores under random translations and
@@ -255,7 +265,7 @@ However, its performance is also lower than that of the other contenders.
       the score.}
     \label{Fig:DecoysScoreDistribution}
     \end{subfigure}%
-    \begin{subfigure}{.5\textwidth}
+    \begin{subfigure}[t]{.5\textwidth}
     \includegraphics[width=\linewidth]{../draft/Fig/LossVsECOD.png}
     \captionsetup{width=\linewidth}
     \caption{Loss of different QA-algorithms on the subsets of the
@@ -264,6 +274,7 @@ However, its performance is also lower than that of the other contenders.
       the same ECOD categories.}
     \label{Fig:LossVsECOD}
     \end{subfigure}
+    % \caption{}
 \end{figure}
 
 Finally, to ensure that our algorithm does indeed learn from the structural information and not some artifacts we visualized 
