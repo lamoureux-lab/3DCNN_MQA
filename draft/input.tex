@@ -1,15 +1,35 @@
-The protein structure is represented as the density maps of eleven atom types. 
-We used the types shown in the Table \ref{Tbl:atomTypes}. Initially 21 atom types were proposed by X.Zou et al. 
-\cite{huang2006iterative, huang2008iterative} using SYBYL rule set \cite{wang2006automatic}. In this work we clustered similar
-types due to the hardware constraints. The density of an atom was modeled using the function: 
+The protein structure is represented by 11 density maps corresponding
+to the 11 atom types defined in Table \ref{Tbl:atomTypes}.
+%
+%%% I didn't quite understand your original sentence. Is this new one
+%%% correct? BTW, I count 20 atom types in the 2008 Huang & Zou paper.
+These atom types are a simplification of the 20 atom types proposed by
+Huang and Zou \cite{huang2006iterative, huang2008iterative}, to reduce
+the memory footprint of the model.
+%
+% Type 1 = S31, S30
+% Type 2 = N2N, N2X
+% Type 3 = Nar
+% Type 4 = N2+, N21
+% Type 5 = N3+
+% Type 6 = O2M, O2S
+% Type 7 = O3H
+% Type 8 = O2-
+% Type 9 = C2+, C2-, C2M, C2S
+% Type 10 = Car
+% Type 11 = C3C, C3A, C3X
+%
+The density of an atom is modeled using the function
 $$
 \rho(r) =  \begin{cases}
-               e^{-\frac{r^2}{2}}&r\leq 2.0\AA~\\
-               0                 &r>2.0\AA~\\
+               e^{-\frac{r^2}{2}}&\text{if } r\leq 2.0\text{ \AA} \\
+               0                 &\text{if } r>2.0\text{ \AA} \\
             \end{cases}
+\label{eq:rho}
 $$
-Each atom density was projected to the grid for the corresponding atom type. The resolution of the grid was set to 1\AA~ and the size of 
-each grid to 120x120x120 cells.
+The atom density is projected to the grid corresponding to its atom
+type. Each grid has a resolution of 1~\AA\ and a size of each grid to
+$120\times 120\times 120$ cells.
 
 \begin{table}[H]
 \begin{center}
@@ -17,51 +37,60 @@ each grid to 120x120x120 cells.
     
     Type & Description & Atoms \\
     \hline
-    1 & Sulfur containing atoms & CYSSG, METSD, MSESE \\ \hline
-    2 & Amide nitrogens & ASNND2, GLNNE2, backbone N \\ \hline
-    3 & Aromatic nitrogens & HISND1, HISNE2, TRPNE1 \\ \hline
-    4 & Guanidine nitrogens & ARGNH1, ARGNH2, ARGNE \\ \hline
-    5 & Nitrogen with three hydrogens & LYSNZ \\ \hline
-    6 & Carboxyl oxygen & ACEO, ASNOD1, GLNOE1, backbone O \\ \hline
-    7 & Oxygen in hydroxyl group & SEROG, THROG1, TYROH \\ \hline
-    8 & Oxygen in carboxyl group and terminus oxygen & ASPOD1, ASPOD2, GLUOE1, GLUOE2, \\
-     & &  O-terminal, OT2-terminal, OXT-terminal \\ \hline
-    9 & Sp2 carbon & ARGCZ, ASPCG, GLUCD, ACEC, \\
-     & & ASNCG, GLNCD, backbone C \\ \hline
-    10 & Aromatic carbon & HISCD2, HISCE1, HISCG, PHECD1 \\
-     & & PHECD2, PHECE1, PHECE2, PHECG \\ 
-     & & PHECZ, TRPCD1, TRPCD2, TRPCE2 \\
-     & & TRPCE3, TRPCG, TRPCH2, TRPCZ2 \\
-     & & TRPCZ3, TYRCD1, TYRCD2, TYRCE1 \\
-     & & TYRCE2, TYRCG, TYRCZ \\ \hline
-    11 & Sp3 carbon & ALACB, ARGCB, ARGCG, ARGCD \\
-     & & ASNCB, ASPCB, GLNCB, GLNCG \\
-     & & GLUCB, GLUCG, HISCB, HISCB \\
-     & & ILECB, ILECD1, ILECG1, ILECG2 \\
-     & & LEUCB, LEUCD1, LEUCD2, LEUCG \\
-     & & LYSCB, LYSCD, LYSCG, LYSCE \\
-     & & METCB, METCE, METCG, MSECB \\
-     & & MSECE, MSECG, PHECB, PROCB \\
-     & & PROCG, PROCD, SERCB, THRCG2 \\
-     & & TRPCB, TYRCB, VALCB, VALCG1 \\
-     & & VALCG2, ACECH3, THRCB, CYSCB \\
+    %%% I've considerably changed the table, so please check.
+    %%% I've tried to simplify the descriptions and make them easier to read.
+    %%% I've put the names in a more logical order.
+    %%% For type 6, you had written ``Carboxyl oxygen'' but it's ``carbonyl''
+    %%% For type 9, you didn't list ASP:CG. Is it in that group?
+    %%% It's TRP:NE1, not TRP:NE2
+    1 & Sulfur/selenium & CYS:SG, MET:SD, MSE:SE \\ \hline
+    2 & Nitrogen (amide) & ASN:ND2, GLN:NE2, backbone N (including N-terminal) \\ \hline
+    3 & Nitrogen (aromatic) & HIS:ND1/NE1, TRP:NE1 \\ \hline
+    4 & Nitrogen (guanidinium) & ARG:NE/NH1/NH2 \\ \hline
+    5 & Nitrogen (ammonium) & LYS:NZ \\ \hline
+    6 & Oxygen (carbonyl) & ASN:OD1, GLN:OE1, backbone O (except C-terminal) \\ \hline
+    7 & Oxygen (hydroxyl) & SER:OG, THR:OG1, TYR:OH \\ \hline
+    8 & Oxygen (carboxyl) & ASP:OD1/OD2, GLU:OE1/OE2, \\
+     & & C-terminal O, C-terminal OXT \\ \hline
+    9 & Carbon (sp2) & ARG:CZ, ASN:CG, ASP:CG???, GLN:CD, GLU:CD, \\
+     & & backbone C (including C-terminal???) \\ \hline
+    10 & Carbon (aromatic) & HIS:CG/CD2/CE1, \\
+     & & PHE:CG/CD1/CD2/CE1/CE2/CZ, \\ 
+     & & TRP:CG/CD1/CD2/CE2/CE3/CZ2/CZ3/CH2, \\
+     & & TYR:CG/CD1/CD2/CE1/CE2/CZ \\ \hline
+    11 & Carbon (sp3) & ALA:CB, ARG:CB/CG/CD, ASN:CB, ASP:CB, \\
+     & & CYS:CB, GLN:CB/CG, GLU:CB/CG, HIS:CB, \\
+     & & ILE:CB/CG1/CG2/CD1, \\
+     & & LEU:CB/CG/CD1/CD2, \\
+     & & LYS:CB/CG/CD/CE, \\
+     & & MET:CB/CG/CE, MSE:CB/CG/CE, \\
+     & & PHE:CB, PRO:CB/CG/CD, \\
+     & & SER:CB, THR:CB/CG2, \\
+     & & TRP:CB, TYR:CB, VAL:CB/CG1/CG2, \\
      & & backbone CA \\ \hline
     
 \end{tabular}
     
-    \caption {Atom types used in this work. In the atom notation the first three letters are the name of an aminoacid and the rest is 
-    the atom name in the PDB format.}
+    \caption {Atom types used in this work. Atoms in each group are
+    identified using their standard PDB residue names and atom names.}
+
     \label{Tbl:atomTypes}
 \end{center}
 \end{table}
-Figure \ref{Fig:atomic_densities} shows an example of atomic densities of a peptide with the PDB code 5eh6.
-Only non-zero densities are shown.
+
+Figure \ref{Fig:atomic_densities} illustrates the atomic densities for
+a simple $\alpha$-helical peptide (PDB code 5eh6). This structure
+contains only 6 of the 11 atom types, and only those density maps are
+shown.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{Fig/atomic_densities_V3.png}
-    \caption{The example of the representation of a protein using atomic densities. The density map is 
-    shown using the volumetric rendering plugin for PyMol. The pdb-code of the protein used for this visualization is 5eh6.
-    The isosurface level was set to $0.5$.}
+
+    \caption{Representation of a protein structure (PDB code 5eh6)
+    using atomic densities. The density maps are calculated according
+    to Eq. \ref{eq:rho} and rendered using Pymol \cite{} with an
+    isosurface level of $0.5$.}
+
     \label{Fig:atomic_densities}
 \end{figure}
