@@ -10,7 +10,7 @@
 \title{Deep convolutional networks for protein structure quality assessment}
 \author{Georgy Derevyanko\inst{1}, Sergei Grudinin\inst{2}, Guillaume Lamoureux\inst{1}}
 \institute[shortinst]{ \hspace{2cm}{\small \inst{1} Department of Chemistry and Biochemistry and Centre for Research in Molecular Modeling (CERMM), Concordia University, Montr{\'e}al, Canada \hspace{2cm}
-\inst{2} NANO-D, INRIA Rhone-Alpes Research Center, Grenoble, France}}
+\inst{2} NANO-D, INRIA Rh{\^o}ne-Alpes Research Center, Grenoble, France}}
 \footer{}
 \date{\today}
 
@@ -36,9 +36,10 @@
 
 \begin{textblock}{39.0}(2,6)
 \begin{block}{Introduction}
+
 Protein structure prediction remains one of the outstanding challenges
 in structural biology.  Progress in this field is assessed during the
-biennial CASP competition \cite{moult2014critical}, in which
+biennial CASP competition~\cite{moult2014critical}, in which
 contestants are given the sequences of a number of proteins for which
 structures are about to be solved, and are attempting to predict their
 structures.
@@ -120,8 +121,8 @@ where $w_{ij}$ is zero when the two decoys have too similar scores and is one
 otherwise.  The $y_{ij}$ coefficients define the score ordering:
 $$
 y_{ij} = \begin{cases}
-                1& \text{if } \textrm{GDT\_TS}_i \leq \textrm{GDT\_TS}_j \\
-               -1& \text{if } \textrm{GDT\_TS}_i > \textrm{GDT\_TS}_j \\
+                1& \text{if } \text{GDT\_TS}_i \leq \text{GDT\_TS}_j \\
+               -1& \text{if } \text{GDT\_TS}_i > \text{GDT\_TS}_j \\
            \end{cases}
 $$
 %During the training procedure, we optimize the loss function with
@@ -137,7 +138,7 @@ CASP10 competitions as training set and the decoys from the CASP11
 competition as test set.
 \begin{itemize}
 \item The side chains of all structures from the training and test
-  sets are optimized using SCWRL4 \cite{krivov2009improved}.
+  sets are optimized using SCWRL4~\cite{krivov2009improved}.
 \item The training and test sets have 564 and 83 targets
   correspondingly. Each target in the training dataset has on average
   282 decoys.
@@ -149,10 +150,10 @@ competition as test set.
 \end{itemize}
 
 \vspace{0.5cm}
-Fig. \ref{Fig:foldsGraph} shows the homology between the training and
-the test sets in terms of ECOD structural classification
-\cite{cheng2014ecod}.  This information is later used to assess the
-degree of overfitting of our algorithm.
+Fig.~\ref{Fig:foldsGraph} shows the homology between the training and
+the test sets in terms of ECOD structural
+classification~\cite{cheng2014ecod}.  This information is later used
+to assess the degree of overfitting of our algorithm.
 
 \begin{figure}[H]
     \centering
@@ -160,20 +161,13 @@ degree of overfitting of our algorithm.
 %
     \captionsetup{width=0.8\linewidth}
     \caption{Classification of the test set structures into the lower
-    four ECOD structural levels (from the center out): architecture
-    (A), possible homology (X), homology (H), and topology (T). The
-    names of the architecture types are shown in the outer circle of
-    the diagram.
-%%% Why do you have two different architecture names in the same A
-%%% group? (brown color: ``alpha complex topology'' and ``alpha
-%%% arrays'')
-    The grey lines denote test set classes that have no
-    respective representative in the training set. The black lines
-    show the classes that have representatives in both training and
-    test sets. We do not show the F-groups because they have litle
-    overlap among the training and test sets.
-%%% Why not showing the F-groups?
-}
+      four ECOD structural levels (from the center out):
+      architec\-ture (A), possible homology (X), homology (H), and
+      topology (T). The names of the architecture types are shown in
+      the outer circle of the diagram.  The grey lines denote test set
+      classes that have no respective representative in the training
+      set. The black lines show the classes that have representatives
+      in both training and test sets.}
 %
     \label{Fig:foldsGraph}
 \end{figure}
@@ -185,20 +179,21 @@ degree of overfitting of our algorithm.
 \begin{textblock}{39.0}(43.5,6)
 
 \begin{block}{Results}
+\newcommand{\argmin}{\operatornamewithlimits{argmin}}
 
 We assess the performance of our method (3DCNN) using different rank
 correlation coefficients, and using the loss criterion, defined as the
 deviation of the GDT\_TS of the best decoy from the GDT\_TS of the
 decoy with the lowest score:
 $$ 
-\text{Loss} = \left| \max_i( \textrm{GDT\_TS}(x_i) ) - \textrm{GDT\_TS} [ \textrm{argmin}_i( \textrm{3DCNN}(x_i) ) ] \right|
+\text{Loss} = \left| \max_i( \text{GDT\_TS}(x_i) ) - \text{GDT\_TS} \left[ \argmin_i( \text{3DCNN}(x_i) ) \right] \right|
 $$ 
 
 \vspace{0.5cm}
-Table \ref{Tbl:TestResults} shows the comparison of our algorithm
-(3DCNN) with state-of-the-art methods ProQ2 \cite{ray2012proq2},
-VoroMQA \cite{olechnovivc2017voromqa}, Qprob \cite{cao2016protein},
-and RWplus \cite{zhang2010novel}.
+Table~\ref{Tbl:TestResults} shows the comparison of our algorithm
+(3DCNN) with state-of-the-art methods ProQ2~\cite{ray2012proq2},
+VoroMQA~\cite{olechnovivc2017voromqa}, Qprob~\cite{cao2016protein},
+and RWplus~\cite{zhang2010novel}.
 
 \begin{table}[H]
 \begin{center}
@@ -235,82 +230,105 @@ and RWplus \cite{zhang2010novel}.
 \end{block}
 
 \begin{block}{Analysis}
-The neural networks are famous for their lack of interpretability. 
-Therefore we have to ensure the following:
+
+We have confirmed the following:
 \begin{itemize}
-\item Our model does not overfit 
-\item It gives approximatelly the same score for a rotated and translated decoy 
-\item It does not rely on some artifacts that can attribute a decoy to a certain contestant, which 
-in turn are correlated with the score
+\item Our model does not overfit.
+\item It gives approximatelly the same score for a rotated or
+  translated decoy.
+\item It does not rely on artifacts of the algorithm used to generate
+  the decoy.
 \end{itemize}
 
-During the training of the model we augmented the data using random uniform rotations and random translations. 
-The Fig. \ref{Fig:DecoysScoreDistribution} shows that the scores under random transformations are distributed approximatelly normally.
+\vspace{0.5cm}
+During the training of the model we augmented the data using random
+uniform rotations and random
+translations. Fig.~\ref{Fig:DecoysScoreDistribution} shows that the
+scores under random rigid transformations are distributed
+approximately normally.
 
-To assess the degree of overfitting of our algorithm, we used the classification of targets presented on Fig. \ref{Fig:foldsGraph}
-Figure \ref{Fig:LossVsECOD} shows the performance of the algorithms depending on the degree of homology. 
-We see, that our algorithm has approximatelly the same performance gains for the homologous proteins as the VoroMQA and ProQ2. 
-The algorithm that stands out in this metric is the RWPlus, which seems to be indifferent to the homology. 
-However, its performance is also lower than that of the other contenders.
+\vspace{0.5cm}
+To assess the degree of overfitting of our algorithm, we use the
+classification of targets presented on Fig.~\ref{Fig:foldsGraph}
+Figure~\ref{Fig:LossVsECOD} shows the performance of argorithms
+VoroMQA, RWplus, and 3DCNN (this work) depending on the degree of
+homology of the test structures with those used during training.  We
+see that our algorithm has approximatelly the same performance gains
+for the homologous proteins as the VoroMQA and ProQ2.
+%
+% ??? ProQ2 is not on the graph, so we shouldn't talk about it.
+%
+While VoroMQA and 3DCNN methods are more accurate for structures more
+similar to the training set, the RWplus method appears indifferent to
+homology. However, its performance is lower than that of the other
+contenders.
 
+%\vspace{-1cm}
 \begin{figure}[H]
 \nocaption
     \centering
     \begin{subfigure}[t]{.5\textwidth}
-    \includegraphics[width=\linewidth]{../draft/Fig/decoys_sampling_dist.png}
+    \includegraphics[trim=50 0 0 70,clip,width=\linewidth]{../draft/Fig/decoys_sampling_dist.png}
     \captionsetup{width=\linewidth}
     \caption{Distributions of scores under random translations and
-      rotations of several decoys for target T0832. The names
-      arrangement from top to bottom corresponds to the increase of
+      \\ rotations of several decoys for target T0832. The names
+      arrangement from top to bottom corresponds to the increase \\ of
       the score.}
     \label{Fig:DecoysScoreDistribution}
     \end{subfigure}%
     \begin{subfigure}[t]{.5\textwidth}
-    \includegraphics[width=\linewidth]{../draft/Fig/LossVsECOD.png}
+    \includegraphics[trim=50 20 50 110,clip,width=\linewidth]{../draft/Fig/LossVsECOD.png}
     \captionsetup{width=\linewidth}
-    \caption{Loss of different QA-algorithms on the subsets of the
-      CASP11 test set Stage2. The subsets are chosen according to the
-      presense in the training set of the structures classified into
-      the same ECOD categories.}
+    \caption{Loss of different QA algorithms for 5 subsets of the
+      CASP11 test set (Stage 2) having increasing degree of homology
+      with the structures of the training set. The subsets are chosen
+      according to the presence in the training set of structures
+      classified into the same ECOD categories.}
     \label{Fig:LossVsECOD}
     \end{subfigure}
     % \caption{}
 \end{figure}
 
-Finally, to ensure that our algorithm does indeed learn from the structural information and not some artifacts we visualized 
-the regions that influense the score the most.
-We use the GradCAM method proposed by Selvaraju R. \cite{selvaraju2016grad}. 
-It outputs the receptive field, that indicate which parts of the input contributes the most to the positive part of the gradient of the network output.
-Fig. \ref{Fig:GradCAMT0776_more} shows the projection of the GradCAM output on the heavy atoms of a protein. 
-We see that it highlights the regions at the surface of the protein that are likely misfolded.
+\vspace{0.5cm}
+Finally, to ensure that our algorithm does indeed learn from the
+structural information and not from some artifacts of the models, we
+visualize the regions of the structure that influence the score the
+most.  We use the Grad-CAM method proposed by Selvaraju et
+al.~\cite{selvaraju2016grad}, which outputs the receptive field
+indicating which parts of the input contribute the most a raise in the
+network output.  Fig.~\ref{Fig:GradCAMT0776_more} shows the projection
+of the Grad-CAM output on the heavy atoms of the protein.  We see that
+it highlights the regions at the surface of the protein that are
+poorly packed and likely misfolded.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{../draft/Fig/T0776.png}
     \captionsetup{width=0.8\linewidth}
-    \caption{The scaled gradient weighted activation maps of the
-      network projected onto the atoms of the decoys.  Each decoy is
-      aligned to the native structure (shown with the transparent
-      cartoon).}
+    \caption{Scaled gradient-weighted activation maps of the network
+      projected onto the atoms of four decoy structures of target
+      T0776. Each decoy is aligned to the native structure (shown as
+      transparent cartoon).}
     \label{Fig:GradCAMT0776_more}
 \end{figure}
 
-We also verified that the decoys generated by a single algorithm not used in CASP can be successfully ranked by our model.
-For this purpose we used 3DRobot dataset \cite{deng20163drobot}. The pearson correlation between the score assigned by 
-3DCNN and the GDT\_TS is $0.85$. This indicates, that our algorithm can generalize rather well.
+We have also verified that the decoys generated by a single algorithm
+not used in CASP can be successfully ranked by our model.  For the
+3DRobot dataset~\cite{deng20163drobot}, the Pearson correlation
+between the score assigned by 3DCNN and the GDT\_TS score is
+$0.85$. This indicates that our algorithm can generalize to other
+decoy sets.
 
 \end{block}
 
-
-
-
 \begin{block}{Acknowledgments}
-This research was supported by an NSERC Discovery Grant to G.L.
-We thank our collaborators from MILA lab for comments and suggestions.
+This research was supported by an NSERC Discovery Grant to G.L.  We
+thank Y. Bengio, S. Jastrzebski, and M. Arjovsky for comments and
+suggestions.
 \end{block}
 
 \begin{block}{References}
-{\small
+{\footnotesize
 \bibliography{../draft/citations.bib}{}}
 \bibliographystyle{ieeetr}
 \end{block}
