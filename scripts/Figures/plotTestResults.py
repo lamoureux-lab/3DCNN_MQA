@@ -2,10 +2,14 @@ import os
 import sys
 import numpy as np
 from plotTrainingProcess import read_dataset_description, read_epoch_output, plotFunnels
+
 from matplotlib import pylab as plt
 from proteinProperties import getPDBBoundingBox
 import cPickle as pkl
 import operator
+
+import seaborn as sea
+sea.set_style("whitegrid")
 
 def get_correlations(proteins, decoys, decoys_scores, subset=None, return_all=False):
 	import scipy
@@ -347,29 +351,29 @@ def plot_test_outliers(	experiment_name = 'QA',
 	
 	
 if __name__=='__main__':
-	testResults = True
+	testResults = False
 	inspect_monomers = False
-	lossVsEcod = False
+	lossVsEcod = True
 	getOutliers = False
 	uniformDecoys = False
 	if testResults:
-		# plot_test_results(	experiment_name = 'QA_uniform',
-		# 					model_name = 'ranking_model_8',
-		# 					trainig_dataset_name = 'CASP_SCWRL',
-		# 					test_dataset_name = '3DRobot_set',
-		# 					# test_dataset_name = 'CASP_SCWRL',
-		# 					test_dataset_subset = 'datasetDescription.dat',
-		# 					decoy_ranging_column = 'gdt-ts',
-		# 					suffix = '_sFinal', best_worst=True)
-
 		plot_test_results(	experiment_name = 'QA_uniform',
 							model_name = 'ranking_model_8',
 							trainig_dataset_name = 'CASP_SCWRL',
-							test_dataset_name = 'CASP11Stage2_SCWRL',
+							test_dataset_name = '3DRobot_set',
 							# test_dataset_name = 'CASP_SCWRL',
 							test_dataset_subset = 'datasetDescription.dat',
 							decoy_ranging_column = 'gdt-ts',
-							suffix = '_sFinal')
+							suffix = '_sFinal', best_worst=True)
+
+		# plot_test_results(	experiment_name = 'QA_uniform',
+		# 					model_name = 'ranking_model_8',
+		# 					trainig_dataset_name = 'CASP_SCWRL',
+		# 					test_dataset_name = 'CASP11Stage2_SCWRL',
+		# 					# test_dataset_name = 'CASP_SCWRL',
+		# 					test_dataset_subset = 'datasetDescription.dat',
+		# 					decoy_ranging_column = 'gdt-ts',
+		# 					suffix = '_sFinal')
 
 		# plot_test_results(	experiment_name = 'RWPlus',
 		# 					model_name = None,
@@ -391,10 +395,37 @@ if __name__=='__main__':
 		# 					suffix = '',
 		# 					descending=False)
 
-		# plot_test_results(	experiment_name = 'ProQ3',
+		# plot_test_results(	experiment_name = 'ProQ3D',
 		# 					model_name = None,
 		# 					trainig_dataset_name = None,
 		# 					test_dataset_name = 'CASP11Stage1_SCWRL',
+		# 					# test_dataset_name = 'CASP_SCWRL',
+		# 					test_dataset_subset = 'datasetDescription.dat',
+		# 					decoy_ranging_column = 'gdt-ts',
+		# 					suffix = '',
+		# 					descending=False)
+		# plot_test_results(	experiment_name = 'ProQ2D',
+		# 					model_name = None,
+		# 					trainig_dataset_name = None,
+		# 					test_dataset_name = 'CASP11Stage1_SCWRL',
+		# 					# test_dataset_name = 'CASP_SCWRL',
+		# 					test_dataset_subset = 'datasetDescription.dat',
+		# 					decoy_ranging_column = 'gdt-ts',
+		# 					suffix = '',
+		# 					descending=False)
+		# plot_test_results(	experiment_name = 'ProQ3D',
+		# 					model_name = None,
+		# 					trainig_dataset_name = None,
+		# 					test_dataset_name = 'CASP11Stage2_SCWRL',
+		# 					# test_dataset_name = 'CASP_SCWRL',
+		# 					test_dataset_subset = 'datasetDescription.dat',
+		# 					decoy_ranging_column = 'gdt-ts',
+		# 					suffix = '',
+		# 					descending=False)
+		# plot_test_results(	experiment_name = 'ProQ2D',
+		# 					model_name = None,
+		# 					trainig_dataset_name = None,
+		# 					test_dataset_name = 'CASP11Stage2_SCWRL',
 		# 					# test_dataset_name = 'CASP_SCWRL',
 		# 					test_dataset_subset = 'datasetDescription.dat',
 		# 					decoy_ranging_column = 'gdt-ts',
@@ -415,6 +446,22 @@ if __name__=='__main__':
 	
 	
 	if lossVsEcod:
+		resProQ2D=plot_matched_results(	experiment_name = 'ProQ2D',
+								model_name = None,
+								trainig_dataset_name = None,
+								test_dataset_name = 'CASP11Stage2_SCWRL',
+								test_dataset_subset = 'datasetDescription.dat',
+								decoy_ranging_column = 'gdt-ts',
+								suffix = '',
+								descending=False)
+		resProQ3D=plot_matched_results(	experiment_name = 'ProQ3D',
+								model_name = None,
+								trainig_dataset_name = None,
+								test_dataset_name = 'CASP11Stage2_SCWRL',
+								test_dataset_subset = 'datasetDescription.dat',
+								decoy_ranging_column = 'gdt-ts',
+								suffix = '',
+								descending=False)
 		resVMQA=plot_matched_results(	experiment_name = 'VoroMQA',
 								model_name = None,
 								trainig_dataset_name = None,
@@ -442,20 +489,24 @@ if __name__=='__main__':
 							decoy_ranging_column = 'gdt-ts',
 							suffix = '_sFinal')
 		
-		fig = plt.figure(figsize=(12,10))
+		fig = plt.figure(figsize=(10,10))
 		ax = fig.add_subplot(111)
 		ind = np.arange(5)
 		width = 0.35
-		plt.bar(ind, resVMQA, width/4.0, label = 'VoroMQA')
-		plt.bar(ind+width/3.0, resRW, width/4.0, label = 'RWPlus', color = 'y')
-		plt.bar(ind+2.0*width/3.0, resCNN, width/4.0, label = '3DCNN', color = 'r')
+		plt.bar(ind, resCNN, width/6.0, label = '3DCNN', color = 'r')
+		plt.bar(ind+width/5.0, resRW, width/6.0, label = 'RWPlus', color = 'y')
+		plt.bar(ind+2.0*width/5.0, resVMQA, width/6.0, label = 'VoroMQA')
+		plt.bar(ind+3.0*width/5.0, resProQ2D, width/6.0, label = 'ProQ2D', color = 'g')
+		plt.bar(ind+4.0*width/5.0, resProQ3D, width/6.0, label = 'ProQ3D', color = 'b')
 		ax.set_xticklabels(['No information', 'A','A+X','A+X+H+T','A+X+H+T+F'], rotation=90)
 		ax.set_xticks(ind+width/2.0, minor=False)
 		plt.tick_params(axis='x', which='major', labelsize=16)
+		plt.tick_params(axis='y', which='major', labelsize=16)
 		ax.set_xlim([-0.5,4.5])
-		ax.set_aspect(25)
+		ax.set_ylim([0,0.14])
+		ax.set_aspect(30)
 		plt.ylabel('Loss',fontsize=16)
-		plt.legend()
+		plt.legend(prop={'size':16})
 		plt.savefig("LossVsECOD.png")
 		
 

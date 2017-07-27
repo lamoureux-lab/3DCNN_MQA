@@ -3,6 +3,7 @@ import sys
 import numpy as np
 from scipy.stats import pearsonr, spearmanr
 import seaborn as sea
+sea.set_style("whitegrid")
 
 def read_dataset_description(dataset_description_dir, dataset_description_filename, decoy_ranging = 'tm-score'):
 	description_path= os.path.join(dataset_description_dir,dataset_description_filename)
@@ -209,12 +210,12 @@ def plot_validation_correlations(	experiment_name, model_name, dataset_name, epo
 									description_dirname = 'Description',
 									data_subset = 'validation_set.dat',
 									scores_dir = 'validation',
-									output_name = 'valid_rescoring'):
+									output_name = 'kendall_validation'):
 	proteins, decoys = read_dataset_description('/home/lupoglaz/ProteinsDataset/%s/%s'%(dataset_name, description_dirname), data_subset)
 	epochs = [0]
 	taus = [0]
 	pearsons = [0]
-	losses = [0]
+	losses = [1.0]
 	for epoch in range(epoch_start, epoch_end+1):
 		#print 'Loading scoring ',epoch
 		input_path = '../../models/%s_%s_%s/%s/epoch_%d.dat'%(experiment_name, model_name, dataset_name, scores_dir, epoch)
@@ -227,11 +228,20 @@ def plot_validation_correlations(	experiment_name, model_name, dataset_name, epo
 
 	from matplotlib import pylab as plt
 	fig = plt.figure()
-	plt.title(experiment_name+'  '+model_name+'   '+dataset_name)
+	ax = fig.add_subplot(111)
+	# plt.title(experiment_name+'  '+model_name+'   '+dataset_name)
 	plt.plot(epochs,taus, '-.r', label = 'Kendall tau')
 	plt.plot(epochs,pearsons, '--b', label ='Pearson R')
 	plt.plot(epochs,losses, '-g', label ='Loss')
-	plt.legend()
+
+	ax.annotate('Best validation loss', xy=(40, losses[40]), xytext=(40, losses[40] + 0.5),
+            arrowprops=dict(facecolor='black', shrink=0.05),
+            )
+	plt.ylabel('Validation loss and correlations',fontsize=16)
+	plt.xlabel('Epoch',fontsize=16)
+	plt.legend(prop={'size':12})
+	plt.tick_params(axis='x', which='major', labelsize=12)
+	plt.tick_params(axis='y', which='major', labelsize=12)
 	plt.savefig('../../models/%s_%s_%s/%s.png'%(experiment_name, model_name, dataset_name, output_name))
 	return taus, pearsons, losses
 
@@ -279,11 +289,10 @@ def changeDataPath( decoys_scores_path, dataset_path):
 
 if __name__=='__main__':
 	
-	exp_name = 'QA_pretraining_clean_e2'
-	# dataset_name = '3DRobotTrainingSet'
+	exp_name = 'QA_uniform'
 	dataset_name = 'CASP_SCWRL'
 	model_name = 'ranking_model_8'
-	taus, pears, losses = plot_validation_correlations(exp_name, model_name, dataset_name, description_dirname = 'DescriptionClean')
+	taus, pears, losses = plot_validation_correlations(exp_name, model_name, dataset_name)
 	print 'Validation result %s: '%exp_name, taus[-1], pears[-1], losses[-1]
 	taus_10 = [ t for n, t in enumerate(taus) if n%10==0]
 	pears_10 = [ t for n, t in enumerate(pears) if n%10==0]
@@ -292,7 +301,7 @@ if __name__=='__main__':
 	for epoch in candidate_epochs:
 		print 'Epoch %d'%(epoch*10), taus[epoch*10], pears[epoch*10], losses[epoch*10]
 	# print np.max(taus), 5*np.argmax(taus), np.max(pears), 5*np.argmax(pears), np.min(losses), 5*np.argmin(losses)
-	plot_validation_funnels(exp_name, model_name, dataset_name, description_dirname = 'DescriptionClean')
+	# plot_validation_funnels(exp_name, model_name, dataset_name, description_dirname = 'DescriptionClean')
 
 	# taus, pears, losses = plot_validation_correlations(	exp_name, model_name, dataset_name,
 	# 													data_subset = 'training_set.dat',

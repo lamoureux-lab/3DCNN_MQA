@@ -31,7 +31,10 @@ def prepare_dataset(dataset_name, output_dir):
 	
 	for n,protein in enumerate(proteins):
 		print protein
-		os.mkdir(os.path.join(results_dir, protein))
+		try:
+			os.mkdir(os.path.join(results_dir, protein))
+		except:
+			pass
 		decoys_output_filename = os.path.join(results_dir, protein, 'decoys.txt')
 		fasta_output_filename = os.path.join(results_dir, protein, 'seq.fasta')
 		with open(decoys_output_filename,'w') as fout:
@@ -88,8 +91,13 @@ def score_decoy_preprofiled(decoy_path, profile_path, output_path):
 	os.chdir(os.path.realpath(__file__)[:os.path.realpath(__file__).rfind('/')])
 
 
-def score_dataset(dataset_dir, profiles_dataset_dir=None):
-	for target in os.listdir(dataset_dir):
+def score_dataset(dataset_dir, profiles_dataset_dir=None, subset=None):
+	if not subset is None:
+		targets = subset
+	else:
+		targets = os.listdir(dataset_dir)
+
+	for target in targets:
 		target_dir = os.path.join(dataset_dir, target)
 		decoys_list_path = os.path.join(target_dir, 'decoys.txt')
 		sequence_path = os.path.join(target_dir, 'seq.fasta')
@@ -98,6 +106,7 @@ def score_dataset(dataset_dir, profiles_dataset_dir=None):
 		else:
 			profile_path = os.path.join(profiles_dataset_dir, target, 'seq.fasta')
 			score_decoys_preprofiled(decoys_list_path, profile_path, target_dir)
+			# print decoys_list_path, profile_path, target_dir
 
 def finish_score_dataset(dataset_name, dataset_dir, subset):
 	data_proteins, data_decoys = read_dataset_description('/home/lupoglaz/ProteinsDataset/%s/Description'%dataset_name,
@@ -169,19 +178,24 @@ def write_scores(proq3_output_dir, scores, score_num = 3):
 
 if __name__=='__main__':
 	
-	un_targets, in_targets = scan_dataset('CASP11Stage1_SCWRL', '/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3D') 
+	un_targets, in_targets = scan_dataset('CASP11Stage2_SCWRL', '/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3D') 
 	print len(un_targets), len(in_targets)
 	print in_targets
-	finish_score_dataset('CASP11Stage1_SCWRL', '/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3D/CASP11Stage1_SCWRL', in_targets)
-	# prepare_dataset('CASP11Stage2_SCWRL', '/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3') 
+	print un_targets
+	# finish_score_dataset('CASP11Stage1_SCWRL', '/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3D/CASP11Stage1_SCWRL', in_targets)
+	# prepare_dataset('CASP11Stage2_SCWRL', '/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3D')
 
 	# score_dataset('/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3/CASP11Stage1_SCWRL') 
-	# score_dataset('/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3/CASP11Stage2_SCWRL', 
-	# profiles_dataset_dir = '/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3/CASP11Stage1_SCWRL') 
+	# score_dataset('/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3D/CASP11Stage2_SCWRL', 
+	# 	profiles_dataset_dir = '/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3D/CASP11Stage1_SCWRL',
+	# 	subset = un_targets) 
 
-	# scores = get_scores('CASP11Stage1_SCWRL', '/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3/CASP11Stage1_SCWRL')
-	# write_scores('/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3/CASP11Stage1_SCWRL', scores)
+	# scores = get_scores('CASP11Stage1_SCWRL', '/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3D/CASP11Stage1_SCWRL')
+	# print scores
+	# write_scores('/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ2D/CASP11Stage1_SCWRL', scores, score_num=0)
+	# write_scores('/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3D/CASP11Stage1_SCWRL', scores, score_num=3)
 
-	# scores = get_scores('CASP11Stage1_SCWRL', '/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3/CASP11Stage1_SCWRL')
-	# write_scores('/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ2/CASP11Stage1_SCWRL', scores, 0)
+	scores = get_scores('CASP11Stage2_SCWRL', '/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3D/CASP11Stage2_SCWRL')
+	write_scores('/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ2D/CASP11Stage2_SCWRL', scores, score_num=0)
+	write_scores('/home/lupoglaz/Projects/MILA/deep_folder/models/ProQ3D/CASP11Stage2_SCWRL', scores, score_num=3)
 	# print scores

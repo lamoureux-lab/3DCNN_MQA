@@ -8,6 +8,7 @@ from proteinProperties import getPDBBoundingBox
 import cPickle as pkl
 import operator
 import seaborn as sea
+sea.set_style("whitegrid")
 import matplotlib.mlab as mlab
 
 def read_output(filename):
@@ -102,6 +103,8 @@ def plot_several_decoys_dist():
 		print bins_rt_nat
 	
 	plt.legend(loc = 1)
+	plt.xlabel('Score',fontsize=14)
+	plt.ylabel('Normalized frequency',fontsize=14)
 	plt.savefig('decoys_sampling_dist.png')
 
 def plot_diff_sampling():
@@ -132,7 +135,10 @@ def plot_diff_sampling():
 	l = plt.plot(bins_rt, y, 'r--', linewidth=2, color=('green'), label='Normal distribution, mu = %.2f,  std = %.2f' % (mu, std))
 	# title = "Fit results: mu = %.2f,  std = %.2f" % (mu, std)
 	# plt.title(title)
+	plt.ylim([0,2.2])
 	plt.legend(loc = 2)
+	plt.xlabel('Score',fontsize=14)
+	plt.ylabel('Normalized frequency',fontsize=14)
 	# plt.show()
 	plt.savefig('sampling_dist.png')
 

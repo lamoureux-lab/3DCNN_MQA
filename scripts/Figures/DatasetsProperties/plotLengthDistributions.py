@@ -10,6 +10,9 @@ import argparse
 from operator import itemgetter
 from Bio import SeqIO
 
+import seaborn as sea
+sea.set_style("whitegrid")
+
 def parse_files(filelist):
     target_seq = {}
     for filename in filelist:
@@ -70,7 +73,7 @@ if __name__=='__main__':
     print 'Training set:', len(training_dataset_targets)
     plt.hist(training_dataset_lengths, 40, normed=0, alpha=0.7, histtype='step', linestyle=('solid'), color=('blue'),lw=1.5, fill=True, label='Training dataset')
     plt.hist(test_dataset_lengths, 20, normed=0, histtype='step', linestyle=('solid'),color=('red'), lw=1.5, alpha=0.7, fill=True, label='Test dataset')
-    plt.ylabel('Number of targets')
-    plt.xlabel('Target sequence length')
-    plt.legend()
+    plt.ylabel('Number of targets',fontsize=12)
+    plt.xlabel('Target sequence length',fontsize=12)
+    plt.legend(prop={'size':14})
     plt.savefig('datasetLengthDistributions.png')
