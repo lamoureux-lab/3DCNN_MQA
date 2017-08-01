@@ -1,8 +1,9 @@
 The protein structure is represented by 11 density maps corresponding
-to the 11 atom types defined in Table \ref{Tbl:atomTypes}.
+to \tchanged{the atom types} defined in Table \ref{Tbl:atomTypes}.
 %
 %%% I didn't quite understand your original sentence. Is this new one
 %%% correct? BTW, I count 20 atom types in the 2008 Huang & Zou paper.
+%%% G: Yes, it is correct.
 These atom types are a simplification of the 20 atom types proposed by
 Huang and Zou \cite{huang2006iterative, huang2008iterative}, to reduce
 the memory footprint of the model.
@@ -28,7 +29,7 @@ The density of an atom is modeled using the function
             \end{cases}
 \end{equation}
 The atom density is projected to the grid corresponding to its atom
-type. Each grid has a resolution of 1~\AA\ and a size of each grid to
+type. Each grid has a resolution of 1~\AA\ and \tchanged{the size of each grid is}
 $120\times 120\times 120$ cells.
 
 \begin{table}[H]
@@ -89,7 +90,7 @@ shown.
 
     \caption{Representation of a protein structure (PDB code 5eh6)
     using atomic densities. The density maps are calculated according
-    to Eq.~\ref{eq:rho} and rendered using Pymol \cite{} with an
+    to Eq.~\ref{eq:rho} and rendered using Pymol \cite{PyMOL} with an
     isosurface level of $0.5$.}
 
     \label{Fig:atomic_densities}

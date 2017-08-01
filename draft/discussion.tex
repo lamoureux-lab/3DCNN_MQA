@@ -1,0 +1,21 @@
+
+In this work we showed that it is possible to construct an algorithm that learns to assess the quality of protein models from 
+raw representation of the model. Our work used the atom types densities as such representation, however it is clear that 
+any other physical quantity defined on the grid can be employed. The examples of such quantites are electrodymanic potential and 
+water oxygen density distribution. So far, no other quality assessment method was able to generalize to include these 
+crucial properties of the solute.
+
+This work also identified some important issues: only approximate score invariance under transformations and the difficulty of 
+interpretation of the results. The invariance problem can be solved using the recently published approach by Worral et al. \cite{worrall2016harmonic}.
+They restricted the space of coefficient of the convolutional filters to the circular harmonics to attain eqivariance of transformations at each layer 
+of the network under rotations. The layerwise equivariance then leads to the invariance of the final output.
+
+The interpretation difficulty of deep neural networks is still an important research problem in machine learning. However, the recently 
+published approach to quantify interpretability \cite{bau2017network} of these methods somewhat aleviates this issue. The authors of this 
+approach to interpret a network representation used the exhaustively labeled image dataset, that contains the bounding boxes and labels for 
+fine-grained features, such as body parts or car parts. In the case of protein models such labels are readily available: 
+the secondary structure elements, amino-acids, hydrogen bonding network and disulfide bonds, as well as others do not need to be labels by hand.
+
+Alltogether, we believe that this work opens the way to directly use the information about protein environment, aleviates the need to 
+tediously engineer features and shows that the drawbacks of this approach can be solved with the further research. To accelerate the 
+mentioned process we publish the code as well as the preprocessed datasets along with this paper \cite{}.

@@ -7,7 +7,11 @@
 \usepackage{subcaption}
 \usepackage{amsmath}
 \usepackage{multirow}
+\usepackage{color}
 
+
+\newcommand{\tchanged}[1]{\textcolor{red}{#1}}
+\newcommand{\tstrange}[1]{\textcolor{yellow}{#1}}
 %opening
 \title{Deep convolutional networks for quality assessment of protein folds}
 \author{}
@@ -34,243 +38,16 @@
 \subsection{Model}
 \input{model.tex}
 
-\subsection{Loss functions}
-
-The problem of decoy quality assessment is essentially a ranking problem: we have to arrange decoys according to 
-the proximity to the corresponding native structure, which is quantified using GDT score. The ranking problem 
-was previously used along with neural networks to 
-
-During the training procedure we load several decoy structures of one target (minibatch) into memory, compute the 
-output of the network and the average loss:
-$$ L = \frac{1}{N^{2}_B} \sum_{i=1,j=1, i \neq j}^{N_B} L_{ij} $$ 
-where $N_B$ is the number of decoys in a minibatch. Afterwards, we compute the gradient of the average loss with respect 
-to the network parameters and update them using Adam algorithm.
-
-We used the margin ranking loss for each pair of decoys. Let a decoy representation be denoted as $x_i$ and therefore the output
-of the network on this decoy will be $f(x_i)$. Next, let $y_{ij}$ be the ordering coefficient of the two decoys we pick:
-$$
-y_{ij} = \begin{cases}
-               1& gdtts_i \leq gdtts_j \\
-               -1& gdtts_i > gdtts_j \\
-            \end{cases}
-$$
-Here $gdtts_i$ is the GDT score of the $i$-th decoy. In principle, any target function can be chosen. 
-The pairwise ranking scoring function has the following expression:
-
-$$ L_{ij} = w_{ij} \cdot \max \left[ 0, 1 - y_{ij} \left( f \left( x_i \right) - f \left( x_j \right) \right) \right] $$
-
-the term $w_{ij}$ represents an example weight:
-
-$$
-w_{ij} = \begin{cases}
-               1& \left| gdtts_i - gdtts_j \right| > threshold \\
-               0& otherwise \\ 
-            \end{cases}
-$$
-
-where the $threshold$ is a constant set to 0.1{\AA}. If the two decoys are too similar, 
-we avoid scoring them against each other during the training.
-
-
-
-\subsection{Evaluation criteria}
-We evaluated our algorithm using the correlation coefficients, Z-score and loss criterions. The correlation coefficents 
-were computed between the score of 
-our model and GDT-TS metric for all the decoys of each target protein in a test set and then averaged. 
-The Z-score is the deviation of the score of 
-the best decoy for a certain protein and average decoy score for this protein:
-$$ 
-Z-score = \frac{f( argmin(gdtts(x_i)) ) - <f(x)>}{std.dev.f(x)}
-$$ 
-the best decoy is the one with the lowest GDT-TS score. 
-The loss criterion is the deviation of the GDT-TS of the best decoys for a protein from the GDT-TS score of the decoy with the lowest score:
-$$ 
-Loss = | max_i( gdtts_i ) - gdtts( argmin(f(x_i) ) |
-$$ 
-
-\subsection{Optimization and dataset sampling}
-The optimization procedure of deep convolutional networks usually is stochastic: the function value and gradient 
-is estimated on a small subset (batch) of all the training 
-examples. We used the batch of size 10 due to the memory limitations. Afterward the parameters of the model are 
-changed in the direction of the estimated gradient.
-The parameter update step was performed using the Adam algorithm \cite{}. 
-
-The dataset was sampled in the following way: first we chose a random protein from the dataset, then we sample decoys of this protein. 
-The procedure is repeated for all the 
-proteins in a dataset. One pass through all the proteins in a dataset is called epoch. 
-The decoys are sampled in a homogeneous way: we divide all the decoys into $M$ clusters by the value of GDT-TS score. 
-Precisely, the decoy $i$ belongs to the cluster  
-number $ \left[ \frac{\max(gdtts) - gdtts_i}{\max(gdtts) - \min(gdtts)} \right] + 1$, where $\max(gdtts)$ and $\min(gdtts)$ 
-are computed for all the decoys of 
-the chosen protein. If there are empty clusters, then we take secon decoys from each non-empty and so on until we filled the batch. 
-At the end of each epoch we randomly
-shuffle the order of protein and the order of decoys in each cluster. 
-
-Each decoy from the selected batch is randomly rotated and translated. The rotations are sampled uniformly \cite{}. The translation are chosen
-in such a way, that the bounding box of the translated protein lies within the box of the size 120x120x120\AA. 
-
-To select the final model we randomly divided the training set into training and validation subsets. The validation subset consists of 
-35 targets and their decoys. This subset was not sampled during the training. 
-Figure \ref{Fig:TrainingLoss} shows the Kendal tau, Pearsor R coefficients and the loss on the vaidation subset. 
-The final model was chosen according to the minimum loss (epoch 40).
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{Fig/kendall_validation.png}
-    \caption{The loss, Kendal tau and Pearson R coefficients evaluated on the validation subset during the training procedure. The epoch 
-    denotes that all the targets in the training subset were sampled.}
-    \label{Fig:TrainingLoss}
-\end{figure}
-
-The table \ref{Tbl:TrainingResults} summarizes the performance metrics on the training and validation sets for the model at epoch 40.
-
-\begin{table}[H]
-\begin{center}
-\begin{tabular}{ c | c | c | c | c }
-    Data subset & Loss & Pearson & Spearmann & Kendall \\
-    \hline
-    Training set     &0.146 &0.71 &0.61 &0.45 \\
-    Validation set   &0.135 &0.71 &0.59 &0.44 \\ \hline
-
-\end{tabular}
-  \caption {Results of the model from epoch 40 on the training and validation subsets.}
-    \label{Tbl:TrainingResults}
-\end{center}
-\end{table}
+\input{loss_training_evaluation.tex}
 
 \section{Results}
-During the training of the model we randomly sampled rotational and translational degrees of freedom of a decoy structure. Ideally, we 
-want the score assigned by the model to a decoy to be invariant under these transformations. However Fig \ref{Fig:ScoreDistribution} 
-shows that the distribution
-of scores under rotations and translations follows the gaussian distribution. The Fig. \ref{Fig:DecoysScoreDistribution} 
-shows the distributions of scores for several decoys. We see that the difference between the scores of different decoys is 
-bigger than the variance of the score under ratations and translations. However, estimating the overlap between 
-the distributions can influence the final results. Therefore, to approximate the average score of a decoy we 
-sample a score under random translation and rotation 20 times for each decoy in the test set. The final score is then the average of these 
-samples.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{Fig/sampling_dist.png}
-    \caption{The distribution of scores under random translations and rotations of the decoy 
-    FALCON\_EnvFold\_TS1 for the target T0832. The distributions 
-    os scores under rotations only and translations only are shown with the dashed and solid lines respectively.
-    The normal distribution fitted into the sampled scores under both rotations and translations is show with the dashed line. 
-    The parameters of the normal distribution are: the average $\mu = 1.38$ and the standard deviation $\sigma = 0.42$.}
-    \label{Fig:ScoreDistribution}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{Fig/decoys_sampling_dist.png}
-    \caption{The distribution of scores under random translations and rotations of several decoys for the target T0832. The 
-    names arrangement from top to bottom corresponds to the increase of the score.}
-    \label{Fig:DecoysScoreDistribution}
-\end{figure}
-
-
-Table \ref{Tbl:TestResults} shows the comparisson of our model with the state of art methods used for the decoy quality assessement. 
-To evaluate the performance we used CASP11 stages 1 and 2 datasets. 
-These datasets were preprocessed using SCWRL program to optimize side-chains. 
-
-\begin{table}[H]
-\begin{center}
-\begin{tabular}{ c | c | c | c | c }
-    \multicolumn{5}{ c }{Stage 1} \\ \hline
-
-    QA method & Loss & Pearson & Spearmann & Kendall \\
-    \hline
-    ProQ3D   &0.048 &0.747 &0.658 &0.516 \\
-    ProQ2D   &0.068 &0.722 &0.589 &0.456 \\
-    \textbf{3DCNN}   &0.071 &0.528 &0.414 &0.318 \\    
-    VoroMQA &0.095 &0.621 &0.504 &0.382 \\
-    RWplus  &0.128 &0.500 &0.387 &0.291 \\ \hline
-    
-    \multicolumn{5}{ c }{Stage 2} \\ \hline
-    \textbf{3DCNN}   &0.067 &0.420 &0.405 &0.285 \\
-    VoroMQA &0.069 &0.444 &0.437 &0.313 \\ 
-    ProQ3D   &0.070 &0.450 &0.429 &0.304 \\
-    ProQ2D   &0.077 &0.435 &0.418 &0.296 \\
-    RWplus  &0.095 &0.202 &0.246 &0.175 \\ \hline
-
-\end{tabular}
-    
-    \caption {Results of our method(3DCNN) and the other state-of-art quality assessment programs on the CASP11 dataset Stage 1 and 2.
-            Table shows the absolute average values of correlation coefficients. The averaging was performed for each target in the 
-            dataset. Afterwards all the values were averaged over all the targets.}
-    \label{Tbl:TestResults}
-\end{center}
-\end{table}
-
-Figure \ref{} shows the performance of the algorithms depending on the presense in the training set of the structures in the same ECOD 
-class. The degree to which the algorithm performs better on the structures closely related to the training ones can indicate 
-the proportion of memorization of an algorithm. We see, that our algorithm has the same performance gains for the proteins 
-similar to ones in the test set as the VoroMQA and ProQ2. The algorithm that stands out in this metric is the RWPlus, which 
-seems to be indifferent to the homology. However, its performance is also lower than that of the other contenders.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{Fig/LossVsECOD.png}
-    \caption{Loss of different QA-algorithms on the subsets of the CASP11 test set Stage2. The subsets are chosen according to the presense in the
-    training set of the structures classified into the same ECOD categories.}
-    \label{Fig:LossVsECOD}
-\end{figure}
+\input{results.tex}
 
 \section{Analysis}
-Deep neural networks are famous for their obscurity. The interpretation of the results obtained using these techniques can be as challenging 
-as obtaining results themselves. The difficulty of interpretation brews the suspiction that the neural network learns 
-artifacts in the data that correlate with the target result. In this section we attempt to show, that our network 
-learns relevant description of a protein structure and does not rely on small differences in submissions between prediction groups.
-
-First, we analyse the regions of the structures that are responsible for the decrease in its score. The method we use was proposed 
-by Selvaraju R. \cite{selvaraju2016grad}. The key idea of this technique is to propagate the gradient to a certain layer and take the sum of the 
-activations of this layer weighted by gradient. The weighted activation maps are then upscaled to the whole reception field of the network.
-They indicate which parts of the input contributes the most to the gradient of the network output. In our case we chose the activations 
-of the ReLU layer 10. The volumes of these activation maps are 25x25x25 which are the best tradeoff between interpretability and the coarsness 
-of the maps. The example of the output is given on the Fig. \ref{Fig:GradCAMT0776}. Accoding to our scoring procedure we uniformly sample rotations 
-and translations of a decoy. Here we follow the same procedure: we sample tranformations, obtain the activation maps, project them onto 
-the atoms of the decoy. Afterwards, we average projected values and plot them using rainbow coloscheme (Fig. \ref{Fig:GradCAMT0776}). 
-Figure \ref{Fig:GradCAMT0776_more} shows several examples of the decoys for the target T0776. 
-The activations maps show, that the network enforces packing: the increase in the density 
-around the well packed core is penalized. Surprisingly, we found that the activation maps, obtained in the abovementioned way, 
-are mostly zero for the structures close to the native ones, despite that the information about gradients was not included in 
-the training procedure. 
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{Fig/FigT0776.png}
-    \caption{The scaled gradient weighted activation maps of the network (left). 
-    This example shows the candidate structure Distill\_TS3 for 
-    the target T0776. On the right side the native structure (red) is aligned to the candidate (blue). The left side shows the activation 
-    map with the isodurface at the level two sigma (the maps were normalized). The values of the activation map at the coordinated of protein
-    atoms are shown with the color from blue to red.}
-    \label{Fig:GradCAMT0776}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{Fig/T0776.png}
-    \caption{The scaled gradient weighted activation maps of the network projected onto the atoms of the decoys. 
-    Each decoy is aligned to the native structure (shown with the transparent cartoon).}
-    \label{Fig:GradCAMT0776_more}
-\end{figure}
-
-To verify that the network we trained does not rely on artifacts in the data to rank decoys, we assessed the ranking on the dataset, designed 
-by the 3DRobot algorithm \cite{deng20163drobot}. The decoys generated by this algorithm are 
-uniformly distributed within RMSD range of $[0; 12\AA]$. They 
-were optimized for the number of hydrogen bonds and compactness. The dataset is available online \cite{3DRobotDS}.
-The absolute spearman R-coefficient averaged over all the structures in this benchmark was $0.85$, Spearman coefficient and Kendall tau were
-0.83 and 0.64 respectively. The representative examples of scoring funnels are shown on the Fig \ref{Fig:3DRobotBenchmark}. 
-We see, that the QA method we devised
-in this work successfully ranks unrelated dataset, that has the same hyperparameters of the underlying decoys generator.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{Fig/3DRobot_set_sFinal_funnels.png}
-    \caption{The scoring funnels of four best correlated targets and four least correlated targets in 3DRobot benchmark.}
-    \label{Fig:3DRobotBenchmark}
-\end{figure}
+\input{analysis.tex}
 
 \section{Discussion}
+\input{discussion.tex}
 
 \bibliography{citations.bib}{}
 \bibliographystyle{plain}
