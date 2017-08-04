@@ -123,7 +123,7 @@ def get_average_loss(proteins, decoys, decoys_scores, subset=None, return_all=Fa
 def plotFunnelsSpecial(proteins, correlations, decoys, decoys_scores, outputFile):
 	from matplotlib import pylab as plt
 	import numpy as np
-	fig = plt.figure(figsize=(20,10))
+	fig = plt.figure(figsize=(8,4))
 
 	N = len(proteins)
 	nrows = 2
@@ -145,16 +145,18 @@ def plotFunnelsSpecial(proteins, correlations, decoys, decoys_scores, outputFile
 		# plt.xlim(-0.1, max(tmscores)+0.1)
 		# plt.ylim(min(scores)-1, max(scores)+1)
 		
-		grid[n].set_title(protein[:4] + ', R = %.2f'%correlations[protein][0], fontsize=16)
-		grid[n].set_xlabel('GDT_TS', fontsize=18)
-		grid[n].set_ylabel('3DCNN score', fontsize=16)
-		grid[n].tick_params(axis='x', which='major', labelsize=16)
-		grid[n].tick_params(axis='y', which='major', labelsize=16)
+		grid[n].set_title(protein[:4] + ', R = %.2f'%correlations[protein][0], fontsize=12)
+		grid[n].set_xlabel('GDT_TS', fontsize=12)
+		grid[n].set_ylabel('3DCNN score', fontsize=12)
+		grid[n].tick_params(axis='x', which='major', labelsize=12)
+		grid[n].tick_params(axis='y', which='major', labelsize=12)
 	
 	#plt.tight_layout()
 		
 	plt.tick_params(axis='both', which='minor', labelsize=8)
-	plt.savefig(outputFile)
+	# plt.savefig(outputFile, format='png', dpi=600)
+	outputFile = outputFile[:outputFile.rfind('.')]+'.tif'
+	plt.savefig(outputFile, format='tif', dpi=600)
 
 def plot_test_results(	experiment_name = 'QA',
 						model_name = 'ranking_model_11atomTypes',
@@ -285,6 +287,8 @@ def plot_matched_results(	experiment_name = 'QA',
 		match_targets[0].append(target)
 
 	for target in match_data.keys():
+		if target in ['T0820', 'T0823', 'T0824', 'T0827', 'T0835', 'T0836', 'T0838']:
+			continue
 		idx =  int(np.sum(match_data[target][:5]))
 		if not idx in match_targets:
 			match_targets[idx] = []
@@ -351,9 +355,9 @@ def plot_test_outliers(	experiment_name = 'QA',
 	
 	
 if __name__=='__main__':
-	testResults = False
+	testResults = True
 	inspect_monomers = False
-	lossVsEcod = True
+	lossVsEcod = False
 	getOutliers = False
 	uniformDecoys = False
 	if testResults:
@@ -489,7 +493,7 @@ if __name__=='__main__':
 							decoy_ranging_column = 'gdt-ts',
 							suffix = '_sFinal')
 		
-		fig = plt.figure(figsize=(10,10))
+		fig = plt.figure(figsize=(8,8))
 		ax = fig.add_subplot(111)
 		ind = np.arange(5)
 		width = 0.35
@@ -500,14 +504,17 @@ if __name__=='__main__':
 		plt.bar(ind+4.0*width/5.0, resProQ3D, width/6.0, label = 'ProQ3D', color = 'b')
 		ax.set_xticklabels(['No information', 'A','A+X','A+X+H+T','A+X+H+T+F'], rotation=90)
 		ax.set_xticks(ind+width/2.0, minor=False)
-		plt.tick_params(axis='x', which='major', labelsize=16)
-		plt.tick_params(axis='y', which='major', labelsize=16)
+		plt.tick_params(axis='x', which='major', labelsize=14)
+		plt.tick_params(axis='y', which='major', labelsize=14)
 		ax.set_xlim([-0.5,4.5])
 		ax.set_ylim([0,0.14])
 		ax.set_aspect(30)
-		plt.ylabel('Loss',fontsize=16)
-		plt.legend(prop={'size':16})
-		plt.savefig("LossVsECOD.png")
+		plt.ylabel('Loss',fontsize=14)
+		plt.legend(prop={'size':14})
+		
+		# plt.savefig("LossVsECOD.png", format='png', dpi=600)
+		plt.savefig("LossVsECOD.tif", format='tif', dpi=600)
+		# os.system('convert LossVsECOD.tif -profile USWebUncoated.icc cmyk_LossVsECOD.tif')
 		
 
 

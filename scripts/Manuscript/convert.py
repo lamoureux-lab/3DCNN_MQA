@@ -54,6 +54,20 @@ def find_environment(env, string):
         spans.append(match.span())
     return spans
 
+def next_environment(env, string):
+    '''
+    Finds tex environments in the form:
+    \begin{<env>}
+    \end{<env}
+    '''
+    start_pos = 0
+    reg_exp = r'(\\begin[ \t]*{[ \t]*'+env+'[ \t]*}.*?\\end[ \t]*{[ \t]*'+env+'[ \t]*}?)'
+    match = regex.match(reg_exp, string[start_pos:], regex.DOTALL)
+    while(not match is None) :
+        yield (match.span()[0]+start_pos, match.span()[1]+start_pos)
+        match = regex.match(reg_exp, string[math.span()[1]:], regex.DOTALL)
+        
+
 def remove_comments(string):
     '''
     Removes comments from string
@@ -136,19 +150,21 @@ def convert_tables(input_string):
         tabular_env = table_env[tabular_span[0][0]:tabular_span[0][1]]
         table = parse_table(tabular_env)
         name = 'Table%d'%(n+1)
-        write_table_doc(name, table, os.path.join(MANUSCRIPT_DIR, 'Tables', name+'.docx'))
+        write_table_doc(name, table, os.path.join(MANUSCRIPT_DIR, name+'.doc'))
 
 def check_image(filename):
-    if filename.find('.eps')==-1:
-        print 'Wrong format'
-        return False
+    # if filename.find('.eps')==-1:
+    #     print 'Wrong format'
+    #     return False
     
     print 'Image is fine'
     return True
 
 def find_images(input_string):
     image_index = 1
-    for n, span in enumerate(find_environment('figure', input_string)):
+    output_string = ''
+    for n, span in enumerate(next_environment('figure', input_string)):
+        output_string += input_string[:span[0]]
         figure_env = input_string[span[0]:span[1]]
         # print figure_env
         figure_env = remove_comments(figure_env)
@@ -156,14 +172,16 @@ def find_images(input_string):
         for image_rel_path, span in zip(results[0], results[1]):
             old_path = os.path.join(DRAFT_DIR, image_rel_path)
             print 'Image: %s'%old_path
-            new_rel_path = os.path.join('Fig', 'image%d.eps'%(image_index))
+            new_rel_path = os.path.join('image%d.eps'%(image_index))
             new_path = os.path.join(MANUSCRIPT_DIR, new_rel_path)
             is_right = check_image(old_path)
             if is_right:
                 shutil.copy(old_path, new_path)
+                new_env = input_string[:span[0]] + new_rel_path + input_string[span[1]:]
                 # input_string = input_string[:span[0]] + new_rel_path + input_string[span[1]:]
-    
-    return input_string
+        output_string += new_env
+
+    return output_string
 
 if __name__ == '__main__':
     main_draft_path = os.path.join(DRAFT_DIR, 'main.tex')
@@ -176,6 +194,7 @@ if __name__ == '__main__':
     manuscript = resolve_inputs(open(main_draft_path, 'r'))
     # convert_tables(manuscript)
 
-    find_images(manuscript)
+    manuscript = find_images(manuscript)
+    print manuscript
 
     

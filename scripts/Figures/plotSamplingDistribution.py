@@ -105,7 +105,8 @@ def plot_several_decoys_dist():
 	plt.legend(loc = 1)
 	plt.xlabel('Score',fontsize=14)
 	plt.ylabel('Normalized frequency',fontsize=14)
-	plt.savefig('decoys_sampling_dist.png')
+	# plt.savefig('decoys_sampling_dist.png')
+	plt.savefig('decoys_sampling_dist.tif', format='tif', dpi=600)
 
 def plot_diff_sampling():
 	from scipy.stats import norm
@@ -140,8 +141,8 @@ def plot_diff_sampling():
 	plt.xlabel('Score',fontsize=14)
 	plt.ylabel('Normalized frequency',fontsize=14)
 	# plt.show()
-	plt.savefig('sampling_dist.png')
+	plt.savefig('sampling_dist.tif', format='tif', dpi=600)
 
 if __name__=='__main__':
-	# plot_several_decoys_dist()
-	plot_diff_sampling()
+	plot_several_decoys_dist()
+	# plot_diff_sampling()

@@ -139,16 +139,16 @@ if __name__=='__main__':
 
 	
 	prop_names = ['A', 'X', 'H', 'T', 'F', 'Family', 'Clan', 'Alignment']
-	fig = plt.figure(figsize=(20,5))
+	fig = plt.figure(figsize=(8,2))
 	ax = fig.add_subplot(111)
 	cax = ax.matshow(matrix.transpose())
 	ax.set_xticks(np.array(xrange(0,len(targets_names))))
 	ax.set_xticklabels(targets_names, rotation=90)
 	ax.set_yticks(np.array(xrange(0,8)))
 	ax.set_yticklabels(prop_names, rotation=0)
-	plt.tick_params(axis='x', which='major', labelsize=12)
-	plt.tick_params(axis='y', which='major', labelsize=14)
-	plt.tick_params(axis='both', which='minor', labelsize=8)
+	plt.tick_params(axis='x', which='major', labelsize=6)
+	plt.tick_params(axis='y', which='major', labelsize=6)
+	plt.tick_params(axis='both', which='minor', labelsize=6)
 	ax.set_xticks([i+0.5 for i in range(0,len(targets_names))], minor=True)
 	ax.set_yticks([i+0.5 for i in range(0,len(prop_names))], minor=True)
 	ax.yaxis.grid(False, which='major')
@@ -157,5 +157,5 @@ if __name__=='__main__':
 	ax.xaxis.grid(True, which='minor')
 	
 	plt.savefig("summary_table.tif", format='tif', dpi=600)
-	os.system('convert summary_table.tif -profile USWebUncoated.icc cmyk_summary_table.tif')
+	# os.system('convert summary_table.tif -profile ../USWebUncoated.icc cmyk_summary_table.tif')
 	

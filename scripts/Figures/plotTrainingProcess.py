@@ -227,7 +227,7 @@ def plot_validation_correlations(	experiment_name, model_name, dataset_name, epo
 			losses.append(get_average_loss(proteins, decoys, decoys_scores))
 
 	from matplotlib import pylab as plt
-	fig = plt.figure()
+	fig = plt.figure(figsize=(8,6))
 	ax = fig.add_subplot(111)
 	# plt.title(experiment_name+'  '+model_name+'   '+dataset_name)
 	plt.plot(epochs,taus, '-.r', label = 'Kendall tau')
@@ -242,7 +242,8 @@ def plot_validation_correlations(	experiment_name, model_name, dataset_name, epo
 	plt.legend(prop={'size':12})
 	plt.tick_params(axis='x', which='major', labelsize=12)
 	plt.tick_params(axis='y', which='major', labelsize=12)
-	plt.savefig('../../models/%s_%s_%s/%s.png'%(experiment_name, model_name, dataset_name, output_name))
+	# plt.savefig('../../models/%s_%s_%s/%s.png'%(experiment_name, model_name, dataset_name, output_name), format='png', dpi=600)
+	plt.savefig('../../models/%s_%s_%s/%s.tif'%(experiment_name, model_name, dataset_name, output_name), format='tif', dpi=600)
 	return taus, pearsons, losses
 
 def plot_training_samples(experiment_name, model_name, dataset_name, epoch_start=0, epoch_end=100):
