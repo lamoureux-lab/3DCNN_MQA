@@ -72,7 +72,7 @@ def prop_find_best_match(var, dataset):
 			#compare clan and family
 			for i in range(5,7):
 				if var[i] is None:
-					best_match[i] = 0.5
+					best_match[i] = 0.3
 				if (not var[i] is None) and (not var_match[i] is None):
 					if var[i]==var_match[i]:
 						best_match[i]=1
@@ -110,9 +110,10 @@ if __name__=='__main__':
 	train_prop_dict = assemble_targets_properties( training_dataset_targets, train_families, train_clans, casp2pdb, casp2ecod)
 
 	print 'CASP2PDB excluded targets:'
-	for key in test_dataset_targets:
-		if not key in casp2pdb.keys():
-			print key
+	for n, key in enumerate(target_list):
+		if not key[0] in casp2pdb.keys():
+			print key[0]
+			matrix[n,:]=0.3
 	
 	match_data = {}
 
@@ -130,7 +131,7 @@ if __name__=='__main__':
 	# adding sequence alignment info
 	_, hits = parse_alignment(training_dataset_targets, test_dataset_targets, 'tmp/train_vs_test.dat')
 	for key in hits.keys():
-		print key, target_seq[key]
+		# print key, target_seq[key]
 		for a in hits[key]:
 			if a[1]<1E-4:
 				matrix[target_indexes[key],7] = 1.0
@@ -155,6 +156,6 @@ if __name__=='__main__':
 	ax.xaxis.grid(False, which='major')
 	ax.xaxis.grid(True, which='minor')
 	
-	plt.savefig("summary_table.png")
-	
+	plt.savefig("summary_table.tif", format='tif', dpi=600)
+	os.system('convert summary_table.tif -profile USWebUncoated.icc cmyk_summary_table.tif')
 	
