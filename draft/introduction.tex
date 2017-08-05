@@ -71,18 +71,18 @@ the structures into either ``near native'' or ``not near native''.
 More in line with the ``end-to-end training'' spirit of deep learning,
 methods using as input a 3D representation of the structure have been
 developed to score protein-ligand poses \cite{wallach2015atomnet,
-ragoza2017ligandscoring}, to predict ligand-binding protein
+ragoza2017protein}, to predict ligand-binding protein
 pockets \cite{jimenez2017deepsite}, or to predict the effect of a
 protein mutation \cite{torng2017}. \tchanged{They} treat the molecules of interest as 3D
 objects represented on a grid. While a rigorous comparison of each of
 these methods with is not always possible, they generally appear to
 improve on the state of the art: Both
 AtomNet \cite{wallach2015atomnet} and the 3D convolutional neural
-network of Ragoza et al. \cite{ragoza2017ligandscoring} perform
+network of Ragoza et al. \cite{ragoza2017protein} perform
 consistently better than either Smina \cite{koes2013smina} or AutoDock
 Vina \cite{trott2009vina}.
 %
-For small molecules, Sch\"{u}tt and coworkers \cite{schutt2017nc,
+For small molecules, Sch\"{u}tt and coworkers \cite{schutt2017quantum,
 schutt2017moleculenet} have developed deep neural networks to predict
 the molecular energy of a variety of chemical compounds in various
 conformations (or even various isomeric states). These models,

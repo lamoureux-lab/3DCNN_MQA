@@ -11,7 +11,7 @@ def find_simple_command(cmd, line):
     '''
     Finds commands in the form \<cmd_name>{<cmd_arg>}
     '''
-    reg_exp = r'\\'+cmd+r'[ \t]*{(?P<arg>[^\\]*)}'
+    reg_exp = r'\\'+cmd+r'[ \t]*{(?P<arg>[^\\]*?)}'
     args, spans = [], []
     for match in regex.finditer(reg_exp, line):
         args.append(match.group('arg'))
@@ -42,6 +42,17 @@ def find_param_command(cmd, line):
         spans.append(match.span())
     return matched_commands, spans
 
+def find_first_param_command(cmd, line):
+    '''
+    Finds commands in the form \cmd[<arg>]{<arg1>}
+    '''
+    reg_exp = r'\\'+cmd+r'[\s]*(\[(?P<opt>.*)\])[\s]*(({(?P<arg1>[\w\W\/]*?)}))'
+    try:
+        match = regex.finditer(reg_exp, line, overlapped=False).next()
+    except:
+        return None
+    return match.group('arg1'), match.group('opt'), match.span()
+
 def find_environment(env, string):
     '''
     Finds tex environments in the form:
@@ -53,20 +64,6 @@ def find_environment(env, string):
     for match in regex.finditer(reg_exp, string, regex.DOTALL):
         spans.append(match.span())
     return spans
-
-def next_environment(env, string):
-    '''
-    Finds tex environments in the form:
-    \begin{<env>}
-    \end{<env}
-    '''
-    start_pos = 0
-    reg_exp = r'(\\begin[ \t]*{[ \t]*'+env+'[ \t]*}.*?\\end[ \t]*{[ \t]*'+env+'[ \t]*}?)'
-    match = regex.match(reg_exp, string[start_pos:], regex.DOTALL)
-    while(not match is None) :
-        yield (match.span()[0]+start_pos, match.span()[1]+start_pos)
-        match = regex.match(reg_exp, string[math.span()[1]:], regex.DOTALL)
-        
 
 def remove_comments(string):
     '''
@@ -163,24 +160,26 @@ def check_image(filename):
 def find_images(input_string):
     image_index = 1
     output_string = ''
-    for n, span in enumerate(next_environment('figure', input_string)):
-        output_string += input_string[:span[0]]
-        figure_env = input_string[span[0]:span[1]]
-        # print figure_env
-        figure_env = remove_comments(figure_env)
-        results = find_param_command('includegraphics',figure_env)
-        for image_rel_path, span in zip(results[0], results[1]):
-            old_path = os.path.join(DRAFT_DIR, image_rel_path)
-            print 'Image: %s'%old_path
-            new_rel_path = os.path.join('image%d.eps'%(image_index))
-            new_path = os.path.join(MANUSCRIPT_DIR, new_rel_path)
-            is_right = check_image(old_path)
-            if is_right:
-                shutil.copy(old_path, new_path)
-                new_env = input_string[:span[0]] + new_rel_path + input_string[span[1]:]
-                # input_string = input_string[:span[0]] + new_rel_path + input_string[span[1]:]
-        output_string += new_env
+    start_index = 0
+    func = find_first_param_command('includegraphics', input_string[start_index:])
+    while( not (func is None) ):
+        span = func[2]
 
+        image_rel_path = func[0]
+        old_path = os.path.join(DRAFT_DIR, image_rel_path)
+        new_rel_path = os.path.join('image%d.eps'%(image_index))
+        new_path = os.path.join(MANUSCRIPT_DIR, new_rel_path)
+        print 'Image: %s'%old_path, '->', new_path
+        shutil.copy(old_path, new_path)
+
+        output_string += input_string[start_index:start_index+span[0]]
+        output_string += '\\includegraphics[%s]{%s}'%(func[1], new_rel_path)
+        start_index += span[1]
+        func = find_first_param_command('includegraphics', input_string[start_index:])
+        image_index+=1
+    
+    output_string += input_string[start_index:]
+    
     return output_string
 
 if __name__ == '__main__':
@@ -188,13 +187,23 @@ if __name__ == '__main__':
     main_man_path = os.path.join(MANUSCRIPT_DIR, 'MainDocument.tex')
 
     # Put every input into single document
-    # with open(main_man_path, 'w') as fout:
-        # fout.write(resolve_inputs(open(main_draft_path, 'r')))
-
     manuscript = resolve_inputs(open(main_draft_path, 'r'))
-    # convert_tables(manuscript)
+    
+    # Copy bibliography
+    match = find_simple_command('bibliography', manuscript)
+    bib_file = match[0][0]
+    shutil.copy(os.path.join(DRAFT_DIR, bib_file), os.path.join(MANUSCRIPT_DIR, bib_file))
 
+    # Remove comments
+    # manuscript = remove_comments(manuscript)
+    # Convert tables to *.doc
+    convert_tables(manuscript)
+    # Convert images
     manuscript = find_images(manuscript)
-    print manuscript
+    
+    
+    
+    with open(main_man_path, 'w') as fout:
+        fout.write(manuscript)
 
     

@@ -11,7 +11,7 @@ single number, interpreted as \tchanged{the} score of the input structure.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{Fig/ConvnetDiagramV1.png}
+    \includegraphics[width=\linewidth]{Fig/ConvnetDiagramV1.eps}
 
     \caption{Schematic representation of the convolutional neural
     network architecture used in this work.  Line connections across
@@ -73,7 +73,7 @@ coarse-grained representation of the input. The output of this layer
 is the maximum over the cubes of size $d \times d \times d$ that cover
 the input domain without overlapping.  The output data domain is then
 $d$ times smaller than the input data box. All three ``MaxPool''
-layers of the model (Fig. \cite{Fig:CNNmodel}) use $d=3$.
+layers of the model (Fig. \ref{Fig:CNNmodel}) use $d=3$.
 %%% ??? Why does the size go from 118 to 58?
 
 During the coarse-graining procedures, the size of the individual data

@@ -73,9 +73,10 @@ Figure \ref{Fig:TrainingLoss} shows the Kendal tau, Pearsor R coefficients and t
 The final model was chosen according to the minimum loss (epoch 40).
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{Fig/kendall_validation.png}
-    \caption{The loss, Kendal tau and Pearson R coefficients evaluated on the validation subset during the training procedure. The epoch 
-    denotes that all the targets in the training subset were sampled.}
+    \includegraphics[width=\linewidth]{Fig/kendall_validation.eps}
+    \caption{The loss, Kendal tau and Pearson R coefficients evaluated on the validation subset during the training procedure. 
+    The epoch denotes that all the targets in the training subset were sampled. The arrow shows the minimum validation loss 
+    among epochs divisible by 10 (we saved our model each 10 epoch).}
     \label{Fig:TrainingLoss}
 \end{figure}
 

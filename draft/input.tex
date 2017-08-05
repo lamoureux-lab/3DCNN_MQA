@@ -38,12 +38,6 @@ $120\times 120\times 120$ cells.
     
     Type & Description & Atoms \\
     \hline
-    %%% I've considerably changed the table, so please check.
-    %%% I've tried to simplify the descriptions and make them easier to read.
-    %%% I've put the names in a more logical order.
-    %%% For type 6, you had written ``Carboxyl oxygen'' but it's ``carbonyl''
-    %%% For type 9, you didn't list ASP:CG. Is it in that group?
-    %%% It's TRP:NE1, not TRP:NE2
     1 & Sulfur/selenium & CYS:SG, MET:SD, MSE:SE \\ \hline
     2 & Nitrogen (amide) & ASN:ND2, GLN:NE2, backbone N (including N-terminal) \\ \hline
     3 & Nitrogen (aromatic) & HIS:ND1/NE1, TRP:NE1 \\ \hline
@@ -53,8 +47,8 @@ $120\times 120\times 120$ cells.
     7 & Oxygen (hydroxyl) & SER:OG, THR:OG1, TYR:OH \\ \hline
     8 & Oxygen (carboxyl) & ASP:OD1/OD2, GLU:OE1/OE2, \\
      & & C-terminal O, C-terminal OXT \\ \hline
-    9 & Carbon (sp2) & ARG:CZ, ASN:CG, ASP:CG???, GLN:CD, GLU:CD, \\
-     & & backbone C (including C-terminal???) \\ \hline
+    9 & Carbon (sp2) & ARG:CZ, ASN:CG, ASP:CG, GLN:CD, GLU:CD, \\
+     & & backbone C \\ \hline
     10 & Carbon (aromatic) & HIS:CG/CD2/CE1, \\
      & & PHE:CG/CD1/CD2/CE1/CE2/CZ, \\ 
      & & TRP:CG/CD1/CD2/CE2/CE3/CZ2/CZ3/CH2, \\
@@ -68,8 +62,7 @@ $120\times 120\times 120$ cells.
      & & PHE:CB, PRO:CB/CG/CD, \\
      & & SER:CB, THR:CB/CG2, \\
      & & TRP:CB, TYR:CB, VAL:CB/CG1/CG2, \\
-     & & backbone CA \\ \hline
-    
+     & & backbone CA \\ \hline    
 \end{tabular}
     
     \caption {Atom types used in this work. Atoms in each group are
@@ -86,7 +79,7 @@ shown.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{Fig/atomic_densities_V3.png}
+    \includegraphics[width=\linewidth]{Fig/atomic_densities_V3.eps}
 
     \caption{Representation of a protein structure (PDB code 5eh6)
     using atomic densities. The density maps are calculated according
