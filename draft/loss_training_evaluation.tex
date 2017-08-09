@@ -1,50 +1,66 @@
 \subsection{Loss functions}
-The problem of decoy quality assessment is essentially a ranking problem: we have to arrange decoys according to 
-the proximity to the corresponding native structure, which is quantified using GDT-TS score. \tchanged{The ranking algorithms 
-was previously applied to the problem of model quality assessment \cite{jing2016sorting}, and also 
-used along with neural networks to rank image descriptions \cite{gong2013deep}.}
+The problem of decoy quality assessment is essentially a ranking
+problem: we have to arrange decoys according to their similarity to
+the corresponding native structure, as quantified by the GDT\_TS score
+\cite{zemla2001casp4}, for instance. Such a ranking approach to the
+problem of model quality assessment has recently been used by the
+MQAPRank method \cite{jing2016sorting}, which, however, relies on a
+support vector machine architecture and uses high-level features as
+input.
+%%% GL: Ranking is a very common task, so I don't see the usefulness
+%%% of citing gong2013deep.
+%%% GL: Every paper I see seems to be calling it ``GDT_TS'', not
+%%% ``GDT-TS'' (underscore, not dash).
 
-During the training procedure we load several decoy structures of one target (minibatch) into memory, compute the 
-output of the network and the average loss:
-$$ L = \frac{1}{N^{2}_B} \sum_{i=1,j=1, i \neq j}^{N_B} L_{ij} $$ 
-where $N_B$ is the number of decoys in a minibatch. Afterwards, we compute the gradient of the average loss with respect 
-to the network parameters and update them using Adam algorithm.
-
-We used the margin ranking loss for each pair of decoys. Let a decoy representation be denoted as $x_i$ and therefore the output
-of the network on this decoy will be $f(x_i)$. Next, let $y_{ij}$ be the ordering coefficient of the two decoys we pick:
+In the present work, we define the loss function in terms the margin
+ranking loss for each pair of decoys. Let a decoy representation be
+denoted as $x_i$ and the output of the network for this decoy as
+$f(x_i)$. Let $y_{ij}$ be the ordering coefficient of the two decoys:
 $$
 y_{ij} = \begin{cases}
-               1& \text{GDT-TS}_i \leq \text{GDT-TS}_j \\
-               -1& \text{GDT-TS}_i > \text{GDT-TS}_j \\
+               1& \text{if }\text{GDT\_TS}_i \leq \text{GDT\_TS}_j \\
+               -1& \text{if }\text{GDT\_TS}_i > \text{GDT\_TS}_j \\
             \end{cases}
 $$
-Here $\text{GDT-TS}_i$ is the GDT-TS score of the $i$-th decoy. In principle, any target function can be chosen. 
-The pairwise ranking scoring function has the following expression:
-
-$$ L_{ij} = w_{ij} \cdot \max \left[ 0, 1 - y_{ij} \left( f \left( x_i \right) - f \left( x_j \right) \right) \right] $$
-
-the term $w_{ij}$ represents an example weight:
-
+%
+Here, $\text{GDT\_TS}_i$ is the global distance test total score of
+the $i$-th decoy. We use the following expression for the pairwise
+ranking scoring function:
+$$
+L_{ij} = w_{ij} \cdot \max \left[ 0, 1 - y_{ij} \left( f \left( x_i \right) - f \left( x_j \right) \right) \right]]
+$$
+%
+The term $w_{ij}$ represents an example weight:
+%
 $$
 w_{ij} = \begin{cases}
-               1& \left| \text{GDT-TS}_i - \text{GDT-TS}_j \right| > T \\
+               1& \text{if } \left| \text{GDT\_TS}_i - \text{GDT\_TS}_j \right| > T \\
                0& \text{otherwise} \\ 
             \end{cases}
 $$
+%
+where $T$ is a threshold constant set to 0.1~{\AA}. This has the
+effect of avoiding to train the model on pairs of decoys that are too
+similar.
 
-where the $T$ is a threshold constant set to 0.1{\AA}. If the two decoys are too similar, 
-we avoid scoring them against each other during the training. 
-
+During the training procedure we load $N_\text{B}$ decoy structures of
+a given target into memory (a ``minibatch'') and compute the output of the
+network and the average loss:
+$$ L = \frac{1}{N^{2}_\text{B}} \sum_{i=1,j=1, i \neq j}^{N_\text{B}} L_{ij} $$
+Afterwards, we compute the gradient of the average loss with respect
+to the network parameters and update them using the Adam algorithm
+\cite{???}.
+%%% GL: What value of N_B are we using??? This should be answered here...
 
 
 \subsection{Evaluation criteria}
 \tchanged{
 We evaluated our algorithm using the correlation coefficients and loss criterions. The correlation coefficents 
-were computed between the score of our model and GDT-TS metric for all the decoys of each target protein in a test set and then averaged.
+were computed between the score of our model and GDT\_TS metric for all the decoys of each target protein in a test set and then averaged.
 }
-The loss criterion is the deviation of the GDT-TS of the best decoys for a protein from the GDT-TS score of the decoy with the lowest score:
+The loss criterion is the deviation of the GDT\_TS of the best decoys for a protein from the GDT\_TS score of the decoy with the lowest score:
 $$ 
-Loss = | max_i( \text{GDT-TS}_i ) - \text{GDT-TS}_{argmin_i(f(x_i))} |
+Loss = | max_i( \text{GDT\_TS}_i ) - \text{GDT\_TS}_{argmin_i(f(x_i))} |
 $$ 
 
 \subsection{Optimization and dataset sampling}
@@ -57,10 +73,10 @@ The parameter update step was performed using the Adam algorithm \cite{kingma201
 The dataset was sampled in the following way: first we chose a random protein from the dataset, then we sample decoys of this protein. 
 The procedure is repeated for all the 
 proteins in a dataset. One pass through all the proteins in a dataset is called epoch. 
-The decoys are sampled in a homogeneous way: we divide all the decoys into $M$ clusters by the value of GDT-TS score. 
+The decoys are sampled in a homogeneous way: we divide all the decoys into $M$ clusters by the value of GDT\_TS score. 
 Precisely, the decoy $i$ belongs to the cluster  
-number $ \left[ \frac{\max(\text{GDT-TS}) - \text{GDT-TS}_i}{\max(\text{GDT-TS}) - \min(\text{GDT-TS})} \right] + 1$, 
-where $\max(\text{GDT-TS})$ and $\min(\text{GDT-TS})$ are computed for all the decoys of 
+number $ \left[ \frac{\max(\text{GDT\_TS}) - \text{GDT\_TS}_i}{\max(\text{GDT\_TS}) - \min(\text{GDT\_TS})} \right] + 1$, 
+where $\max(\text{GDT\_TS})$ and $\min(\text{GDT\_TS})$ are computed for all the decoys of 
 the chosen protein. If there are empty clusters, then we take secon decoys from each non-empty and so on until we filled the batch. 
 At the end of each epoch we randomly shuffle the order of protein and the order of decoys in each cluster. 
 
