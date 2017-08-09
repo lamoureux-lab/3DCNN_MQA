@@ -7,9 +7,10 @@ structures in the test set. Each target from the training set has 282
 decoys on average.
 %
 The test dataset is split into two subsets \cite{kryshtafovych2015}:
-\tchanged{``stage 1'' with 20 decoys per target selected randomly from
-all server predictions, and ``stage 2'' with 150 decoys per target considered best by the
-Davis-QAconsensus evaluation method \cite{kryshtafovych2015}.}
+``stage~1'' with 20 decoys per target selected randomly from all
+server predictions, and ``stage~2'' with 150 decoys per target
+considered best by the Davis-QAconsensus evaluation
+method \cite{kryshtafovych2015}.
 %
 The native structures were not included in the analysis, neither
 during the training phase nor during the testing phase. To make the
@@ -17,24 +18,26 @@ structural data more consistent, the side chains of all decoy
 structures were optimized using the SCWRL4 program
 \cite{krivov2009improved}.
 
-\tchanged{The distributions of target sequences lengths 
-cover the same range of sequence lengths (SI Fig. 1)}. 
-To ensure that the training and test sets are significantly different, we have aligned all test
-sequences against all training sequences using blastp \cite{altschul1990basic}. 
+The distributions of target sequences lengths cover the same range of
+sequence lengths (see Fig.\ S1 in Supporting Information). To ensure
+that the training and test sets are significantly different, we have
+aligned all test sequences against all training sequences using
+blastp \cite{altschul1990basic}.
 %The most significant alignments (E-value${}
 %< 10^{-4}$) are shown in Table \ref{Tbl:datasetsSimilarity}.  
-Less than 11\% of the targets in the test set (9 out of 83) have sequence
-similarity with any target in the training set (SI Table 1).
+Less than 11\% of the targets in the test set (9 out of 83) have
+sequence similarity with any target in the training set (see Table S1
+in Supporting Information).
 
-To further assess the evolutionary similarity of the two datasets, we
-have computed their overlap in terms of Pfam families
-\cite{finn2016pfam}. Pfam families were found using \tchanged{HMMER \cite{finn2015hmmer}}
-with an E-value cutoff of 1.0 \cite{finn2016pfam}.  
+To further assess the similarity of the two datasets, we have computed
+their overlap in terms of Pfam families \cite{finn2016pfam}. Pfam
+families were found using HMMER \cite{finn2015hmmer} with an E-value
+cutoff of 1.0 \cite{finn2016pfam}.
 %Table \ref{Tbl:SharedPfam} shows the targets in the test and train sets that
 %share a family. 
 Accounting for targets for which no Pfam family could
 be determined, approximately 25\% of the test set targets share a
-family with approximately 10\% of the training set targets (SI Table 2).
+family with approximately 10\% of the training set targets (see Table S2).
 
 We have also compared the structures in the training and test sets
 using the ECOD database \cite{cheng2014ecod}. This database provides a
@@ -46,13 +49,12 @@ classification is domain-based, multi-domain protein chains can belong
 to multiple A-, X-, H-, T-, or F-groups.  The higher the level two
 protein domains occupy, the more structurally similar they are.
 %
-\tchanged{The summary of the overlap} between the training and test sets
-is presented in Fig. \ref{Fig:summaryTable}. For each target domain in
+A summary of the overlap between the training and test sets is
+presented in Fig.\ \ref{Fig:summaryTable}. For each target domain in
 the test set (T0759 to T0858), a black tile indicates that at least
 one structure from the training set belong to the same ECOD group (A,
-X, H, T, and F). 
-%
-\tchanged{Another representation of the overlap between the test and training sets is shown on SI Figure 2.}
+X, H, T, and F). (See Fig.\ S2 for another representation of the
+overlap between the test and training sets.)
 
 \begin{figure}[H]
     \makebox[\textwidth]{
