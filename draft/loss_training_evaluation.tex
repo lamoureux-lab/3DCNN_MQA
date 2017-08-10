@@ -49,8 +49,9 @@ network and the average loss:
 $$ L = \frac{1}{N^{2}_\text{B}} \sum_{i=1,j=1, i \neq j}^{N_\text{B}} L_{ij} $$
 Afterwards, we compute the gradient of the average loss with respect
 to the network parameters and update them using the Adam algorithm
-\cite{???}.
+\cite{kingma2014adam}. The number of examples in the batch was $N_B = 9$.
 %%% GL: What value of N_B are we using??? This should be answered here...
+%%% G: Done
 
 
 \subsection{Evaluation criteria}

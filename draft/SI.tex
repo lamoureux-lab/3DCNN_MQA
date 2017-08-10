@@ -8,6 +8,7 @@
 \usepackage{amsmath}
 \usepackage{multirow}
 \usepackage{color}
+\usepackage{tabularx}
 \begin{document}
 
 \section{Datasets}
@@ -134,6 +135,136 @@ multimers'', ``a+b complex topology'', and ``a+b four layers''.
 %
     \label{Fig:foldsGraph}
 \end{figure}
+
+\section{Model}
+
+\begin{table}[H]
+\begin{center}
+\makebox[0pt][c]{
+\hskip-\footskip
+\begin{tabularx}{0.8\paperwidth}{ l | l | c | c | c }
+
+    Number & Layer name & Input dimentions & Output dimensions & Parameters \\
+    \hline
+    1&3D Convolution & $11\times 120\times 120\times 120$ & $16\times 118\times 118\times 118$ & 
+                    Filter size: $3\times 3\times 3$ Stride: $1\times 1\times 1$\\
+    2&ReLU & & & \\
+    3&Max pooling & $16\times 118\times 118\times 118$ & $16\times 58\times 58\times 58$ & 
+                    Filter size: $3\times 3\times 3$ Stride: $2\times 2\times 2$ \\
+    \hline 
+    4&3D Convolution & $16\times 58\times 58\times 58$ & $32\times 56\times 56\times 56$ & 
+                    Filter size: $3\times 3\times 3$ Stride: $1\times 1\times 1$\\
+    5&Batch normalization & & & \\
+    6&ReLU & & & \\
+    7&Max pooling & $32\times 56\times 56\times 56$ & $32\times 27\times 27\times 27$ & 
+                    Filter size: $3\times 3\times 3$ Stride: $2\times 2\times 2$ \\
+    \hline
+    8&3D Convolution & $32\times 27\times 27\times 27$ & $32\times 25\times 25\times 25$ & 
+                    Filter size: $3\times 3\times 3$ Stride: $1\times 1\times 1$\\
+    9&Batch normalization & & & \\
+    10&ReLU & & & \\
+    11&3D Convolution & $32\times 25\times 25\times 25$ & $64\times 23\times 23\times 23$ & 
+                    Filter size: $3\times 3\times 3$ Stride: $1\times 1\times 1$\\
+    12&Batch normalization & & & \\
+    13&ReLU & & & \\
+    14&Max pooling & $64\times 23\times 23\times 23$ & $64\times 11\times 11\times 11$ & 
+                    Filter size: $3\times 3\times 3$ Stride: $2\times 2\times 2$ \\
+    \hline
+    15&3D Convolution & $64\times 11\times 11\times 11$ & $128\times 9\times 9\times 9$ & 
+                    Filter size: $3\times 3\times 3$ Stride: $1\times 1\times 1$\\
+    16&Batch normalization & & & \\
+    17&ReLU & & & \\
+    18&3D Convolution & $128\times 9\times 9\times 9$ & $128\times 7\times 7\times 7$ & 
+                    Filter size: $3\times 3\times 3$ Stride: $1\times 1\times 1$\\
+    19&Batch normalization & & & \\
+    20&ReLU & & & \\
+    21&3D Convolution & $128\times 7\times 7\times 7$ & $256\times 5\times 5\times 5$ & 
+                    Filter size: $3\times 3\times 3$ Stride: $1\times 1\times 1$\\
+    22&Batch normalization & & & \\
+    23&ReLU & & & \\
+    24&3D Convolution & $256\times 5\times 5\times 5$ & $512\times 3\times 3\times 3$ & 
+                    Filter size: $3\times 3\times 3$ Stride: $1\times 1\times 1$\\
+    25&Batch normalization & & & \\
+    26&ReLU & & & \\
+    27&Max pooling & $512\times 3\times 3\times 3$ & $512\times 1\times 1\times 1$ & 
+                    Filter size: $3\times 3\times 3$ Stride: $2\times 2\times 2$ \\
+    \hline
+    28&Reshape & $512\times 1\times 1\times 1$ & $512$ & \\
+    \hline
+    29&Linear & 512 & 256 & \\
+    30&ReLU & & & \\
+    31&Linear & 256 & 128 & \\
+    32&ReLU & & & \\
+    33&Linear & 128 & 1 & \\
+    \hline
+
+\end{tabularx}
+\hskip\headheight
+}
+\caption{More details of the model architecture.}
+\label{Tbl:SuppModel}
+\end{center}
+\end{table}
+
+\section{Training}
+\begin{table}[H]
+\begin{center}
+\begin{tabular}{ l | l }
+
+    Parameter & Value \\
+    \hline
+    Learning rate& 0.0003\\
+    Learning rate decay& 0.01\\
+    GDT\_TS threshold& 0.01\\
+    Algorithm& Adam
+    
+\end{tabular}
+\caption{Non-default training parameters}
+%
+\label{Tbl:TrainingParam}
+\end{center}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{Fig/epoch40_funnels.png}
+    \caption{Scoring funnels on the validation set at epoch 40. The score was sampled once using random rotation and translation.}
+    \label{Fig:ValidationEpoch40}
+\end{figure}
+
+\section{Results}
+\begin{figure}[H]
+    \centering
+    \makebox[0pt][c]{
+    \hskip-\footskip
+    \includegraphics[width=\paperwidth]{Fig/CASP11Stage1_SCWRL_sFinal_funnels.png}
+    \hskip\headheight
+    }
+    \caption{Scoring funnels on Stage1 CASP11}
+    \label{Fig:Satage1CASP11Funnels}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \makebox[0pt][c]{
+    \hskip-\footskip
+    \includegraphics[width=\paperwidth]{Fig/CASP11Stage2_SCWRL_sFinal_funnels.png}
+    \hskip\headheight
+    }
+    \caption{Scoring funnels on Stage2 CASP11}
+    \label{Fig:Satage2CASP11Funnels}
+\end{figure}
+
+\section{Analysis}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{Fig/CASP11Stage1_SCWRL_activations_pca.png}
+    \caption{First three principal components of layer 28 activations versus model score (color bar).}
+    \label{Fig:PCA}
+\end{figure}
+
+
 
 \bibliography{citations.bib}{}
 \bibliographystyle{plain}

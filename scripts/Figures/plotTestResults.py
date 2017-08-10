@@ -186,15 +186,22 @@ def plot_test_results(	experiment_name = 'QA',
 
 	loss_function_values, decoys_scores = read_epoch_output(input_path)
 
-	correlations = get_correlations(proteins, decoys, decoys_scores, subset)
+	included_proteins = []
+	for protein in proteins:
+		if protein in ['T0779', 'T0842', 'T0844', 'T0846', 'T0850']:
+			continue
+		included_proteins.append(protein)
+
+
+	correlations = get_correlations(included_proteins, decoys, decoys_scores, subset)
 	print 'Correlations:'
 	print 'Pearson = ',correlations[0]
 	print 'Spearman = ',correlations[1]
 	print 'Kendall = ',correlations[2]
 
-	zscore = get_zscore(proteins, decoys, decoys_scores, subset)
+	zscore = get_zscore(included_proteins, decoys, decoys_scores, subset)
 	print 'Z-score:',zscore
-	loss = get_average_loss(proteins, decoys, decoys_scores, subset, False, descending)
+	loss = get_average_loss(included_proteins, decoys, decoys_scores, subset, False, descending)
 	print 'Loss:',loss
 	
 	if (not model_name is None) and (not trainig_dataset_name is None):
@@ -205,7 +212,7 @@ def plot_test_results(	experiment_name = 'QA',
 		from collections import OrderedDict
 		correlations_all = get_correlations(proteins, decoys, decoys_scores, subset, return_all=True)
 		correlations_all_sorted = OrderedDict(sorted(correlations_all.items(), key=lambda x: x[1][0]))
-		print correlations_all_sorted
+		# print correlations_all_sorted
 		best = correlations_all_sorted.keys()[:4]
 		worst = correlations_all_sorted.keys()[-4:]
 		selected_proteins = best+worst
@@ -287,9 +294,9 @@ def plot_matched_results(	experiment_name = 'QA',
 		match_targets[0].append(target)
 
 	for target in match_data.keys():
-		if target in ['T0820', 'T0823', 'T0824', 'T0827', 'T0835', 'T0836', 'T0838']:
+		if target in ['T0779', 'T0842', 'T0844', 'T0846', 'T0850']:
 			continue
-		idx =  int(np.sum(match_data[target][:5]))
+		idx =  int(np.sum(np.floor(match_data[target][:5])))
 		if not idx in match_targets:
 			match_targets[idx] = []
 		match_targets[idx].append(target)
@@ -355,20 +362,20 @@ def plot_test_outliers(	experiment_name = 'QA',
 	
 	
 if __name__=='__main__':
-	testResults = True
+	testResults = False
 	inspect_monomers = False
-	lossVsEcod = False
+	lossVsEcod = True
 	getOutliers = False
 	uniformDecoys = False
 	if testResults:
-		plot_test_results(	experiment_name = 'QA_uniform',
-							model_name = 'ranking_model_8',
-							trainig_dataset_name = 'CASP_SCWRL',
-							test_dataset_name = '3DRobot_set',
-							# test_dataset_name = 'CASP_SCWRL',
-							test_dataset_subset = 'datasetDescription.dat',
-							decoy_ranging_column = 'gdt-ts',
-							suffix = '_sFinal', best_worst=True)
+		# plot_test_results(	experiment_name = 'QA_uniform',
+		# 					model_name = 'ranking_model_8',
+		# 					trainig_dataset_name = 'CASP_SCWRL',
+		# 					test_dataset_name = '3DRobot_set',
+		# 					# test_dataset_name = 'CASP_SCWRL',
+		# 					test_dataset_subset = 'datasetDescription.dat',
+		# 					decoy_ranging_column = 'gdt-ts',
+		# 					suffix = '_sFinal', best_worst=True)
 
 		# plot_test_results(	experiment_name = 'QA_uniform',
 		# 					model_name = 'ranking_model_8',
@@ -417,15 +424,15 @@ if __name__=='__main__':
 		# 					decoy_ranging_column = 'gdt-ts',
 		# 					suffix = '',
 		# 					descending=False)
-		# plot_test_results(	experiment_name = 'ProQ3D',
-		# 					model_name = None,
-		# 					trainig_dataset_name = None,
-		# 					test_dataset_name = 'CASP11Stage2_SCWRL',
-		# 					# test_dataset_name = 'CASP_SCWRL',
-		# 					test_dataset_subset = 'datasetDescription.dat',
-		# 					decoy_ranging_column = 'gdt-ts',
-		# 					suffix = '',
-		# 					descending=False)
+		plot_test_results(	experiment_name = 'ProQ3D',
+							model_name = None,
+							trainig_dataset_name = None,
+							test_dataset_name = 'CASP11Stage2_SCWRL',
+							# test_dataset_name = 'CASP_SCWRL',
+							test_dataset_subset = 'datasetDescription.dat',
+							decoy_ranging_column = 'gdt-ts',
+							suffix = '',
+							descending=False)
 		# plot_test_results(	experiment_name = 'ProQ2D',
 		# 					model_name = None,
 		# 					trainig_dataset_name = None,
@@ -502,7 +509,7 @@ if __name__=='__main__':
 		plt.bar(ind+2.0*width/5.0, resVMQA, width/6.0, label = 'VoroMQA')
 		plt.bar(ind+3.0*width/5.0, resProQ2D, width/6.0, label = 'ProQ2D', color = 'g')
 		plt.bar(ind+4.0*width/5.0, resProQ3D, width/6.0, label = 'ProQ3D', color = 'b')
-		ax.set_xticklabels(['No information', 'A','A+X','A+X+H+T','A+X+H+T+F'], rotation=90)
+		ax.set_xticklabels(['No overlap', 'A', 'A+X', 'A+X+H+T', 'A+X+H+T+F'], rotation=90)
 		ax.set_xticks(ind+width/2.0, minor=False)
 		plt.tick_params(axis='x', which='major', labelsize=14)
 		plt.tick_params(axis='y', which='major', labelsize=14)
