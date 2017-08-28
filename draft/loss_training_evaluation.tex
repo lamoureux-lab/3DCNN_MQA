@@ -66,18 +66,16 @@ correlation coefficient of $-1$.
 
 
 \subsection{Optimization and dataset sampling}
-The optimization procedure of deep convolutional networks is usually
-stochastic: the function value and gradient are estimated from a small
-subset of all the training examples (a ``batch''). We use a batch size
-of 10, which is close to the maximum value allowing the model to fit
-in computer memory. The parameters of the model are updated according
-to the direction of the estimated gradient, using the Adam algorithm
-\cite{kingma2014adam}.
-%%% GL: Batch size 10 or 9? (You wrote 9 earlier.)
-
+The optimization of the parameters of our model was performed
+using the the Adam algorithm \cite{kingma2014adam}. The gradient of the loss 
+function with respect to the model parameters was computed on the pairs of 
+models in the batch. The batch size was set to 9 models.
 %%%
 %%% GL: This paragraph needs some work
 %%%
+%G: Rewrote this paragraph
+
+
 The training dataset is sampled in the following way: first we choose a
 random protein from the dataset, then we sample decoys of this
 protein.  The procedure is repeated for all the proteins in the
@@ -101,6 +99,8 @@ way that the translated protein fits inside the $120$~\AA${}\times
 %%% GL: Do you add a buffer so that the *density* of the protein also
 %%% fits inside the grid? In other words, do you prevent any atom from
 %%% being less than 2 Angstroms away from the edges of the grid?
+%G: It is a minor detail, we will release the source-code, so not mentioning it 
+%is not an issue, imho.
 
 We select the final model based on its performance on a
 \emph{validation subset} consisting of 35 targets (and their decoys)

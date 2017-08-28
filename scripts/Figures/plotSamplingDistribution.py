@@ -144,5 +144,5 @@ def plot_diff_sampling():
 	plt.savefig('sampling_dist.tif', format='tif', dpi=600)
 
 if __name__=='__main__':
-	plot_several_decoys_dist()
-	# plot_diff_sampling()
+	# plot_several_decoys_dist()
+	plot_diff_sampling()
