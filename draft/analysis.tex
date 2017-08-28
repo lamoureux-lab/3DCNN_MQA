@@ -33,7 +33,7 @@ and take the sum of the layer output weighted by the gradient.
 %%% GL: Why ``activations'' plural but ``gradient'' singular?
 %
 %%% GL: Let me try to put that in simpler words:
-This highlights all units from that layer that are both strongly
+This highlights output regios of that layer that are both strongly
 activated and highly influential on the output.
 %
 %%% GL: Too much jargon in the next sentence (upscaled? reception
@@ -64,19 +64,19 @@ An example of the output is given in Fig.~\ref{Fig:GradCAMT0776}
 %G: yes
 In line with our scoring procedure, we perform the Grad-CAM analysis
 by uniformly sampling 100 rotations and translations of the decoys. We
-obtain the wighted layer outputs for each of the transformations sampled and
+obtain the weighted layer outputs for each of the transformations sampled and
 project them onto the atoms of the
 decoy. Figure~\ref{Fig:GradCAMT0776} shows two representations of such
-an average wighted layer outputs (for decoy Distill\_TS3 of target T0776): a
+an average weighted layer outputs (for decoy Distill\_TS3 of target T0776): a
 projection of the map onto the atoms of the decoy, represented as a
 color-coded value on the cartoon rendering of the structure, and a
 projection onto a 3D grid, represented as an isosurface. The
 isosurface of Fig.~\ref{Fig:GradCAMT0776} is a hollow shell containing
 most of the solvent exposed region of the decoy, which indicates that
 the network enforces packing: any increase in the atomic density
-around the well-packed core is penalized.
+around the well-packed core decreases the quality of the decoy.
 %
-Strikingly, we find that the wighted layer outputs are mostly zero for
+Strikingly, we find that the weighted layer outputs are mostly zero for
 structures close to the native ones (results not shown), despite the
 fact that no gradient information was included in the training
 procedure. 
@@ -86,7 +86,7 @@ procedure.
 %G: not justified
 
 Figure~\ref{Fig:GradCAMT0776_more} shows the color-coded
-values of the maps for four decoys of target T0776.
+values of the weighted outputs for four decoys of target T0776.
 %%% GL: Discussion of these results???
 %G: 
 %>The
@@ -143,8 +143,8 @@ selected from the PDB database with less than 20\% pair sequence identity, conta
 %%% GL: Why targets are you using? How many decoys per target? You
 %%% need to explain better what that second dataset is.
 %G: added
-The absolute \tchanged{Pearson} $R$ coefficient averaged over all the
-structures in this benchmark was $0.85$. Spearman $\rho$ coefficient
+The absolute \tchanged{Pearson} $R$ coefficient averaged per-target over all the
+targets in this benchmark was $0.85$. Spearman $\rho$ coefficient
 and Kendall $\tau$ coefficient were $0.83$ and $0.64$, respectively.
 Representative examples of scoring funnels are shown in
 Fig.~\ref{Fig:3DRobotBenchmark}.  We see, that the MQA method devised

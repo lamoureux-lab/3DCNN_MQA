@@ -5,7 +5,7 @@ degrees of freedom of all decoy structures during the training.
 %
 Figure~\ref{Fig:DecoysScoreDistribution} shows the distributions of
 scores for several decoy structures of the same target (T0832),
-calculated for 900 orientations and positions picked at random.
+calculated for 900 rotations and translations sampled uniformly.
 While the score of a given structure is not strictly invariant under
 rotation and translation, it has a relatively narrow, unimodal
 distribution.
@@ -14,8 +14,8 @@ distribution.
 %G: Got it
 More importantly, the difference between the average scores of two
 decoys is usually larger than their variances. To reduce the influence
-of the choice of orientation and position on the final ranking, we
-estimate the score of each decoy from the average of 100 scores
+of the choice of rotation and translation on the final ranking, we
+estimate the score of each decoy from the average of 90 scores
 calculated for random rotations and translations.
 
 %%% GL: Figure 5 should go in Supporting information. It's showing a
@@ -57,9 +57,10 @@ ProQ3D employs the same features as ProQ2D as well as Rosetta energy terms based
 This algorithm also uses the features as an input to the deep neural network to predict the 
 local and global quality of the candidate structure.
 VoroMQA uses knowledge-based potential that depends on the contact surface between two atoms or the solvent. The contact surfaces are calculated 
-using Voronoi tesselation and representing atoms as spheres with the radii equal to the Van-der-Waals radii of the corresponding atoms. 
+by representing atoms as spheres with the radii equal to the Van-der-Waals radii of the corresponding atoms and using Voronoi tesselation to obtain 
+the contact surface. 
 RWPlus is a pairwise knowledge-based potential that uses freely-joined chain model to calculate distance distributions in the reference state.
-We chose ProQ2D and ProQ3D as the methods that are derived from the best performing single-model algorithms in CASP11 (ProQ2). The RWPlus 
+We chose ProQ2D and ProQ3D as the methods that are derived from the best performing single-model algorithm in CASP11 (ProQ2). The RWPlus 
 was selected because it represents previously widespread knowledge-based approach to separate decoys from the corresponding native structures.
 VoroMQA was selected, because this approach is rather dissimilar to the common machine-learning techniques and pairwise distance-based scoring potentials.
 The other important criterion for selecting these methods is the availability of their source-code or executable. This allowed us to re-evaluate them on 
@@ -103,68 +104,3 @@ our CASP11 benchmark, where the decoys side chains were optimized using SCWRL pr
 \end{center}
 \end{table}
 
-Figure~\ref{Fig:LossVsECOD} shows how the performance of each
-algorithm is affected by the ECOD similarity of the structures used
-for testing to those used for training. The test set in broken down
-into 5 subsets:
-\begin{itemize}
-\item
-``No information'', the structures for which no ECOD information is
-available (T0820, T0823, T0824, T0827, T0835, T0836, and T0838; see
-Fig.~\ref{Fig:summaryTable});
-\item
-``A'', the structures in the same A-group of at least one training
-structure but not in the same X-group (T0759, T0763, T0769, etc.);
-\item
-``A+X'', the structures in the same X-group of at least one training
-structure but not in the same H-group (T0760, T0761, T0765, etc.);
-\item
-``A+X+H+T'', the structures in the same T-group of at least one
-training structure but not in the same F-group (T0762, T0766, T0767,
-etc.);
-\item
-``A+X+H+T+F'', the structures in the same F-group of at least one
-training structure (T0764, T0768, T0770, etc.).
-\end{itemize}
-%%% GL: Is this correct?
-%
-%%% GL: By the way, is Figure 1 correct for structures T0773, T0797,
-%%% and T0816?  The ECOD information is available but the structures
-%%% belong to A-groups not found in the training set?
-%G: to do on server
-%
-We expect the performance of any knowledge-based MQA method to
-increase as the structures used for testing become more similar to the
-structures used for training. By contrast, we would expect a purely
-first-principles method to show no increase in performance.
-%
-Both our 3DCNN algorithm and the VoroMQA algorithm show marked
-performance gains as proteins become more similar to the training set,
-going from an average loss of around $0.10$ for ``no information''
-structures to an average loss of around $0.04$ for ``A+X+H+T+F''
-structures (see Fig.~\ref{Fig:LossVsECOD}).
-%
-By comparison, algorithms ProQ2D and ProQ3D show modest performance
-gains (if any) and algorithm RWPlus shows a performance independent
-from structural similarity.
-%
-Overall, these results suggest that the 3DCNN and VoroMQA methods make
-better use of structural information---and rely more on
-memorization---than the ProQ2D, ProQ3D, and RWPlus methods.
-%%% GL: Does it make sense?
-%G: to do on server
-
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{Fig/LossVsECOD.eps}
-%
-    \caption{Loss of the MQA algorithms of Table~\ref{Tbl:TestResults}
-    on the CASP11 test set stage~2, divided into 5 subsets of
-    increasing structural similarity with the training set. The
-    subsets are chosen according to the presence in the training set
-    of structures belonging to the same ECOD categories (see text for
-    details).}
-%
-    \label{Fig:LossVsECOD}
-\end{figure}

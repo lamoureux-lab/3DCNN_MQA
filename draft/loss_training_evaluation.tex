@@ -69,7 +69,7 @@ correlation coefficient of $-1$.
 The optimization of the parameters of our model was performed
 using the the Adam algorithm \cite{kingma2014adam}. The gradient of the loss 
 function with respect to the model parameters was computed on the pairs of 
-models in the batch. The batch size was set to 9 models.
+models in the batch. The batch size was set to $M = 9$ models.
 %%%
 %%% GL: This paragraph needs some work
 %%%
@@ -77,19 +77,18 @@ models in the batch. The batch size was set to 9 models.
 
 
 The training dataset is sampled in the following way: first we choose a
-random protein from the dataset, then we sample decoys of this
-protein.  The procedure is repeated for all the proteins in the
-dataset. One epoch corresponds to one pass through all proteins in the
-dataset.  The decoys are sampled in a homogeneous way: we divide all
-the decoys into $M$ clusters by the value of GDT\_TS score.
-Precisely, the decoy $i$ belongs to the cluster number $ \left[
+random target from the dataset, then we sample decoys of this
+target. One epoch corresponds to one pass through all targets in the
+dataset. The decoys are sampled in a homogeneous way: we divide all
+the decoys into $M = 9$ bins by the value of GDT\_TS score.
+Precisely, the decoy $i$ belongs to the bin number $ \left[
   \frac{\max(\text{GDT\_TS}) - \text{GDT\_TS}_i}{\max(\text{GDT\_TS})
     - \min(\text{GDT\_TS})} \right] + 1$, where $\max(\text{GDT\_TS})$
 and $\min(\text{GDT\_TS})$ are computed for all the decoys of the
-chosen protein. If there are empty clusters, then we take secon decoys
-from each non-empty and so on until we filled the batch.  At the end
-of each epoch we randomly shuffle the order of protein and the order
-of decoys in each cluster.
+chosen protein. If there are empty bins, then we take second decoy
+from each non-empty and so on until we filled the batch. At the end
+of each epoch we randomly shuffle the order of targets and the order
+of decoys in each bin.
 
 Decoy structures are randomly rotated and translated each time they
 are used as input. The rotations are sampled uniformly
