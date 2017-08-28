@@ -101,7 +101,7 @@ def get_zscore(proteins, decoys, decoys_scores, subset=None):
 
 def get_average_loss(proteins, decoys, decoys_scores, subset=None, return_all=False, descending=True):
 	loss = 0.0
-	loss_all = {}
+	loss_all = []
 	decoys_info = {}
 	for n,protein in enumerate(proteins):
 		if not subset is None:
@@ -110,10 +110,11 @@ def get_average_loss(proteins, decoys, decoys_scores, subset=None, return_all=Fa
 		top1_decoy = get_top1_decoy(protein, decoys, decoys_scores,descending)
 		best_decoy = get_best_decoy(protein, decoys, decoys_scores)
 		loss = loss + np.abs(top1_decoy[1] - best_decoy[1])
-		loss_all[protein] = np.abs(top1_decoy[1] - best_decoy[1])
+		loss_all.append(np.abs(top1_decoy[1] - best_decoy[1]))
 		decoys_info[protein] = (top1_decoy, best_decoy)
+	
 	if return_all:
-		return loss_all, decoys_info
+		return loss_all
 
 	if subset is None:
 		return loss/float(len(proteins))
@@ -303,16 +304,20 @@ def plot_matched_results(	experiment_name = 'QA',
 	
 	
 	res = []
+	std = []
 	for idx in range(0,6):
 		if idx in match_targets.keys():
-			loss = get_average_loss(match_targets[idx], decoys, decoys_scores, subset, False, descending)
-			print idx, len(match_targets[idx]), loss
-			res.append(loss)
+			all_loss = get_average_loss(match_targets[idx], decoys, decoys_scores, subset, True, descending)
+			print all_loss
+			print idx, len(match_targets[idx])
+
+			res.append(np.mean(all_loss))
+			std.append(np.std(all_loss))
 		else:
 			print idx, 'No match'
 			# res.append(0)
 	print res
-	return res
+	return res, std
 
 def plot_test_outliers(	experiment_name = 'QA',
 						model_name = 'ranking_model_11atomTypes',
@@ -457,7 +462,7 @@ if __name__=='__main__':
 	
 	
 	if lossVsEcod:
-		resProQ2D=plot_matched_results(	experiment_name = 'ProQ2D',
+		resProQ2D, errProQ2D=plot_matched_results(	experiment_name = 'ProQ2D',
 								model_name = None,
 								trainig_dataset_name = None,
 								test_dataset_name = 'CASP11Stage2_SCWRL',
@@ -465,7 +470,7 @@ if __name__=='__main__':
 								decoy_ranging_column = 'gdt-ts',
 								suffix = '',
 								descending=False)
-		resProQ3D=plot_matched_results(	experiment_name = 'ProQ3D',
+		resProQ3D, errProQ3D=plot_matched_results(	experiment_name = 'ProQ3D',
 								model_name = None,
 								trainig_dataset_name = None,
 								test_dataset_name = 'CASP11Stage2_SCWRL',
@@ -473,7 +478,7 @@ if __name__=='__main__':
 								decoy_ranging_column = 'gdt-ts',
 								suffix = '',
 								descending=False)
-		resVMQA=plot_matched_results(	experiment_name = 'VoroMQA',
+		resVMQA, errVMQA=plot_matched_results(	experiment_name = 'VoroMQA',
 								model_name = None,
 								trainig_dataset_name = None,
 								test_dataset_name = 'CASP11Stage2_SCWRL',
@@ -482,7 +487,7 @@ if __name__=='__main__':
 								suffix = '',
 								descending=False)
 
-		resRW=plot_matched_results(	experiment_name = 'RWPlus',
+		resRW, errRW=plot_matched_results(	experiment_name = 'RWPlus',
 								model_name = None,
 								trainig_dataset_name = None,
 								test_dataset_name = 'CASP11Stage2_SCWRL',
@@ -491,7 +496,7 @@ if __name__=='__main__':
 								suffix = '',
 								descending=True)
 
-		resCNN=plot_matched_results(	experiment_name = 'QA_uniform',
+		resCNN, errCNN=plot_matched_results(	experiment_name = 'QA_uniform',
 							model_name = 'ranking_model_8',
 							trainig_dataset_name = 'CASP_SCWRL',
 							test_dataset_name = 'CASP11Stage2_SCWRL',
@@ -504,11 +509,11 @@ if __name__=='__main__':
 		ax = fig.add_subplot(111)
 		ind = np.arange(5)
 		width = 0.35
-		plt.bar(ind, resCNN, width/6.0, label = '3DCNN', color = 'r')
-		plt.bar(ind+width/5.0, resRW, width/6.0, label = 'RWPlus', color = 'y')
-		plt.bar(ind+2.0*width/5.0, resVMQA, width/6.0, label = 'VoroMQA')
-		plt.bar(ind+3.0*width/5.0, resProQ2D, width/6.0, label = 'ProQ2D', color = 'g')
-		plt.bar(ind+4.0*width/5.0, resProQ3D, width/6.0, label = 'ProQ3D', color = 'b')
+		plt.bar(ind, resCNN, width/6.0, yerr=errCNN, label = '3DCNN', color = 'r')
+		plt.bar(ind+width/5.0, resRW, width/6.0, yerr=errRW, label = 'RWPlus', color = 'y')
+		plt.bar(ind+2.0*width/5.0, resVMQA, width/6.0, yerr=errVMQA, label = 'VoroMQA')
+		plt.bar(ind+3.0*width/5.0, resProQ2D, width/6.0, yerr=errProQ2D, label = 'ProQ2D', color = 'g')
+		plt.bar(ind+4.0*width/5.0, resProQ3D, width/6.0, yerr=errProQ3D, label = 'ProQ3D', color = 'b')
 		ax.set_xticklabels(['No overlap', 'A', 'A+X', 'A+X+H+T', 'A+X+H+T+F'], rotation=90)
 		ax.set_xticks(ind+width/2.0, minor=False)
 		plt.tick_params(axis='x', which='major', labelsize=14)
@@ -519,8 +524,8 @@ if __name__=='__main__':
 		plt.ylabel('Loss',fontsize=14)
 		plt.legend(prop={'size':14})
 		
-		# plt.savefig("LossVsECOD.png", format='png', dpi=600)
-		plt.savefig("LossVsECOD.tif", format='tif', dpi=600)
+		plt.savefig("LossVsECOD.png", format='png', dpi=600)
+		# plt.savefig("LossVsECOD.tif", format='tif', dpi=600)
 		# os.system('convert LossVsECOD.tif -profile USWebUncoated.icc cmyk_LossVsECOD.tif')
 		
 

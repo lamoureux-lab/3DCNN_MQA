@@ -126,14 +126,14 @@ def plot_diff_sampling():
 	data_r = read_samples(data_path_r)
 	data_t = read_samples(data_path_t)
 	
-	n, bins_rt, patches_rt = plt.hist(data_rt, 50, normed=1, alpha=0.5, fill=True, label='Sampled rotations and translations')
-	n, bins_r, patches_r = plt.hist(data_r, 50, normed=1, histtype='step', linestyle=('solid'),color=('red'), lw=1.5, alpha=1.0, fill=False, label='Sampled rotations')
+	n, bins_rt, patches_rt = plt.hist(data_rt, 50, normed=1, alpha=0.5, fill=True, color = ('red'), label='Sampled rotations and translations')
+	n, bins_r, patches_r = plt.hist(data_r, 50, normed=1, histtype='step', linestyle=('solid'),color=('black'), lw=1.5, alpha=1.0, fill=False, label='Sampled rotations')
 	n, bins_t, patches_t = plt.hist(data_t, 50, normed=1, histtype='step', linestyle=('dashed'),color=('black'), lw=1.5, alpha=1.0, fill=False, label='Sampled translations')
 	
 	mu, std = norm.fit(data_rt)
 	# mu, sigma = 1.4, 0.4
-	y = mlab.normpdf( bins_rt, mu, std)
-	l = plt.plot(bins_rt, y, 'r--', linewidth=2, color=('green'), label='Normal distribution, mu = %.2f,  std = %.2f' % (mu, std))
+	# y = mlab.normpdf( bins_rt, mu, std)
+	# l = plt.plot(bins_rt, y, 'r--', linewidth=2, color=('green'), label='Normal distribution, mu = %.2f,  std = %.2f' % (mu, std))
 	# title = "Fit results: mu = %.2f,  std = %.2f" % (mu, std)
 	# plt.title(title)
 	plt.ylim([0,2.2])
@@ -144,5 +144,5 @@ def plot_diff_sampling():
 	plt.savefig('sampling_dist.tif', format='tif', dpi=600)
 
 if __name__=='__main__':
-	# plot_several_decoys_dist()
+	plot_several_decoys_dist()
 	plot_diff_sampling()
