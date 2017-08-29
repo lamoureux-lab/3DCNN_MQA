@@ -95,6 +95,28 @@ clan.}
 \end{center}
 \end{table}
 
+\begin{table}[H]
+\begin{center}
+\begin{tabular}{ l | l | l }
+
+    Target & Has PDB & Has ECOD classification \\
+    \hline
+    T0773 &True &False\\
+    T0820 &False &False\\
+    T0823 &False &False\\
+    T0824 &False &False\\
+    T0827 &False &False\\
+    T0835 &False &False\\
+    T0836 &False &False\\
+    T0838 &False &False\\
+\end{tabular}
+   
+\caption{Targets from CASP11 that do not have corresponding PDB entries or ECOD classification.}
+%
+\label{Tbl:CASP11PDB_ECOD}
+\end{center}
+\end{table}
+
 
 Figure \ref{Fig:foldsGraph} shows the classification of the test set
 into ECOD groups. Branches drawn in black correspond to groups
@@ -256,9 +278,8 @@ for testing to those used for training. The test set in broken down
 into 5 subsets:
 \begin{itemize}
 \item
-``No information'', the structures for which no ECOD information is
-available (T0820, T0823, T0824, T0827, T0835, T0836, and T0838; see
-Fig.~\ref{Fig:summaryTable});
+``No overlap'', the structures for which there is no structure in the training set with 
+the same ECOD ``A'' class (T0797 and T0773); see Fig.~\ref{Fig:summaryTable});
 \item
 ``A'', the structures in the same A-group of at least one training
 structure but not in the same X-group (T0759, T0763, T0769, etc.);

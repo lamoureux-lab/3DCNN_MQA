@@ -78,9 +78,30 @@ def prop_find_best_match(var, dataset):
 						best_match[i]=1
 	return best_match
 
-if __name__=='__main__':
-	target_seq = read_sequences_data('data')
+def inspect_missing_entries():
+	test_dataset_targets = read_dataset_targets('/home/lupoglaz/ProteinsDataset/CASP11Stage2_SCWRL/Description', 'datasetDescription.dat')
+	target_list = sorted([(key, int(key[1:])) for key in test_dataset_targets], key = lambda x: x[1])
+
+	with open("tmp/CASP2ECOD.pkl",'r') as fin:
+		casp2ecod = pkl.load(fin)
+	with open("tmp/CASP2PDB.pkl",'r') as fin:
+		casp2pdb = pkl.load(fin)
+
+	for target, num in target_list:
+		pdb = False 
+		if target in casp2pdb.keys():
+			pdb = True
+		ecod = False 
+		if target in casp2ecod.keys():
+			ecod = True
+		print target, pdb, ecod
 	
+if __name__=='__main__':
+	inspect_missing_entries()
+	sys.exit()
+
+
+	target_seq = read_sequences_data('data')	
 	training_dataset_targets = read_dataset_targets('/home/lupoglaz/ProteinsDataset/CASP_SCWRL/Description', 'datasetDescription.dat')
 	test_dataset_targets = read_dataset_targets('/home/lupoglaz/ProteinsDataset/CASP11Stage2_SCWRL/Description', 'datasetDescription.dat')
 

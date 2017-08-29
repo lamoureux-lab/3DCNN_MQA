@@ -189,7 +189,8 @@ def plot_test_results(	experiment_name = 'QA',
 
 	included_proteins = []
 	for protein in proteins:
-		if protein in ['T0779', 'T0842', 'T0844', 'T0846', 'T0850']:
+		if protein in ['T0797','T0798','T0825']:
+			print 'Excluded CAPRI target', protein
 			continue
 		included_proteins.append(protein)
 
@@ -295,7 +296,7 @@ def plot_matched_results(	experiment_name = 'QA',
 		match_targets[0].append(target)
 
 	for target in match_data.keys():
-		if target in ['T0779', 'T0842', 'T0844', 'T0846', 'T0850']:
+		if target in ['T0820', 'T0823', 'T0824', 'T0827', 'T0835', 'T0836', 'T0838']:
 			continue
 		idx =  int(np.sum(np.floor(match_data[target][:5])))
 		if not idx in match_targets:
@@ -385,7 +386,7 @@ if __name__=='__main__':
 		# plot_test_results(	experiment_name = 'QA_uniform',
 		# 					model_name = 'ranking_model_8',
 		# 					trainig_dataset_name = 'CASP_SCWRL',
-		# 					test_dataset_name = 'CASP11Stage2_SCWRL',
+		# 					test_dataset_name = 'CASP11Stage1_SCWRL',
 		# 					# test_dataset_name = 'CASP_SCWRL',
 		# 					test_dataset_subset = 'datasetDescription.dat',
 		# 					decoy_ranging_column = 'gdt-ts',
@@ -394,7 +395,7 @@ if __name__=='__main__':
 		# plot_test_results(	experiment_name = 'RWPlus',
 		# 					model_name = None,
 		# 					trainig_dataset_name = None,
-		# 					test_dataset_name = 'CASP11Stage2_SCWRL',
+		# 					test_dataset_name = 'CASP11Stage1_SCWRL',
 		# 					# test_dataset_name = 'CASP_SCWRL',
 		# 					test_dataset_subset = 'datasetDescription.dat',
 		# 					decoy_ranging_column = 'gdt-ts',
@@ -404,7 +405,7 @@ if __name__=='__main__':
 		# plot_test_results(	experiment_name = 'VoroMQA',
 		# 					model_name = None,
 		# 					trainig_dataset_name = None,
-		# 					test_dataset_name = 'CASP11Stage2_SCWRL',
+		# 					test_dataset_name = 'CASP11Stage1_SCWRL',
 		# 					# test_dataset_name = 'CASP_SCWRL',
 		# 					test_dataset_subset = 'datasetDescription.dat',
 		# 					decoy_ranging_column = 'gdt-ts',
@@ -420,43 +421,18 @@ if __name__=='__main__':
 		# 					decoy_ranging_column = 'gdt-ts',
 		# 					suffix = '',
 		# 					descending=False)
-		# plot_test_results(	experiment_name = 'ProQ2D',
-		# 					model_name = None,
-		# 					trainig_dataset_name = None,
-		# 					test_dataset_name = 'CASP11Stage1_SCWRL',
-		# 					# test_dataset_name = 'CASP_SCWRL',
-		# 					test_dataset_subset = 'datasetDescription.dat',
-		# 					decoy_ranging_column = 'gdt-ts',
-		# 					suffix = '',
-		# 					descending=False)
-		plot_test_results(	experiment_name = 'ProQ3D',
+		plot_test_results(	experiment_name = 'ProQ2D',
 							model_name = None,
 							trainig_dataset_name = None,
-							test_dataset_name = 'CASP11Stage2_SCWRL',
+							test_dataset_name = 'CASP11Stage1_SCWRL',
 							# test_dataset_name = 'CASP_SCWRL',
 							test_dataset_subset = 'datasetDescription.dat',
 							decoy_ranging_column = 'gdt-ts',
 							suffix = '',
 							descending=False)
-		# plot_test_results(	experiment_name = 'ProQ2D',
-		# 					model_name = None,
-		# 					trainig_dataset_name = None,
-		# 					test_dataset_name = 'CASP11Stage2_SCWRL',
-		# 					# test_dataset_name = 'CASP_SCWRL',
-		# 					test_dataset_subset = 'datasetDescription.dat',
-		# 					decoy_ranging_column = 'gdt-ts',
-		# 					suffix = '',
-		# 					descending=False)
+		
 
-		# plot_test_results(	experiment_name = 'ProQ2',
-		# 					model_name = None,
-		# 					trainig_dataset_name = None,
-		# 					test_dataset_name = 'CASP11Stage1_SCWRL',
-		# 					# test_dataset_name = 'CASP_SCWRL',
-		# 					test_dataset_subset = 'datasetDescription.dat',
-		# 					decoy_ranging_column = 'gdt-ts',
-		# 					suffix = '',
-		# 					descending=False)
+		
 	if uniformDecoys:
 		get_uniformly_dist_decoys()
 	
