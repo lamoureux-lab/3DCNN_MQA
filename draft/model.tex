@@ -1,20 +1,20 @@
 Convolutional neural networks were first proposed for image
-recognition by LeCun et al. \cite{lecun1989backpropagation}, but have
+recognition by LeCun et al.\ \cite{lecun1989backpropagation}, but have
 gained wider recognition after the ImageNet 2012
-competition \cite{krizhevsky2012imagenet}.  In this work we use 3D
+competition \cite{krizhevsky2012imagenet}. In this work we use 3D
 convolutional networks to score protein structures. The architecture
 of the model is shown in Fig.\ \ref{Fig:CNNModel}.  It is comprised of
 three blocks of alternating convolutional, volumetric batch
 normalization, and ReLU layers, followed by three fully-connected
 layers with ReLU nonlinearities. The final output of the network is a
-single number, interpreted as \tchanged{the} score of the input structure.
+single number, interpreted as the score of the input structure.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{Fig/ConvnetDiagramV1.eps}
 
     \caption{Schematic representation of the convolutional neural
-    network architecture used in this work.  Line connections across
+    network architecture used in this work. Line connections across
     boxes denote the consecutive application of a 3D convolutional
     layer (``Convolution''), a batch normalization layer
     (``BatchNorm''), and a ReLU layer. Arrows between boxes denote
@@ -24,7 +24,7 @@ single number, interpreted as \tchanged{the} score of the input structure.
     domains are $3\times 3\times 3$. The grey stripes denote
     one-dimensional vectors and crossed lines between them stand for
     fully-connected layers with ReLU non-linearities. Details of the
-    model parameters can be found in Supplementary Information.}
+    model parameters can be found in Supplementary Information Table 4.}
 
     \label{Fig:CNNModel}
 \end{figure}
@@ -32,8 +32,6 @@ single number, interpreted as \tchanged{the} score of the input structure.
 Each 3D convolutional layer takes $N$ input density maps $f$ and
 transforms them using $M$ filters $F$ according to the following
 formula:
-%%% GL: I'm replacing \tau by r', just to use a more conventional
-%%% notation for convolutions
 $$
 f^\text{out}_i (\mathbf{r}) = \sum^{N}_{j=1} \int F_i (\mathbf{r} - \mathbf{r'}) \cdot f^\text{in}_j(\mathbf{r'}) ~d\mathbf{r'}, \forall i \in [1,M]
 $$
@@ -51,9 +49,7 @@ covariate shift: the change in the distribution of subnetwork outputs
 due to the change in its parameters during the training. In practice,
 this layer normalizes each input value according to the
 mean and variance of the corresponding input within the subset of
-examples used to estimate the gradient (``minibatch''):
-%%% GL: I'm suggesting to use index k for the minibatch examples
-%%% (instead of i, which is already used)
+examples used to estimate the gradient (``batch''):
 $$
 \hat{f}^\text{in}_k(\mathbf{r}) = \frac{f^\text{in}(\mathbf{r}) - \mu_\text{B}}{\sqrt{\sigma^{2}_\text{B} + \epsilon}}, \forall k \in [1,N_\text{B}]
 $$
@@ -75,20 +71,15 @@ parameters of the network during the training.
 The maximum pooling layer (``MaxPool'') is used to build a
 coarse-grained representation of the input. The output of this layer
 is the maximum over the cubes of size $d \times d \times d$ that cover
-the input domain without overlapping.  The output data domain is then
-$d$ times smaller than the input data box. All three ``MaxPool''
-layers of the model (Fig.\ \ref{Fig:CNNModel}) use $d=3$.
-%%% ??? Why does the size go from 118 to 58?
-
-%%% GL: Should we indicate the size of each grid at each layer? It can
-%%% be guessed but it would help the reader if we provide them.
+the input domain with the stride $l$ (distance between two consequtive cubes along one dimension).
+The output size is then approximately $l$ times smaller than the input data bounding box.
+All three ``MaxPool'' layers of the model (Fig.\ \ref{Fig:CNNModel}) use $d=3$ and $l=2$.
 
 During the coarse-graining procedure, the size of the individual data
 grids eventually shrinks to a single cell. The flattening layer
 reshapes the array of 3D density maps to a single vector. Afterwards,
 we compute several transformations using fully-connected layers. These
 layers transform a vector $\mathbf{x}_\text{in}$ as following:
-%%% GL: Using the more conventional notation: vectors in bold, matrices in italics
 $$
 \mathbf{x}_\text{out} = W \cdot \mathbf{x}_\text{in} + \mathbf{b}
 $$

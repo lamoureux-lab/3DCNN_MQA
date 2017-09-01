@@ -5,7 +5,7 @@ the corresponding native structure, as quantified by the GDT\_TS score
 \cite{zemla2001casp4}, for instance. Such a ranking approach to the
 problem of model quality assessment has recently been used by the
 MQAPRank method \cite{jing2016sorting}, which, however, relies on a
-support vector machine architecture and uses high-level features as
+support vector machine model and uses high-level features as
 input.
 
 In the present work, we define the loss function in terms the margin
@@ -20,7 +20,7 @@ y_{ij} = \begin{cases}
 $$
 %
 Here, $\text{GDT\_TS}_i$ is the global distance test total score of
-the $i$-th decoy. We use the following expression for the pairwise
+the $i$-th decoy. In this work we assume that $\text{GDT\_TS}\in [0,1]$. We use the following expression for the pairwise
 ranking scoring function:
 $$
 L_{ij} = w_{ij} \cdot \max \left[ 0, 1 - y_{ij} \left( f \left( x_i \right) - f \left( x_j \right) \right) \right]
@@ -35,9 +35,8 @@ w_{ij} = \begin{cases}
             \end{cases}
 $$
 %
-where $T$ is a threshold constant set to 0.1~{\AA}. This has the
-effect of avoiding to train the model on pairs of decoys that are too
-similar.
+where $T$ is a threshold constant set to 0.1 GDT\_TS unit. This threshold removes similar decoys from 
+the training.
 
 During the training procedure we load $N_\text{B}$ decoy structures of
 a given target into memory (a ``batch'') and compute the output of the
@@ -45,24 +44,24 @@ network and the average loss:
 $$ L = \frac{1}{N^{2}_\text{B}} \sum_{i=1,j=1, i \neq j}^{N_\text{B}} L_{ij} $$
 Afterwards, we compute the gradient of the average loss with respect
 to the network parameters and update them using the Adam algorithm
-\cite{kingma2014adam}. We use a batch size $N_B = 9$.
+\cite{kingma2014adam}. We use the batch size $N_B = 9$.
 
 
 \subsection{Evaluation criteria}
 We evaluate the model using various correlation coefficients of the
-scores and using a loss criterion defined, for any given protein, as
+scores and the loss criterion. The latter is defined, for any given protein, as
 the absolute difference between the GDT\_TS of the best decoy and the
-GDT\_TS of the decoy with the lowest $f$ score:
+GDT\_TS of the decoy with the lowest predicted score $f$:
 $$ 
 \text{Loss} = \left| \max_i( \text{GDT\_TS}_i ) - \text{GDT\_TS}_{\mathrm{argmin}_i(f(x_i))} \right|
 $$
 %
 The correlation coefficients between the $f$ score produced by the
 model and the GDT\_TS score are computed for all decoys of a given
-protein in the test set, and are then averaged over all
-proteins. Since the value of GDT\_TS increases with the quality of a
-model but the value of $f$ decreases, an ideal model would show a
-correlation coefficient of $-1$.
+target in the test set, and are then averaged over all
+targets (per-target average). Since the value of GDT\_TS increases with the quality of a
+model but the value of $f$ decreases, an ideal QA algorithm would show a
+correlation coefficient of $-1$ and the $\text{Loss} = 0$.
 
 
 \subsection{Optimization and dataset sampling}
@@ -70,11 +69,6 @@ The optimization of the parameters of our model was performed
 using the the Adam algorithm \cite{kingma2014adam}. The gradient of the loss 
 function with respect to the model parameters was computed on the pairs of 
 models in the batch. The batch size was set to $M = 9$ models.
-%%%
-%%% GL: This paragraph needs some work
-%%%
-%G: Rewrote this paragraph
-
 
 The training dataset is sampled in the following way: first we choose a
 random target from the dataset, then we sample decoys of this
@@ -85,7 +79,7 @@ Precisely, the decoy $i$ belongs to the bin number $ \left[
   \frac{\max(\text{GDT\_TS}) - \text{GDT\_TS}_i}{\max(\text{GDT\_TS})
     - \min(\text{GDT\_TS})} \right] + 1$, where $\max(\text{GDT\_TS})$
 and $\min(\text{GDT\_TS})$ are computed for all the decoys of the
-chosen protein. If there are empty bins, then we take second decoy
+chosen target. If there are empty bins, then we take second decoy
 from each non-empty and so on until we filled the batch. At the end
 of each epoch we randomly shuffle the order of targets and the order
 of decoys in each bin.
@@ -94,12 +88,7 @@ Decoy structures are randomly rotated and translated each time they
 are used as input. The rotations are sampled uniformly
 \cite{shoemake1992uniform} and the translation are chosen in such a
 way that the translated protein fits inside the $120$~\AA${}\times
-120$~\AA${}\times 120$~\AA\ input grid.
-%%% GL: Do you add a buffer so that the *density* of the protein also
-%%% fits inside the grid? In other words, do you prevent any atom from
-%%% being less than 2 Angstroms away from the edges of the grid?
-%G: It is a minor detail, we will release the source-code, so not mentioning it 
-%is not an issue, imho.
+120$~\AA${}\times 120$~\AA\ input grid (see Supporting Information for details).
 
 We select the final model based on its performance on a
 \emph{validation subset} consisting of 35 targets (and their decoys)

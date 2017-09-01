@@ -9,31 +9,11 @@ calculated for 900 rotations and translations sampled uniformly.
 While the score of a given structure is not strictly invariant under
 rotation and translation, it has a relatively narrow, unimodal
 distribution.
-%%% GL: I'm saying ``unimodal'' instead of ``Gaussian'' because the
-%%% distributions of Figure 6 do not appear to be Gaussian.
-%G: Got it
 More importantly, the difference between the average scores of two
 decoys is usually larger than their variances. To reduce the influence
 of the choice of rotation and translation on the final ranking, we
 estimate the score of each decoy from the average of 90 scores
 calculated for random rotations and translations.
-
-%%% GL: Figure 5 should go in Supporting information. It's showing a
-%%% somewhat minor point (about the effect of rotations versus
-%%% translations). Figure 6 tells it all.
-%G: I moved this figure to the SI
-
-%%% GL: For consistency, can you show use the same reddish color for
-%%% this histogram as the one you use in Figure 6? (for
-%%% FALCON_EnvFold_TS1). Also, can you use black lines for the
-%%% ``rotations'' histogram?
-%G: to do conversion from tif to eps using photoshop
-
-%%% GL: I would remove the Gaussian distribution curve. It's somewhat
-%%% of an over-interpretation.
-%G: to do conversion from tif to eps using photoshop
-
-
 
 \begin{figure}[H]
     \centering
@@ -47,7 +27,7 @@ calculated for random rotations and translations.
 \end{figure}
 
 Table~\ref{Tbl:TestResults} shows a comparison of our model (3DCNN)
-with state-of-the-art model quality assessement methods: ProQ2D,
+with the state-of-the-art model quality assessement methods: ProQ2D,
 ProQ3D~\cite{uziela2017proq3d}, VoroMQA~\cite{olechnovivc2017voromqa}
 and RWPlus~\cite{zhang2010novel}.
 ProQ2D uses carefully tuned features based on surface area accessibilities, residue-residue contacts, 
@@ -64,13 +44,7 @@ We chose ProQ2D and ProQ3D as the methods that are derived from the best perform
 was selected because it represents previously widespread knowledge-based approach to separate decoys from the corresponding native structures.
 VoroMQA was selected, because this approach is rather dissimilar to the common machine-learning techniques and pairwise distance-based scoring potentials.
 The other important criterion for selecting these methods is the availability of their source-code or executable. This allowed us to re-evaluate them on 
-our CASP11 benchmark, where the decoys side chains were optimized using SCWRL program.
-
-%%% GL: We have to say a few words on each of these methods. What are
-%%% they based on? In what sense are they state of the art?
-%G: added description of these methods.
-%>In what sense are they state of the art?
-% This is rather vague question, I wrote why I chose these.
+our CASP11 benchmark, where the decoys side chains were optimized using SCWRL4 program.
 
 We removed targets T0797, T0798, T0825 from this benchmark, because they were released for multimeric prediction.
 
@@ -98,9 +72,6 @@ We removed targets T0797, T0798, T0825 from this benchmark, because they were re
     state-of-the-art model quality assessment methods on the CASP11
     dataset stages~1 and 2 (see text). The table reports the absolute,
     per-target average values of the correlation coefficients.}
-%%% GL: Is it necessary to mention the order in which the averaging is
-%%% done? I thought all targets had the same number of decoys.
-%G: corrected
     \label{Tbl:TestResults}
 \end{center}
 \end{table}

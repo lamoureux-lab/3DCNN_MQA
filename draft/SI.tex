@@ -53,8 +53,6 @@
 
     Common family & Test set target & Train set targets \\
     \hline
-    %%% I've removed the version numbers of the Pfam IDs
-    %%% I don't think we need them
     PF00795 & T0794 & T0542 \\ \hline
     PF13472 & T0776 & T0448, T0297, T0286, T0750 \\ \hline
     PF03807 & T0813 & T0398, T0393, T0702 \\ \hline
@@ -129,11 +127,6 @@ and T0836 are excluded because they have no structure in the RCSB PDB.
 Four architecture groups present overlap at all levels between the
 training and test sets: ``a/b barrels'', ``beta duplicates or obligate
 multimers'', ``a+b complex topology'', and ``a+b four layers''.
-%%% Is this a useful observation? I don't know what to do with that
-%%% information. More generally, I really don't know what to make of
-%%% Figure 2. It shows a lot of information that we don't need and the
-%%% information we need is mainly in Figure 3.
-
 
 \begin{figure}[H]
     \centering
@@ -144,15 +137,11 @@ multimers'', ``a+b complex topology'', and ``a+b four layers''.
     (A), possible homology (X), homology (H), and topology (T). The
     names of the architecture types are shown in the outer circle of
     the diagram.
-%%% Why do you have two different architecture names in the same A
-%%% group? (brown color: ``alpha complex topology'' and ``alpha
-%%% arrays'')
     The grey lines denote test set classes that have no
     respective representative in the training set. The black lines
     show the classes that have representatives in both training and
     test sets. We do not show the F-groups because they have litle
     overlap among the training and test sets.
-%%% Why not showing the F-groups?
 }
 %
     \label{Fig:foldsGraph}
@@ -230,6 +219,34 @@ in Analysis section of the paper.}
 \end{table}
 
 \section{Training}
+The rotations were sampled in the following way:
+\begin{enumerate}
+\item Select three random uniform values $u_1, u_2, u_3 \in [0,1]$
+\item Construct quaternion from them
+\begin{eqnarray}
+q_0 = \sqrt(1-u_1) \sin(2\pi  u_2) \\
+q_1 = \sqrt(1-u_1) \cos(2\pi  u_2) \\
+q_2 = \sqrt(u_1) \sin(2\pi  u_3) \\
+q_3 = \sqrt(u_1) \cos(2\pi  u_3) 
+\end{eqnarray}
+\item Construct corresponding rotation matrix
+\end{enumerate}
+
+
+The translations were sampled accoriding to the following algorithm:
+\begin{enumerate}
+\item Compute the bounding box of the atoms in the decoy
+\item Shift protein such that the center of the bounding box corresponds to the frame origin 
+\item Rotate protein using random uniform rotation
+\item Calculate the maximum shift along each axis:
+$$
+D_k = \frac{1}{2}\max\left[ 0, \frac{S_k}{2.0} - \frac{B_k}{2.0} \right], k \in {x, y, z}
+$$
+where $S_k$ are input size along the axes x,y,z and $B_k$ are the bounding box sizes along the same axes.
+\item Sample random uniform translation along each axis from the interval $[-\frac{D_k}{2}, \frac{D_k}{2}], k \in {x,y,z}$
+\end{enumerate}
+
+
 \begin{table}[H]
 \begin{center}
 \begin{tabular}{ l | l }
