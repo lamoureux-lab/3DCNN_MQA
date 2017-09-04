@@ -1,6 +1,6 @@
 The protein structure is represented by 11 density maps corresponding
 to the atom types defined in Table \ref{Tbl:atomTypes}. These atom
-types are a simplification of the 20 atom types proposed by Huang and
+types are a simplification of the 20 types proposed by Huang and
 Zou \cite{huang2006iterative, huang2008iterative}, to reduce the
 memory footprint of the model.
 %
@@ -24,7 +24,7 @@ The density of an atom is modeled using the function
                0                 &\text{if } r>2.0\text{ \AA} \\
             \end{cases}
 \end{equation}
-The atom density is projected to the grid corresponding to its atom
+The atomic density is projected to the grid corresponding to its atom
 type. Each grid has a resolution of 1~\AA\ and has $120\times
 120\times 120$ cells.
 
@@ -68,7 +68,7 @@ type. Each grid has a resolution of 1~\AA\ and has $120\times
 \end{center}
 \end{table}
 
-Figure \ref{Fig:atomic_densities} illustrates the atomic densities for
+Figure~\ref{Fig:atomic_densities} illustrates the atomic densities for
 a simple $\alpha$-helical peptide (PDB code 5eh6). This structure
 contains only 6 of the 11 atom types, and only those density maps are
 shown.
