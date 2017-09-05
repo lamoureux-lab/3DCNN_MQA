@@ -23,11 +23,18 @@
 \maketitle
 
 \begin{abstract}
-The assessment of the quality of a protein model is a crucial step during prediction of a protein structure given its sequence. 
-Most of the state-of-art methods rely on heavily engineered features to rank candidate models. In this work we show, that 
-using deep convolutional network we can predict the ranking using the raw 3d atomic densities without any feature tuning. 
-We show, that the model performs on par with the best algorithms. This work shows that it is possible to include 
-such important information as electrostatic potential and solute density distribution into the protein quality assessment algorithms.
+The computational prediction of a protein structure from its sequence
+generally relies on a method to assess the quality of protein
+models. However, most state-of-the-art assessment methods rank
+candidate models using heavily engineered structural features. In this
+work, we show that deep convolutional networks can be used to predict
+the ranking of model structures solely on the basis of their raw
+three-dimensional atomic densities, without any feature tuning.  We
+develop a deep neural network that performs on par with the best
+algorithms from the literature. This work also suggests that it is
+possible to include to the assessment algorithm other important
+three-dimensional information such as electrostatic potential or
+solute distribution.
 \end{abstract}
 
 \section{Introduction}
@@ -55,8 +62,8 @@ such important information as electrostatic potential and solute density distrib
 \section{Discussion}
 \input{discussion.tex}
 
-\bibliography{citations.bib}{}
-\bibliographystyle{plain}
+\bibliography{citations.bib}
+\bibliographystyle{unsrt}
 
 
 \end{document}

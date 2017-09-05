@@ -1,78 +1,86 @@
 Ideally, the score assigned by the model to a decoy should not depend
 on its position and orientation.  To allow the model to learn this
-invariance, we have randomly sampled the rotational and translational
-degrees of freedom of all decoy structures during the training.
+invariance, the rotational and translational degrees of freedom of all
+decoy structures are randomly sampled during the training.
 %
 Figure~\ref{Fig:DecoysScoreDistribution} shows the distributions of
 scores for several decoy structures of the same target (T0832),
 calculated for 900 rotations and translations sampled uniformly.
 While the score of a given structure is not strictly invariant under
 rotation and translation, it has a relatively narrow, unimodal
-distribution.
-%%% GL: I'm saying ``unimodal'' instead of ``Gaussian'' because the
-%%% distributions of Figure 6 do not appear to be Gaussian.
-%G: Got it
-More importantly, the difference between the average scores of two
-decoys is usually larger than their variances. To reduce the influence
-of the choice of rotation and translation on the final ranking, we
-estimate the score of each decoy from the average of 90 scores
-calculated for random rotations and translations.
-
-%%% GL: Figure 5 should go in Supporting information. It's showing a
-%%% somewhat minor point (about the effect of rotations versus
-%%% translations). Figure 6 tells it all.
-%G: I moved this figure to the SI
-
-%%% GL: For consistency, can you show use the same reddish color for
-%%% this histogram as the one you use in Figure 6? (for
-%%% FALCON_EnvFold_TS1). Also, can you use black lines for the
-%%% ``rotations'' histogram?
-%G: to do conversion from tif to eps using photoshop
-
-%%% GL: I would remove the Gaussian distribution curve. It's somewhat
-%%% of an over-interpretation.
-%G: to do conversion from tif to eps using photoshop
-
-
+distribution.  More importantly, the difference between the average
+scores of two decoys is usually larger than their variances. To reduce
+the influence of the choice of rotation and translation on the final
+ranking, we estimate the score of each decoy from the average of 90
+scores calculated for random rotations and translations.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{Fig/decoys_sampling_dist.eps}
 %
-    \caption{Distributions of the scores of five decoys for target
-    T0832 under random translations and rotations. A higher score
-    represents a lower quality.}
+    \caption{Distributions of the $f$ scores of five decoys for target
+    T0832 under random translations and rotations. A lower score
+    represents a higher quality.}
 %
     \label{Fig:DecoysScoreDistribution}
 \end{figure}
 
 Table~\ref{Tbl:TestResults} shows a comparison of our model (3DCNN)
 with state-of-the-art model quality assessement methods: ProQ2D,
-ProQ3D~\cite{uziela2017proq3d}, VoroMQA~\cite{olechnovivc2017voromqa}
-and RWPlus~\cite{zhang2010novel}.
-ProQ2D uses carefully tuned features based on surface area accessibilities, residue-residue contacts, 
-predicted and observed seconday structure, residue conservation and atomic contacts. These features are 
-then used as the inputs of deep neural network to predict local and global structure quality. 
-ProQ3D employs the same features as ProQ2D as well as Rosetta energy terms based on full-atom and centroid models of the protein. 
-This algorithm also uses the features as an input to the deep neural network to predict the 
-local and global quality of the candidate structure.
-VoroMQA uses knowledge-based potential that depends on the contact surface between two atoms or the solvent. The contact surfaces are calculated 
-by representing atoms as spheres with the radii equal to the Van-der-Waals radii of the corresponding atoms and using Voronoi tesselation to obtain 
-the contact surface. 
-RWPlus is a pairwise knowledge-based potential that uses freely-joined chain model to calculate distance distributions in the reference state.
-We chose ProQ2D and ProQ3D as the methods that are derived from the best performing single-model algorithm in CASP11 (ProQ2). The RWPlus 
-was selected because it represents previously widespread knowledge-based approach to separate decoys from the corresponding native structures.
-VoroMQA was selected, because this approach is rather dissimilar to the common machine-learning techniques and pairwise distance-based scoring potentials.
-The other important criterion for selecting these methods is the availability of their source-code or executable. This allowed us to re-evaluate them on 
-our CASP11 benchmark, where the decoys side chains were optimized using SCWRL program.
+ProQ3D~\cite{uziela2017proq3d}, VoroMQA~\cite{olechnovivc2017voromqa},
+and RWplus~\cite{zhang2010novel}.
+%
+ProQ2D uses carefully tuned features based on surface area
+accessibilities, residue-residue contacts, predicted and observed
+seconday structure, residue conservation and atomic contacts. ProQ3D
+employs the same features as ProQ2D, as well as some Rosetta energy
+terms \ref{leaverfay2011rosetta}. For both ProQ2D and ProQ3D, the
+features are used as input for a deep neural network to predict both
+the local and global quality of the structure.
+%
+VoroMQA uses knowledge-based potentials that depend on the contact
+surface between every pair of heavy atoms in the protein (or the
+solvent).
+%%% GL: The next sentence is detail.
+%%The contact surfaces are calculated by representing atoms as spheres
+%%with the radii equal to the van der Waals radii of the corresponding
+%%atoms and using Voronoi tesselation to obtain the contact surface.
+%
+RWplus uses a pairwise knowledge-based potential that uses
+freely-joined chain model to calculate distance distributions in the
+reference state.
+%%% GL: ??? This is not clear.
 
-%%% GL: We have to say a few words on each of these methods. What are
-%%% they based on? In what sense are they state of the art?
-%G: added description of these methods.
-%>In what sense are they state of the art?
-% This is rather vague question, I wrote why I chose these.
 
-We removed targets T0797, T0798, T0825 from this benchmark, because they were released for multimeric prediction.
+%%% GL: Use this paragraph to create some expectations from the
+%%% reader. Note that I'm not framing the paragraph in terms of the
+%%% reasons why we pick each model but in terms of what is
+%%% interesting/good about each one.
+ProQ2D and ProQ3D methods are derived from ProQ2, the best-performing
+single-model algorithm in CASP11, and are expected to perform better
+than the original ProQ2 and ProQ3 methods.
+%
+RWplus is a representative of the widespread knowledge-based approach
+to separating the native structure from its decoys, such as
+DOPE \ref{???}  or DFIRE \ref{???}.
+%%% GL: It's important to cite these because they are the better known
+%%% methods. See the DOPE and DFIRE references in the RWplus
+%%% reference.
+%
+VoroMQA uses an approach distinct from both the common
+machine-learning techniques exemplified by the ``ProQ'' methods and
+the knowledge-based potential techniques exemplified by the RWplus
+method.
+%
+Moreover, these methods have available source codes or executables.
+This allows us to re-evaluate their performance on our CASP11
+benchmark, for which the decoys side chains are optimized using
+SCWRL4.
+
+%%% GL: Try to put this into another paragraph. It doesn't work as a
+%%% standalone paragraph.
+Targets T0797, T0798, T0825 are removed from this benchmark because
+they were released for multimeric prediction.
 
 \begin{table}[H]
 \begin{center}
@@ -98,9 +106,6 @@ We removed targets T0797, T0798, T0825 from this benchmark, because they were re
     state-of-the-art model quality assessment methods on the CASP11
     dataset stages~1 and 2 (see text). The table reports the absolute,
     per-target average values of the correlation coefficients.}
-%%% GL: Is it necessary to mention the order in which the averaging is
-%%% done? I thought all targets had the same number of decoys.
-%G: corrected
     \label{Tbl:TestResults}
 \end{center}
 \end{table}

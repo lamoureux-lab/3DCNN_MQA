@@ -1,21 +1,11 @@
 
-Protein folding remains one of the outstanding challenges in
-structural biology \cite{dill2012folding}. 
-
-% While it is usually defined
-% as the problem of predicting the three-dimensional (3D) structure of a
-% protein from its amino acid sequence, \tstrange{it can also be cast as a ranking problem}:
-% %%% Why do you call this text ``strange''? How would you say it?
-% Given a number of structural models of various
-% qualities, can we computationally predict how close each of these
-% models is to the native fold of the protein?
-
-\tchanged{
-It is usually defined as the problem of predicting the three-dimensional (3D) structure of a
-protein from its amino acid sequence. The crucial component of making such prediction is 
-the ranking of candidate structures. Given a number of structural models, 
-can we computationally predict how close each of these models is to the unknown native fold of the protein?
-}
+The protein folding problem remains one of the outstanding challenges
+in structural biology \cite{dill2012folding}.  It is usually defined
+as the task of predicting the three-dimensional (3D) structure of a
+protein from its amino acid sequence. A crucial step when making such
+prediction is the ranking of candidate structures. Given a number of
+structural models, can we computationally predict how close each of
+them is to the unknown native fold of the protein?
 
 Progress in the field is monitored through the Critical Assessment of
 protein Structure Prediction (CASP) competition \cite{moult1995large},
@@ -26,7 +16,7 @@ sampling step, which generates a number of plausible protein
 conformations, and a quality assessment step, which attempts to select
 the conformations closest to the unknown native structure.
 
-In this paper we explore the application of deep learning to the
+In this work we explore the application of deep learning to the
 problem of ``model quality assessment'' (MQA), also called
 ``estimation of model accuracy'' (EMA) \cite{kryshtafovych2015}. Deep
 learning (DL) has recently garnered considerable interest in the
@@ -47,11 +37,6 @@ precision \cite{zhou2015predicting}. These successes have one thing in
 common: they use raw data directly as input and do not attempt to
 engineer features from them.
 
-%\subsection{Related work}
-%%% It makes no sense to have a single subsection. Also, this is going
-%%% to the journal ``Proteins'' and therefore it should not be written
-%%% too much in the ``machine-learning'' style.
-
 DL-inspired methods have been used for protein structure quality
 assessment \cite{nguyen2014dlpro, cao2016deepqa,
 uziela2017proq3d}. For instance, DeepQA \cite{cao2016deepqa} uses 9
@@ -63,7 +48,7 @@ which was the top-performing method in the CASP11
 competition \cite{kryshtafovych2015}.  ProQ3D \cite{uziela2017proq3d}
 uses the same high-level input features as the earlier ProQ3
 method \cite{uziela2016proq3} (including the
-Rosetta \cite{leaverfay2011rosetta} score), but achieves better
+Rosetta \cite{leaverfay2011rosetta} score) but achieves better
 performance by replacing the support vector machine model by a deep
 neural network. Since the original ProQ3 method had one of the top
 performances in CASP12 \cite{elofsson2017qacasp12}, it can be expected
@@ -79,10 +64,6 @@ sligthly more raw input, consisting of the eigenvectors of the
 C$\alpha$-to-C$\alpha$ distance matrix. The model itself is an
 autoencoder \cite{hinton2006reducing} trained to classify the
 structures into either ``near native'' or ``not near native''.
-%%% How is that model doing compared to the others?
-%%% G: It's impossible to compare to other algorithms. They train and test their approach in 
-%%% a completely different way to the other well-known ones. However, I think it performs poorly.
-%%% GL: OK, let's not say anything about its performance, then.
 
 More in line with the ``end-to-end'' spirit of deep learning, methods
 using as input a 3D representation of the structure have been
