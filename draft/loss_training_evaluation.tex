@@ -10,8 +10,10 @@ input.
 
 %%% GL: We need a reference for the ``margin ranking loss''
 %%% concept. Who used it first?
+%G: I cited two papers, one has the exact same expression that we use
+% and the other is what they cite as the pioneering work for this loss function
 In the present work, we define the loss function in terms of the
-margin ranking loss \ref{???} for each pair of decoys.
+margin ranking loss \cite{joachims2002optimizing, gong2013deep} for each pair of decoys.
 %%% GL: I'm simplifying the notation a bit, here. We don't really need
 %%% the x_i notation, so I've replaced f(x_i) by f_i.
 Let $\text{GDT\_TS}_i$ denote the global distance test total score of
@@ -27,10 +29,10 @@ $$
 In this work we assume that $\text{GDT\_TS}\in [0,1]$.
 %%% GL: Why do you write this? What is the actual range of GDT_TS?
 %%% Don't leave the reader guessing...
-%
+%G: It is [0,1] but sometimes people assume it is [0, 100%]. We just do not use % here.
+% There's nothing to guess, in fact. We just precise the notation.
 Let $f_i$ denote the output of the network for decoy $i$. We use the
-following expression for the pairwise ranking scoring function:
-%%% GL: ``ranking scoring function'' or ``ranking loss function''?
+following expression for the pairwise ranking loss function:
 %
 $$
 L_{ij} = w_{ij} \max \left[ 0, 1 - y_{ij} \cdot (f_i - f_j) \right]
@@ -48,6 +50,7 @@ $$
 %
 where $T$ is a threshold constant set to 0.1 GDT\_TS unit.
 %%% GL: What is a GDT_TS unit??? It's in Angstroms, right?
+%G: No it is something between 0 and 1, that's why I precised the interval for this metrics above.
 
 During the training procedure we load $N_\text{B} = 9$ decoy
 structures of a given target into memory (a ``batch'') and compute the
@@ -100,19 +103,20 @@ are sampled in a homogeneous way, by dividing all decoys of a given
 target into $N_\text{B} = 9$ bins by the value of their GDT\_TS score
 and picking one decoy from each bin at random.
 %
-Precisely, decoy $i$ belongs to the bin number $1 + \left[
-  \max(\text{GDT\_TS}) - \text{GDT\_TS}_i \right] / \left[
-  \max(\text{GDT\_TS}) - \min(\text{GDT\_TS}) \right]$, where
-$\max(\text{GDT\_TS})$ and $\min(\text{GDT\_TS})$ are computed for all
+Precisely, decoy $i$ belongs to the bin number 
+$$
+1 + \left[ N_B \times \frac{\text{GDT\_TS}_i - \min(\text{GDT\_TS}) }{\max(\text{GDT\_TS}) - \min(\text{GDT\_TS})} \right]
+$$
+where $\max(\text{GDT\_TS})$ and $\min(\text{GDT\_TS})$ are computed on all
 decoys of the chosen target.
 %%% GL: I repeat my comment: This isn't the formula for the bin
 %%% number. Don't you need an integer from 1 to 9?
-%
-If a bin is empty, the decoy is picked from a non-empty bin chosen at
-random (???), and so on until the batch is full. The order of targets
-and the order of decoys are randomly shuffled at the end of each
+%G: yep, corrected
+During the training we pick $N_B$ decoys from the bins ${1 \dots N_B}$.
+If a bin $k$ is empty, the decoy is picked from a non-empty bin $j \neq k$ chosen randomly.
+The order of targets and the order of decoys in the bins are randomly shuffled at the end of each
 epoch.
-%%% GL: Do we need ``and so on until the batch is full''?
+
 
 Decoy structures are randomly rotated and translated each time they
 are used as input. The rotations are sampled uniformly

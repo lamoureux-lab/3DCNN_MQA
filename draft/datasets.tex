@@ -79,9 +79,10 @@ representation of the overlap between the test and training sets.)
     information for Pfam clans. A black tile in the ``Alignment'' row
     indicates that at least one sequence in the training set aligns to
     the target sequence with an E-value smaller than $10^{-4}$. (Grey
-    indicates that ??????)}
+    indicates that the protein structure is absent from the PDB database)}
 %%% GL: You're using the code black=yes, white=no, grey=NA. I've
 %%% modified the caption to reflect that.
-%
+%G: In case of alignment I skipped absent pdb structures(because I took sequences directly from structures, they are ususally shorter,
+%than the sequences for predictions)
     \label{Fig:summaryTable}
 \end{figure}
