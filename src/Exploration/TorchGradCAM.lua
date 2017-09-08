@@ -15,6 +15,7 @@ require 'cutorch'
 require 'image'
 require 'gnuplot'
 require 'optim'
+require "lfs"
 
 requireRel '../Library/DataProcessing/utils'
 requireRel '../Library/DataProcessing/dataset_homogenious'
@@ -92,6 +93,8 @@ ffi_prot.cdef[[
 
 local Protein = ffi_prot.load'../Library/build/libload_protein_cuda_direct.so'
 atom_type_assigner = 2
+
+
 ------------------------------------
 ---MAIN
 ------------------------------------
@@ -108,8 +111,9 @@ cmd:option('-training_dataset_name','CASP_SCWRL', 'training dataset name')
 cmd:option('-test_model_name','ranking_model_8', 'cnn model name during testing')
 cmd:option('-test_dataset_name','CASP11Stage1_SCWRL', 'test dataset name')
 cmd:option('-test_dataset_subset','datasetDescription.dat', 'test dataset subset')
--- cmd:option('-test_dataset_subset','validation_set.dat', 'test dataset subset')
-
+cmd:option('-target', 'T0776', 'Target name')
+cmd:option('-decoy', 'BAKER-ROSETTASERVER_TS3', 'Decoy name')
+cmd:option('-num_samples', 30, 'Number of samples to take')
 cmd:text()
 
 params = cmd:parse(arg)
@@ -120,7 +124,7 @@ local input_size = {	model.input_options.num_channels, model.input_options.input
 						model.input_options.input_size, model.input_options.input_size}
 
 local test_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, false, false, model.input_options.resolution)
-test_dataset:load_dataset('/home/lupoglaz/ProteinsDataset/'..params.test_dataset_name..'/Description', params.test_dataset_subset, 'tm-score')
+test_dataset:load_dataset('/media/lupoglaz/ProteinsDataset/'..params.test_dataset_name..'/Description', params.test_dataset_subset, 'tm-score')
 local test_logger = cSamplingLogger.new(params.experiment_name, params.training_model_name, params.training_dataset_name, 
 										params.test_dataset_name..'_sampling')
 
@@ -151,6 +155,7 @@ cnn_gb:evaluate()
 function outputLocalQualityMap(decoy_path, model, cnn_gb, output_path, dens, grad)
     local atom_type_assigner = 2
     local init_protein_path = decoy_path
+    print('Getting number of atoms')
     local num_assigned_atoms = Protein.getNumberOfAtoms(init_protein_path, atom_type_assigner)
 
     local coords = torch.FloatTensor(num_assigned_atoms*3)
@@ -159,12 +164,12 @@ function outputLocalQualityMap(decoy_path, model, cnn_gb, output_path, dens, gra
     local num_atoms = torch.IntTensor(11)
     local indexes = torch.IntTensor(num_assigned_atoms)
     local batch = torch.zeros(1, 11, 120, 120, 120):cuda()
-
+    print('Preparing pdb')
     Protein.prepareProteinSR( init_protein_path, 1.0, atom_type_assigner, 120, true, 
                             coords:cdata(), num_atoms:cdata(), indexes:cdata())
-
+    print('Projecting to grid')
     Protein.protProjectToTensor(cutorch.getState(),batch:cdata(),coords:cdata(),num_atoms:cdata(), 120, 1.0)
-    
+    print('Forward')
     local output = model.net:forward(batch)
     print('Score:', output[1])
     local outputs_gpu = cnn_gb:forward(batch)
@@ -213,60 +218,10 @@ function outputLocalQualityMap(decoy_path, model, cnn_gb, output_path, dens, gra
     end
 end
 
-local target = 'T0776'
--- local decoy = 'Distill_TS3' --5.43 | 1.3
--- local decoy = 'T0776.pdb'
-local decoy = 'BAKER-ROSETTASERVER_TS3'
 
--- local decoy = 'PhyreX_TS2' -- 2.47 | 0.5
--- local decoy = 'FALCON_TOPO_TS3' -- 2.90 | -0.79
--- local decoy = '3D-Jigsaw-V5_1_TS2' -- 3.00 | 1.29
--- local decoy = 'BhageerathH_TS2' -- 4.30 | 0.086
-
--- local target = 'T0766'
--- local decoy = 'FALCON_TOPO_TS4'
--- local decoy = 'BhageerathH_TS5'
--- local decoy = 'FFAS03_TS1'
-
--- local target = 'T0822'
--- local decoy = 'Seok-server_TS3'
--- local decoy = '3D-Jigsaw-V5_1_TS4'
-
--- local target = 'T0825'
--- local decoy = 'myprotein-me_TS1'
--- local decoy = 'nns_TS5'
-
--- local target = 'T0816'
--- local decoy = 'FUSION_TS2'
--- local decoy = 'Zhang-Server_TS2'
-
--- local target = 'T0829'
--- local decoy = 'TASSER-VMT_TS2'
--- local decoy = 'Zhang-Server_TS4'
-
--- local target = 'T0832'
--- local decoy = 'TASSER-VMT_TS4'
--- local decoy = 'RBO_Aleph_TS3'
--- local decoy = 'FALCON_EnvFold_TS1'
--- local decoy = 'Pcons-net_TS1'
--- local decoy = 'FFAS-3D_TS3'
--- local decoy = 'T0832.pdb'
-for i=1, 100 do
-    outputLocalQualityMap(  string.format('/home/lupoglaz/ProteinsDataset/CASP11Stage2_SCWRL/%s/%s', target, decoy),
+lfs.mkdir(string.format("GradCAM/%s", params.target))
+for i=1, params.num_samples do
+    outputLocalQualityMap(  string.format('/media/lupoglaz/ProteinsDataset/CASP11Stage2_SCWRL/%s/%s', params.target, params.decoy),
                             model, cnn_gb, 
-                            string.format("GradCAM/%s/rs%d_%s.pdb",target,i,decoy), 0, 0)
+                            string.format("GradCAM/%s/rs%d_%s.pdb",params.target,i,params.decoy), 0, 0)
 end
-
--- local target = '1gak_A'
--- local decoy = '1gak_A.pdb'
--- local decoy = 'decoy1_27.pdb'
--- local decoy = 'decoy2_30.pdb'
--- local decoy = 'decoy9_9.pdb'
--- local decoy = 'decoy5_36.pdb'
-
--- local decoy = '1gak_A_hbond.pdb'
--- local decoy = '1gak_A_helix.pdb'
-
--- outputLocalQualityMap(  string.format('/home/lupoglaz/ProteinsDataset/3DRobotTrainingSet/%s/%s', target, decoy),
---                         model, cnn_gb, 
---                         string.format("GradCAM/%s/proj_%s.pdb",target,decoy), 1)
