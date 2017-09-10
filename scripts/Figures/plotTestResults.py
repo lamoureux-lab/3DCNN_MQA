@@ -124,17 +124,18 @@ def get_average_loss(proteins, decoys, decoys_scores, subset=None, return_all=Fa
 def plotFunnelsSpecial(proteins, correlations, decoys, decoys_scores, outputFile):
 	from matplotlib import pylab as plt
 	import numpy as np
-	fig = plt.figure(figsize=(8,4))
-
+	
 	N = len(proteins)
 	nrows = 2
 	ncols = int(N/nrows)
 	if nrows*ncols<N: ncols+=1
 
 	from mpl_toolkits.axes_grid1 import Grid
-	grid = Grid(fig, rect=111, nrows_ncols=(nrows,ncols),
-	            axes_pad=0.25, label_mode='L',share_x=False,share_y=False)
-	
+	# grid = Grid(fig, rect=111, nrows_ncols=(nrows,ncols),
+	#             axes_pad=0.25, label_mode='L',share_x=False,share_y=False)
+	f, grid = plt.subplots(nrows, ncols, figsize=(12,6))
+	i=0 
+	j=0
 	for n,protein in enumerate(proteins):
 		tmscores = []
 		scores = []
@@ -142,22 +143,28 @@ def plotFunnelsSpecial(proteins, correlations, decoys, decoys_scores, outputFile
 			tmscores.append(decoy[1])
 			scores.append(decoys_scores[protein][decoy[0]])
 			
-		grid[n].plot(tmscores,scores,'.')
+		grid[i,j].plot(tmscores,scores,'.')
 		# plt.xlim(-0.1, max(tmscores)+0.1)
 		# plt.ylim(min(scores)-1, max(scores)+1)
 		
-		grid[n].set_title(protein[:4] + ', R = %.2f'%correlations[protein][0], fontsize=12)
-		grid[n].set_xlabel('GDT_TS', fontsize=12)
-		grid[n].set_ylabel('3DCNN score', fontsize=12)
-		grid[n].tick_params(axis='x', which='major', labelsize=12)
-		grid[n].tick_params(axis='y', which='major', labelsize=12)
+		grid[i,j].set_title(protein[:4] + ', R = %.2f'%correlations[protein][0], fontsize=12)
+		if i==1:
+			grid[i,j].set_xlabel('GDT_TS', fontsize=12)
+		if j==0:
+			grid[i,j].set_ylabel('3DCNN score', fontsize=12)
+		grid[i,j].tick_params(axis='x', which='major', labelsize=9)
+		grid[i,j].tick_params(axis='y', which='major', labelsize=9)
+		j+=1
+		if j==ncols:
+			i+=1
+			j=0
 	
 	#plt.tight_layout()
 		
 	plt.tick_params(axis='both', which='minor', labelsize=8)
 	# plt.savefig(outputFile, format='png', dpi=600)
-	outputFile = outputFile[:outputFile.rfind('.')]+'.tif'
-	plt.savefig(outputFile, format='tif', dpi=600)
+	outputFile = outputFile[:outputFile.rfind('.')]+'.png'
+	plt.savefig(outputFile, format='png', dpi=600)
 
 def plot_test_results(	experiment_name = 'QA',
 						model_name = 'ranking_model_11atomTypes',
@@ -177,7 +184,7 @@ def plot_test_results(	experiment_name = 'QA',
 	"""
 	print "Test dataset: ", test_dataset_name
 
-	proteins, decoys = read_dataset_description('/home/lupoglaz/ProteinsDataset/%s/Description'%test_dataset_name,
+	proteins, decoys = read_dataset_description('/media/lupoglaz/ProteinsDataset/%s/Description'%test_dataset_name,
 												test_dataset_subset, decoy_ranging=decoy_ranging_column)
 	if (not model_name is None) and (not trainig_dataset_name is None):
 		input_path = '../../models/%s_%s_%s/%s/epoch_0.dat'%(	experiment_name, model_name, trainig_dataset_name,
@@ -368,25 +375,25 @@ def plot_test_outliers(	experiment_name = 'QA',
 	
 	
 if __name__=='__main__':
-	testResults = False
+	testResults = True
 	inspect_monomers = False
-	lossVsEcod = True
+	lossVsEcod = False
 	getOutliers = False
 	uniformDecoys = False
 	if testResults:
-		# plot_test_results(	experiment_name = 'QA_uniform',
-		# 					model_name = 'ranking_model_8',
-		# 					trainig_dataset_name = 'CASP_SCWRL',
-		# 					test_dataset_name = '3DRobot_set',
-		# 					# test_dataset_name = 'CASP_SCWRL',
-		# 					test_dataset_subset = 'datasetDescription.dat',
-		# 					decoy_ranging_column = 'gdt-ts',
-		# 					suffix = '_sFinal', best_worst=True)
+		plot_test_results(	experiment_name = 'QA_uniform',
+							model_name = 'ranking_model_8',
+							trainig_dataset_name = 'CASP_SCWRL',
+							test_dataset_name = '3DRobot_set',
+							# test_dataset_name = 'CASP_SCWRL',
+							test_dataset_subset = 'datasetDescription.dat',
+							decoy_ranging_column = 'gdt-ts',
+							suffix = '_sFinal', best_worst=True)
 
 		# plot_test_results(	experiment_name = 'QA_uniform',
 		# 					model_name = 'ranking_model_8',
 		# 					trainig_dataset_name = 'CASP_SCWRL',
-		# 					test_dataset_name = 'CASP11Stage1_SCWRL',
+		# 					test_dataset_name = 'CASP11Stage2_SCWRL',
 		# 					# test_dataset_name = 'CASP_SCWRL',
 		# 					test_dataset_subset = 'datasetDescription.dat',
 		# 					decoy_ranging_column = 'gdt-ts',
@@ -421,15 +428,15 @@ if __name__=='__main__':
 		# 					decoy_ranging_column = 'gdt-ts',
 		# 					suffix = '',
 		# 					descending=False)
-		plot_test_results(	experiment_name = 'ProQ2D',
-							model_name = None,
-							trainig_dataset_name = None,
-							test_dataset_name = 'CASP11Stage1_SCWRL',
-							# test_dataset_name = 'CASP_SCWRL',
-							test_dataset_subset = 'datasetDescription.dat',
-							decoy_ranging_column = 'gdt-ts',
-							suffix = '',
-							descending=False)
+		# plot_test_results(	experiment_name = 'ProQ2D',
+		# 					model_name = None,
+		# 					trainig_dataset_name = None,
+		# 					test_dataset_name = 'CASP11Stage1_SCWRL',
+		# 					# test_dataset_name = 'CASP_SCWRL',
+		# 					test_dataset_subset = 'datasetDescription.dat',
+		# 					decoy_ranging_column = 'gdt-ts',
+		# 					suffix = '',
+		# 					descending=False)
 		
 
 		

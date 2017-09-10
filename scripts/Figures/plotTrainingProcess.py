@@ -89,6 +89,10 @@ def plotFunnels(proteins, decoys, decoys_scores, outputFile):
 	grid = Grid(fig, rect=111, nrows_ncols=(nrows,ncols),
 	            axes_pad=0.25, label_mode='L',share_x=False,share_y=False)
 	
+	num_proteins = [ (s,int(s[1:])) for s in proteins]
+	num_proteins = sorted(num_proteins, key=lambda x: x[1])
+	proteins, num_proteins = zip(*num_proteins)
+	
 	for n,protein in enumerate(proteins):
 		tmscores = []
 		scores = []
@@ -195,7 +199,7 @@ def get_average_loss(proteins, decoys, decoys_scores, subset=None, return_all=Fa
 
 def plot_validation_funnels(experiment_name, model_name, dataset_name, epoch_start=0, epoch_end=200,
 							description_dirname = 'Description'):
-	proteins, decoys = read_dataset_description('/home/lupoglaz/ProteinsDataset/%s/%s'%(dataset_name, description_dirname),'validation_set.dat')
+	proteins, decoys = read_dataset_description('/media/lupoglaz/ProteinsDataset/%s/%s'%(dataset_name, description_dirname),'validation_set.dat')
 	
 	for epoch in range(epoch_start, epoch_end+1):
 		#print 'Loading scoring ',epoch
@@ -211,7 +215,7 @@ def plot_validation_correlations(	experiment_name, model_name, dataset_name, epo
 									data_subset = 'validation_set.dat',
 									scores_dir = 'validation',
 									output_name = 'kendall_validation'):
-	proteins, decoys = read_dataset_description('/home/lupoglaz/ProteinsDataset/%s/%s'%(dataset_name, description_dirname), data_subset)
+	proteins, decoys = read_dataset_description('/media/lupoglaz/ProteinsDataset/%s/%s'%(dataset_name, description_dirname), data_subset)
 	epochs = [0]
 	taus = [0]
 	pearsons = [0]
@@ -302,7 +306,7 @@ if __name__=='__main__':
 	for epoch in candidate_epochs:
 		print 'Epoch %d'%(epoch*10), taus[epoch*10], pears[epoch*10], losses[epoch*10]
 	# print np.max(taus), 5*np.argmax(taus), np.max(pears), 5*np.argmax(pears), np.min(losses), 5*np.argmin(losses)
-	# plot_validation_funnels(exp_name, model_name, dataset_name, description_dirname = 'DescriptionClean')
+	plot_validation_funnels(exp_name, model_name, dataset_name)
 
 	# taus, pears, losses = plot_validation_correlations(	exp_name, model_name, dataset_name,
 	# 													data_subset = 'training_set.dat',
