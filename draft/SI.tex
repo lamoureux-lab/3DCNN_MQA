@@ -9,12 +9,18 @@
 \usepackage{multirow}
 \usepackage{color}
 \usepackage{tabularx}
-\begin{document}
+
+\title{Supporting information for:\\ Deep convolutional networks for quality assessment of protein folds}
+\author{}
 
 \renewcommand*{\thefigure}{S\arabic{figure}}
 \renewcommand*{\thetable}{S\arabic{table}}
 
-\section{Datasets}
+\begin{document}
+
+\maketitle
+
+%\section{Datasets}
 
 \begin{figure}[H]
     \centering
@@ -25,6 +31,13 @@
 
 \begin{table}[H]
 \begin{center}
+%
+    \caption{Closest homolog sequences from the training set.
+      sequence pair is reported if at least one training sequence
+      aligns to a test sequence with a blastp E-value less than
+      $10^{-4}$. Only the top alignment is reported for each test
+      sequence.}
+%
 \begin{tabular}{ c | c | l }
     
     Test set ID & Closest training set ID & E-value \\
@@ -39,12 +52,6 @@
     T0819 & T0636 & $8.66\times 10^{-15}$ \\
     T0854 & T0324 & $2.13\times 10^{-13}$ \\
 \end{tabular}
-%   
-    \caption{Closest homolog sequences from the training set. A
-    sequence pair is reported if at least one training sequence aligns
-    to a test sequence with a blastp E-value less than $10^{-4}$. Only
-    the top alignment is reported for each test sequence.}
-%
 \label{Tbl:datasetsSimilarity}
 \end{center}
 \end{table}
@@ -52,9 +59,22 @@
 
 \begin{table}[H]
 \begin{center}
+%
+%%% GL: References numbers are not in the correct order (should be [1]
+%%% and [2] instead of [2] and [1]).
+\caption{Targets from test and training sets that belong to the same
+  Pfam family \cite{finn2016pfam}, based on a HMMER search
+  \cite{finn2015hmmer} with an E-value cutoff of 1.0. With that
+  cutoff, 403 of the 564 training targets and 65 of the 83 test
+  targets could be assigned families. There are 25 families containing
+  at least one test sequence and one training sequence, involving a
+  total of 16 test targets and 42 training targets. Each of the 25
+  families belongs to a distinct Pfam clan.}
+%
 \begin{tabular}{ l | l | l }
 
-    Common family & Test set target & Train set targets \\
+    Common & Test set target & Training set targets \\
+    family & & \\
     \hline
     PF00795 & T0794 & T0542 \\ \hline
     PF13472 & T0776 & T0448, T0297, T0286, T0750 \\ \hline
@@ -82,25 +102,26 @@
     PF01926 & T0798 & T0308 \\ \hline
     PF12697 & T0764 & T0672 \\ \hline
 \end{tabular}
-   
-\caption{Targets from test and training sets that belong to the same Pfam
-family \cite{finn2016pfam}, based on a HMMER search \cite{finn2015hmmer} with an
-E-value cutoff of 1.0. With that cutoff, 403 of the 564 training
-targets and 65 of the 83 test targets could be assigned
-families. There are 25 families containing at least one test sequence
-and one training sequence, involving a total of 16 test targets and 42
-training targets. Each of the 25 families belongs to a distinct Pfam
-clan.}
-%
 \label{Tbl:SharedPfam}
 \end{center}
 \end{table}
 
+%%% GL: Table S3 should either be mentioned in the main text or be
+%%% removed. Isn't this information already contained in Figure 1,
+%%% though?
+%
+%%% GL: What about T0797? It's blank in Figure 1 but is not present in
+%%% that table.
+%
 \begin{table}[H]
 \begin{center}
+%
+\caption{Targets from CASP11 that do not have corresponding PDB
+  entries or ECOD classes.}
+%
 \begin{tabular}{ l | l | l }
 
-    Target & Has PDB & Has ECOD classification \\
+    Target & Has PDB & Has ECOD class \\
     \hline
     T0773 &True &False\\
     T0820 &False &False\\
@@ -111,97 +132,98 @@ clan.}
     T0836 &False &False\\
     T0838 &False &False\\
 \end{tabular}
-   
-\caption{Targets from CASP11 that do not have corresponding PDB entries or ECOD classification.}
-%
 \label{Tbl:CASP11PDB_ECOD}
 \end{center}
 \end{table}
 
 
-Figure \ref{Fig:foldsGraph} shows the classification of the test set
-into ECOD groups. Branches drawn in black correspond to groups
-containing structures from the training set as well. Branches drawn in
-grey correspond to groups unique to the test set. Targets T0773,
-T0797, and T0816 are excluded from the analysis because they have no
-ECOD classification, and targets T0820, T0823, T0824, T0827, T0835,
-and T0836 are excluded because they have no structure in the RCSB PDB.
-
-Four architecture groups present overlap at all levels between the
-training and test sets: ``a/b barrels'', ``beta duplicates or obligate
-multimers'', ``a+b complex topology'', and ``a+b four layers''.
-
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{Fig/folds_graph.png}
 %
-    \caption{Classification of the test set structures into the lower
-    four ECOD structural levels (from the center out): architecture
-    (A), possible homology (X), homology (H), and topology (T). The
-    names of the architecture types are shown in the outer circle of
-    the diagram.
-    The grey lines denote test set classes that have no
-    respective representative in the training set. The black lines
-    show the classes that have representatives in both training and
-    test sets. We do not show the F-groups because they have litle
-    overlap among the training and test sets.
-}
+    \caption{Classification of the test set structures into the top
+      four ECOD structural levels (from the center out): architecture
+      (A), possible homology (X), homology (H), and topology (T). The
+      names of the architecture types are shown in the outer circle of
+      the diagram. Branches drawn in black correspond to groups that
+      have representatives in both training and test sets. Branches
+      drawn in grey correspond to groups unique to the test set.
+%
+      Four architecture groups present overlap at all levels between
+      the training and test sets: ``a/b barrels'', ``beta duplicates
+      or obligate multimers'', ``a+b complex topology'', and ``a+b
+      four layers''.
+%
+      We do not show the F-groups because they have litle overlap
+      among the training and test sets.
+%
+      Targets T0773, T0797, and T0816 are excluded from the analysis
+      because they have no ECOD classification, and targets T0820,
+      T0823, T0824, T0827, T0835, and T0836 are excluded because they
+      have no structure in the RCSB PDB.}
 %
     \label{Fig:foldsGraph}
 \end{figure}
 
-\section{Model}
 
+%\section{Model}
+
+%%% GL: Why writing the stride as 1x1x1? It's enough to write 1.
 \begin{table}[H]
 \begin{center}
+%
+\caption{Details of the model architecture. Layer 10 is marked with an
+  asterisk to indicate that its output was used in the Grad-CAM
+  analysis reported in Section~4 of the main text.}
+%
 \makebox[0pt][c]{
 \hskip-\footskip
 \begin{tabularx}{0.8\paperwidth}{ l | l | c | c | c }
 
-    Number & Layer name & Input dimentions & Output dimensions & Parameters \\
+    Layer & Type & Input dimensions & Output dimensions & Parameters \\
     \hline
     1&3D Convolution & $11\times 120\times 120\times 120$ & $16\times 118\times 118\times 118$ & 
-                    Filter size: $3\times 3\times 3$ Stride: $1\times 1\times 1$\\
+                    Filter size $3\times 3\times 3$, stride $1$\\
     2&ReLU & & & \\
     3&Max pooling & $16\times 118\times 118\times 118$ & $16\times 58\times 58\times 58$ & 
-                    Filter size: $3\times 3\times 3$ Stride: $2\times 2\times 2$ \\
+                    Filter size $3\times 3\times 3$, stride $2$ \\
     \hline 
     4&3D Convolution & $16\times 58\times 58\times 58$ & $32\times 56\times 56\times 56$ & 
-                    Filter size: $3\times 3\times 3$ Stride: $1\times 1\times 1$\\
+                    Filter size $3\times 3\times 3$, stride $1$\\
     5&Batch normalization & & & \\
     6&ReLU & & & \\
     7&Max pooling & $32\times 56\times 56\times 56$ & $32\times 27\times 27\times 27$ & 
-                    Filter size: $3\times 3\times 3$ Stride: $2\times 2\times 2$ \\
+                    Filter size $3\times 3\times 3$, stride $2$ \\
     \hline
     8&3D Convolution & $32\times 27\times 27\times 27$ & $32\times 25\times 25\times 25$ & 
-                    Filter size: $3\times 3\times 3$ Stride: $1\times 1\times 1$\\
+                    Filter size $3\times 3\times 3$, stride $1$\\
     9&Batch normalization & & & \\
-    \textbf{10}&\textbf{ReLU} & & & \\
+    10*&ReLU & & & \\
     11&3D Convolution & $32\times 25\times 25\times 25$ & $64\times 23\times 23\times 23$ & 
-                    Filter size: $3\times 3\times 3$ Stride: $1\times 1\times 1$\\
+                    Filter size $3\times 3\times 3$, stride $1$\\
     12&Batch normalization & & & \\
     13&ReLU & & & \\
     14&Max pooling & $64\times 23\times 23\times 23$ & $64\times 11\times 11\times 11$ & 
-                    Filter size: $3\times 3\times 3$ Stride: $2\times 2\times 2$ \\
+                    Filter size $3\times 3\times 3$, stride $2$ \\
     \hline
     15&3D Convolution & $64\times 11\times 11\times 11$ & $128\times 9\times 9\times 9$ & 
-                    Filter size: $3\times 3\times 3$ Stride: $1\times 1\times 1$\\
+                    Filter size $3\times 3\times 3$, stride $1$\\
     16&Batch normalization & & & \\
     17&ReLU & & & \\
     18&3D Convolution & $128\times 9\times 9\times 9$ & $128\times 7\times 7\times 7$ & 
-                    Filter size: $3\times 3\times 3$ Stride: $1\times 1\times 1$\\
+                    Filter size $3\times 3\times 3$, stride $1$\\
     19&Batch normalization & & & \\
     20&ReLU & & & \\
     21&3D Convolution & $128\times 7\times 7\times 7$ & $256\times 5\times 5\times 5$ & 
-                    Filter size: $3\times 3\times 3$ Stride: $1\times 1\times 1$\\
+                    Filter size $3\times 3\times 3$, stride $1$\\
     22&Batch normalization & & & \\
     23&ReLU & & & \\
     24&3D Convolution & $256\times 5\times 5\times 5$ & $512\times 3\times 3\times 3$ & 
-                    Filter size: $3\times 3\times 3$ Stride: $1\times 1\times 1$\\
+                    Filter size $3\times 3\times 3$, stride $1$\\
     25&Batch normalization & & & \\
     26&ReLU & & & \\
     27&Max pooling & $512\times 3\times 3\times 3$ & $512\times 1\times 1\times 1$ & 
-                    Filter size: $3\times 3\times 3$ Stride: $2\times 2\times 2$ \\
+                    Filter size $3\times 3\times 3$, stride $2$ \\
     \hline
     28&Reshape & $512\times 1\times 1\times 1$ & $512$ & \\
     \hline
@@ -215,13 +237,16 @@ multimers'', ``a+b complex topology'', and ``a+b four layers''.
 \end{tabularx}
 \hskip\headheight
 }
-\caption{More details of the model architecture. The layer 10 is emphasised with the bold font, because its output was used in the Grad-CAM algorithm
-in Analysis section of the paper.}
 \label{Tbl:SuppModel}
 \end{center}
 \end{table}
 
-\section{Training}
+
+\pagebreak
+\section*{Training procedure}
+%%% GL: This should be referenced to in the main text!!!
+
+\subsection*{Rotations}
 The rotations were sampled in the following way:
 \begin{enumerate}
 \item Select three random uniform values $u_1, u_2, u_3 \in [0,1]$
@@ -232,51 +257,51 @@ q_1 = \sqrt(1-u_1) \cos(2\pi  u_2) \\
 q_2 = \sqrt(u_1) \sin(2\pi  u_3) \\
 q_3 = \sqrt(u_1) \cos(2\pi  u_3) 
 \end{eqnarray}
-\item Construct corresponding rotation matrix
+\item Construct the corresponding rotation matrix
 \end{enumerate}
 
-
-The translations were sampled accoriding to the following algorithm:
+\subsection*{Translations}
+The translations were sampled according to the following algorithm:
 \begin{enumerate}
 \item Compute the bounding box of the atoms in the decoy
-\item Shift protein such that the center of the bounding box corresponds to the frame origin 
+\item Translate the protein so that the center of the bounding box corresponds to the frame origin 
 \item Rotate protein using random uniform rotation
 \item Calculate the maximum shift along each axis:
 $$
-D_k = \frac{1}{2}\max\left[ 0, \frac{S_k}{2.0} - \frac{B_k}{2.0} \right], k \in {x, y, z}
+D_k = \tfrac{1}{2}\max\left[ 0, \tfrac{1}{2}S_k - \tfrac{1}{2}B_k \right], \quad k \in {x, y, z}
 $$
 where $S_k$ are input size along the axes x,y,z and $B_k$ are the bounding box sizes along the same axes.
-\item Sample random uniform translation along each axis from the interval $[-\frac{D_k}{2}, \frac{D_k}{2}], k \in {x,y,z}$
+
+\item Sample random uniform translation along each axis from the
+  interval $[-\tfrac{1}{2}D_k, \tfrac{1}{2}D_k], k \in {x,y,z}$
 \end{enumerate}
 
+\subsection*{Training parameters}
 
-\begin{table}[H]
-\begin{center}
-\begin{tabular}{ l | l }
+The loss function is optimized using the Adam algorithm \ref{???},
+with a learning rate of $0.0003$ and a learning rate decay of $0.01$.
 
-    Parameter & Value \\
-    \hline
-    Learning rate& 0.0003\\
-    Learning rate decay& 0.01\\
-    GDT\_TS threshold& 0.01\\
-    Algorithm& Adam
-    
-\end{tabular}
-\caption{Non-default training parameters}
-%
-\label{Tbl:TrainingParam}
-\end{center}
-\end{table}
-
+\pagebreak
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{Fig/epoch40_funnels.png}
-    \caption{Scoring funnels on the validation set at epoch 40. The score was sampled once using random rotation and translation.}
+%%% GL: This figure should be bigger: The text is very hard to read.
+%
+%%% GL: Also: Is there a way to not show the last panel? (which
+%%% doesn't contain any data?)
+%
+    \caption{Scoring funnels on the validation set at epoch 40. The
+      $x$-axis is the GDT\_TS score and the $y$-axis is the $f$
+      score. The score was sampled once using random rotation and
+      translation.}
+%
     \label{Fig:ValidationEpoch40}
 \end{figure}
 
-\section{Results}
 
+%\section{Results}
+
+%%% GL: This figure is not referenced in the main text!!!
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{Fig/sampling_dist.eps}
@@ -292,6 +317,10 @@ where $S_k$ are input size along the axes x,y,z and $B_k$ are the bounding box s
     \label{Fig:ScoreDistribution}
 \end{figure}
 
+%%% GL: Move this text in the caption of Figure S5. Simplify if
+%%% necessary. We do not want ``floating'' text in the Supporting
+%%% information.
+%
 Figure~\ref{Fig:LossVsECOD} shows how the performance of each
 algorithm is affected by the ECOD similarity of the structures used
 for testing to those used for training. The test set in broken down
@@ -342,11 +371,14 @@ training structure (T0764, T0768, T0770, etc.).
 %%% GL: Does it make sense?
 %G: to do on server
 
+%%% GL: What do you mean by ``to do on server''?
+
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{Fig/LossVsECOD.png}
 %
+%%% GL: This reference to Table ??? does not compile... Just hardcode it.
     \caption{Per-target average loss of the MQA algorithms of Table~\ref{Tbl:TestResults}
     on the CASP11 test set stage~2, divided into 5 subsets of
     increasing structural similarity with the training set. The
@@ -357,7 +389,7 @@ training structure (T0764, T0768, T0770, etc.).
     \label{Fig:LossVsECOD}
 \end{figure}
 
-
+%%% GL: Move this figure up so that the caption is not below the page number!!!
 \begin{figure}[H]
     \centering
     \makebox[0pt][c]{
@@ -365,10 +397,11 @@ training structure (T0764, T0768, T0770, etc.).
     \includegraphics[width=\paperwidth]{Fig/CASP11Stage1_SCWRL_sFinal_funnels.png}
     \hskip\headheight
     }
-    \caption{Scoring funnels on Stage1 CASP11}
+    \caption{Scoring funnels on Stage 1 CASP11}
     \label{Fig:Satage1CASP11Funnels}
 \end{figure}
 
+%%% GL: Move this figure up so that the caption is not below the page number!!!
 \begin{figure}[H]
     \centering
     \makebox[0pt][c]{
@@ -376,19 +409,21 @@ training structure (T0764, T0768, T0770, etc.).
     \includegraphics[width=\paperwidth]{Fig/CASP11Stage2_SCWRL_sFinal_funnels.png}
     \hskip\headheight
     }
-    \caption{Scoring funnels on Stage2 CASP11}
+    \caption{Scoring funnels on Stage 2 CASP11}
     \label{Fig:Satage2CASP11Funnels}
 \end{figure}
 
-\section{Analysis}
+%\section{Analysis}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{Fig/CASP11Stage1_SCWRL_activations_pca.png}
-    \caption{First three principal components of layer 28 activations versus model score (color bar).}
-    \label{Fig:PCA}
-\end{figure}
+%%% GL: Remove this figure
+%\begin{figure}[H]
+%    \centering
+%    \includegraphics[width=\linewidth]{Fig/CASP11Stage1_SCWRL_activations_pca.png}
+%    \caption{First three principal components of layer 28 activations versus model score (color bar).}
+%    \label{Fig:PCA}
+%\end{figure}
 
+%%% GL: Add a caption to GradCAMTable!!!
 \include{GradCAMTable}
 
 \bibliography{citations.bib}{}
