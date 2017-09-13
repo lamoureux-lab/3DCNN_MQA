@@ -5,7 +5,7 @@ import shutil
 from docx import Document
 
 DRAFT_DIR = '../../draft'
-MANUSCRIPT_DIR = '../../Manuscript'
+MANUSCRIPT_DIR = '../../Bioinformatics'
 
 def find_simple_command(cmd, line):
     '''
@@ -197,7 +197,7 @@ if __name__ == '__main__':
     # Remove comments
     # manuscript = remove_comments(manuscript)
     # Convert tables to *.doc
-    convert_tables(manuscript)
+    # convert_tables(manuscript)
     # Convert images
     manuscript = find_images(manuscript)
     
