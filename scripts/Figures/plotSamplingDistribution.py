@@ -93,6 +93,7 @@ def plot_several_decoys_dist():
 	model_name = 'ranking_model_8'
 	dataset_name = 'CASP_SCWRL'
 	test_dataset_name = 'CASP11Stage2_SCWRL_sampling'
+	fig = plt.figure(figsize=(4,4))
 
 	decoy_names = ['TASSER-VMT_TS4', 'RBO_Aleph_TS3', 'FALCON_EnvFold_TS1', 'Pcons-net_TS1', 'FFAS-3D_TS3']
 	for i in range(0,5):
@@ -103,10 +104,11 @@ def plot_several_decoys_dist():
 		print bins_rt_nat
 	
 	plt.legend(loc = 1)
-	plt.xlabel('Score',fontsize=14)
-	plt.ylabel('Normalized frequency',fontsize=14)
+	plt.xlabel('Score',fontsize=12)
+	plt.ylabel('Normalized frequency',fontsize=12)
+	plt.tight_layout()
 	# plt.savefig('decoys_sampling_dist.png')
-	plt.savefig('decoys_sampling_dist.tif', format='tif', dpi=600)
+	plt.savefig('decoys_sampling_dist.png', format='png', dpi=1200)
 
 def plot_diff_sampling():
 	from scipy.stats import norm
@@ -145,4 +147,4 @@ def plot_diff_sampling():
 
 if __name__=='__main__':
 	plot_several_decoys_dist()
-	plot_diff_sampling()
+	# plot_diff_sampling()

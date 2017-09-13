@@ -16,7 +16,7 @@
 \subtitle{Subject Section}
 
 \title[short Title]{Deep convolutional networks for quality assessment of protein folds}
-\author[Sample \textit{et~al}.]{Georgy Derevyanko\,$^{\text{\sfb 1,}*}$, Co-Author\,$^{\text{\sfb 2}}$ and Guillaume Lamoureux\,$^{\text{\sfb 2,}*}$}
+\author[G. Derevyanko \textit{et~al}.]{Georgy Derevyanko\,$^{\text{\sfb 1,}*}$, Co-Author\,$^{\text{\sfb 2}}$ and Guillaume Lamoureux\,$^{\text{\sfb 2,}*}$}
 \address{$^{\text{\sf 1}}$Department of chemistry and biochemistry, Concordia University, Montreal, Post Code, Canada and \\
 $^{\text{\sf 2}}$Department, Institution, City, Post Code,
 Country.}
@@ -159,7 +159,7 @@ structures were optimized using the SCWRL4 program
 \citep{krivov2009improved}.
 
 Training and test datasets cover the same interval of sequences
-lengths (see Figure~2\vphantom{S1} in Supplementary Information). To ensure that the
+lengths (see Figure~S1 in Supplementary Information). To ensure that the
 training and test sets are significantly different, we have aligned
 all test sequences against all training sequences using
 blastp \citep{altschul1990basic}.  Less than 11\% of the targets in the
@@ -172,7 +172,7 @@ families were found using HMMER \citep{finn2015hmmer} with an E-value
 cutoff of 1.0 \citep{finn2016pfam}.  Accounting for targets for which
 no Pfam family could be determined, approximately 25\% of the test set
 targets share a family with approximately 10\% of the training set
-targets (see Table~2\vphantom{S2} in Supplementary Information).
+targets (see Table~S2 in Supplementary Information).
 
 We have also compared the structures in the training and test sets
 using the ECOD database \citep{cheng2014ecod}. This database provides a
@@ -185,10 +185,10 @@ to multiple A-, X-, H-, T-, or F-groups.  The higher the level two
 protein domains occupy, the more structurally similar they are.
 %
 A summary of the overlap between the training and test sets is
-presented in Figure~2\vphantom{\ref{Fig:summaryTable}}. For each target domain in
+presented in Figure~\ref{Fig:summaryTable}. For each target domain in
 the test set (T0759 to T0858), a black tile indicates that at least
 one structure from the training set belong to the same ECOD group (A,
-X, H, T, and F). (See Figure~2\vphantom{S2} in Supplementary Information for another
+X, H, T, and F). (See Figure~S2 in Supplementary Information for another
 representation of the overlap between the test and training sets.)
 
 \begin{figure*}[!tpb]
@@ -218,7 +218,7 @@ representation of the overlap between the test and training sets.)
 
 \subsection{Input}
 The protein structure is represented by 11 density maps corresponding
-to the atom types defined in Table~2\vphantom{\ref{Tbl:atomTypes}}. These atom
+to the atom types defined in Table~\ref{Tbl:atomTypes}. These atom
 types are a simplification of the 20 types proposed by Huang and
 Zou \citep{huang2006iterative, huang2008iterative}, to reduce the
 memory footprint of the model.
@@ -274,7 +274,7 @@ type. Each grid has a resolution of 1~\AA\ and has $120\times
 \end{center}
 \end{table}
 
-Figure~2\vphantom{\ref{Fig:atomic_densities}} illustrates the atomic densities for
+Figure~\ref{Fig:atomic_densities} illustrates the atomic densities for
 a simple $\alpha$-helical peptide (PDB code 5eh6). This structure
 contains only 6 of the 11 atom types, and only those density maps are
 shown.
@@ -298,7 +298,7 @@ recognition by LeCun et al.\ \citep{lecun1989backpropagation} but have
 gained wider recognition after the ImageNet 2012
 competition \citep{krizhevsky2012imagenet}. In this work we use 3D
 convolutional networks to score protein structures. The architecture
-of the model is shown in Figure~2\vphantom{\ref{Fig:CNNModel}}.  It is comprised of
+of the model is shown in Figure~\ref{Fig:CNNModel}.  It is comprised of
 three blocks of alternating convolutional, volumetric batch
 normalization, and ReLU layers, followed by three fully-connected
 layers with ReLU nonlinearities. The final output of the network is a
@@ -368,7 +368,7 @@ is the maximum over the cubes of size $d \times d \times d$ that cover
 the input domain with the stride $l$ (distance between two consequtive
 cubes along one dimension).  The output size is then approximately $l$
 times smaller than the input data bounding box.  All three ``MaxPool''
-layers of the model (Figure~2\vphantom{\ref{Fig:CNNModel}}) use $d=3$ and $l=2$.
+layers of the model (Figure~\ref{Fig:CNNModel}) use $d=3$ and $l=2$.
 
 During the coarse-graining procedure, the size of the individual data
 grids eventually shrinks to a single cell. The flattening layer
@@ -486,16 +486,16 @@ We select the final model based on its performance on a
 \emph{validation subset} consisting of 35 targets (and their decoys)
 picked at random from the training set and excluded from the training
 procedure. The remaining 529 targets are called the \emph{training
-subset}.  Figure~2\vphantom{\ref{Fig:TrainingLoss}} shows the Kendall $\tau$ and
+subset}.  Figure~\ref{Fig:TrainingLoss} shows the Kendall $\tau$ and
 Pearson $R$ coefficients and the loss on the validation subset over 52
 epochs of training.  Models are saved every 10 epochs and we pick the
 one that has the smallest loss (at epoch 40).
-Table~2\vphantom{\ref{Tbl:TrainingResults}} summarizes the performance metrics on
+Table~\ref{Tbl:TrainingResults} summarizes the performance metrics on
 the training and validation sets for the model at epoch 40.
 
 \begin{figure}[!tpb]
     \centering
-    \includegraphics[width=\linewidth]{image4.eps}
+    \includegraphics[width=\linewidth]{image4.png}
     \caption{Loss, Kendall $\tau$, and Pearson $R$ coefficients
       evaluated on the validation subset during the training
       procedure.  One epoch corresponds to a cycle over all targets in
@@ -525,7 +525,7 @@ Ideally, the score assigned by the model to a decoy should not depend
 on its position and orientation.  To allow the model to learn this
 invariance, the rotational and translational degrees of freedom of all
 decoy structures are randomly sampled during the training.
-Figure~2\vphantom{\ref{Fig:DecoysScoreDistribution}} shows the distributions of
+Figure~\ref{Fig:DecoysScoreDistribution} shows the distributions of
 scores for several decoy structures of the same target (T0832),
 calculated for 900 rotations and translations sampled uniformly.
 While the score of a given structure is not strictly invariant under
@@ -536,18 +536,18 @@ the influence of the choice of rotation and translation on the final
 ranking, we estimate the score of each decoy from the average of 90
 scores calculated for random rotations and translations. The distribution 
 of the scores under rotations and translations separately is shown on 
-the Fig~2\vphantom{S4} (see Supplementary Information).
+the Fig~S4 (see Supplementary Information).
 
 \begin{figure}[!tpb]
     \centering
-    \includegraphics[width=\linewidth]{image5.eps}
+    \includegraphics[width=\linewidth]{image5.png}
     \caption{Distributions of the $f$ scores of five decoys for target
     T0832 under random translations and rotations. A lower score
     represents a higher quality.}
     \label{Fig:DecoysScoreDistribution}
 \end{figure}
 
-Table~2\vphantom{\ref{Tbl:TestResults}} shows a comparison of our model (3DCNN)
+Table~\ref{Tbl:TestResults} shows a comparison of our model (3DCNN)
 with state-of-the-art model quality assessement methods: ProQ2D,
 ProQ3D~\citep{uziela2017proq3d}, VoroMQA~\citep{olechnovivc2017voromqa},
 and RWplus~\citep{zhang2010novel}.
@@ -660,17 +660,17 @@ coarseness.
     \label{Fig:GradCAMT0776}
 \end{figure}
 
-An example of the Grad-CAM output is given in Figure~2\vphantom{\ref{Fig:GradCAMT0776}}.
+An example of the Grad-CAM output is given in Figure~\ref{Fig:GradCAMT0776}.
 In line with our scoring procedure, we perform the Grad-CAM analysis
 by uniformly sampling 90 rotations and translations of the decoy. We
 obtain the Grad-CAM output for each transformation and
 project it onto the atoms of the decoy. 
-Figure~2\vphantom{\ref{Fig:GradCAMT0776}} shows two representations of Grad-CAM result 
+Figure~\ref{Fig:GradCAMT0776} shows two representations of Grad-CAM result 
 (for decoy Distill\_TS3 of target T0776): the
 projection of the map onto the atoms of the decoy, represented as a
 color-coded value on the cartoon rendering of the structure, and the
 projection onto a 3D grid, represented as an isosurface. The
-isosurface of Figure~2\vphantom{\ref{Fig:GradCAMT0776}} is a hollow shell containing
+isosurface of Figure~\ref{Fig:GradCAMT0776} is a hollow shell containing
 most of the solvent exposed region of the decoy, which indicates that
 the network enforces packing: any increase in the atomic density
 around the well-packed core decreases the quality of the decoy.
@@ -679,14 +679,14 @@ structures close to the native ones (results not shown), despite the
 fact that no gradient information was included in the training
 procedure.
 
-Figure~2\vphantom{\ref{Fig:GradCAMT0776_more}} shows the color-coded
+Figure~\ref{Fig:GradCAMT0776_more} shows the color-coded
 values of the Grad-CAM result for the four decoys of target T0776.
 We see, that the position of the N-terminal alpha-helix (which was not present in the target native structure) 
 strongly influences the predictions. In case of the decoys Distill\_TS3 and 3D-Jigsaw-V5\_1\_TS2 our algorithm 
 highlights this helix as the one contributing to the quality. On the other hand FALCON\_TOPO\_TS3 places this helix 
 differently. This placement also better corresponds to placement of the preceeding loop in the native structure.
 The Grad-CAM analysis for all the targets and selected representative decoys from CASP11 Stage2 can be found in 
-Table~2\vphantom{S4} (see Supplementary Information).
+Table~S4 (see Supplementary Information).
 \begin{figure*}[!tpb]
     \includegraphics[width=\linewidth]{image7.eps}
     \caption{The output of the Grad-CAM algorithm for the layer 10 of the network
@@ -710,12 +710,12 @@ The absolute Pearson $R$ coefficient averaged per-target over all the
 targets in this benchmark was $0.85$. Spearman $\rho$ coefficient
 and Kendall $\tau$ coefficient were $0.83$ and $0.64$, respectively.
 Representative examples of score versus GDT\_TS plots are shown in
-Figure~2\vphantom{\ref{Fig:3DRobotBenchmark}}.  We see, that the MQA method devised
+Figure~\ref{Fig:3DRobotBenchmark}. We see, that the MQA method devised
 in this work successfully ranks unrelated datasets.
 \begin{figure}[!tpb]
     \centering
-    \includegraphics[width=\linewidth]{image8.eps}
-    \caption{The plots of score versus GDT\_TS for four best correlated targets and four
+    \includegraphics[width=\linewidth]{image8.png}
+    \caption{The plots of score versus GDT\_TS for two best correlated targets and two
     least correlated targets in the 3DRobot benchmark.}
     \label{Fig:3DRobotBenchmark}
 \end{figure}

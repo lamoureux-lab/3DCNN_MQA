@@ -231,23 +231,24 @@ def plot_validation_correlations(	experiment_name, model_name, dataset_name, epo
 			losses.append(get_average_loss(proteins, decoys, decoys_scores))
 
 	from matplotlib import pylab as plt
-	fig = plt.figure(figsize=(8,6))
+	fig = plt.figure(figsize=(4,4))
 	ax = fig.add_subplot(111)
 	# plt.title(experiment_name+'  '+model_name+'   '+dataset_name)
-	plt.plot(epochs,taus, '-.r', label = 'Kendall tau')
-	plt.plot(epochs,pearsons, '--b', label ='Pearson R')
-	plt.plot(epochs,losses, '-g', label ='Loss')
+	plt.plot(epochs,taus, '-.', color='black', label = 'Kendall tau')
+	plt.plot(epochs,pearsons, '--',color = 'grey', label ='Pearson R')
+	plt.plot(epochs,losses, '-', color='black', label ='Loss')
 
-	ax.annotate('Best validation loss', xy=(40, losses[40]), xytext=(40, losses[40] + 0.5),
+	ax.annotate('Best validation loss', xy=(40, losses[40]), xytext=(20, losses[40] + 0.5),
             arrowprops=dict(facecolor='black', shrink=0.05),
             )
 	plt.ylabel('Validation loss and correlations',fontsize=16)
-	plt.xlabel('Epoch',fontsize=16)
-	plt.legend(prop={'size':12})
-	plt.tick_params(axis='x', which='major', labelsize=12)
-	plt.tick_params(axis='y', which='major', labelsize=12)
-	# plt.savefig('../../models/%s_%s_%s/%s.png'%(experiment_name, model_name, dataset_name, output_name), format='png', dpi=600)
-	plt.savefig('../../models/%s_%s_%s/%s.tif'%(experiment_name, model_name, dataset_name, output_name), format='tif', dpi=600)
+	plt.xlabel('Epoch',fontsize=14)
+	plt.legend(prop={'size':10})
+	plt.tick_params(axis='x', which='major', labelsize=10)
+	plt.tick_params(axis='y', which='major', labelsize=10)
+	plt.tight_layout()
+	plt.savefig('../../models/%s_%s_%s/%s.png'%(experiment_name, model_name, dataset_name, output_name), format='png', dpi=1200)
+	# plt.savefig('../../models/%s_%s_%s/%s.tif'%(experiment_name, model_name, dataset_name, output_name), format='tif', dpi=600)
 	return taus, pearsons, losses
 
 def plot_training_samples(experiment_name, model_name, dataset_name, epoch_start=0, epoch_end=100):
@@ -306,7 +307,7 @@ if __name__=='__main__':
 	for epoch in candidate_epochs:
 		print 'Epoch %d'%(epoch*10), taus[epoch*10], pears[epoch*10], losses[epoch*10]
 	# print np.max(taus), 5*np.argmax(taus), np.max(pears), 5*np.argmax(pears), np.min(losses), 5*np.argmin(losses)
-	plot_validation_funnels(exp_name, model_name, dataset_name)
+	# plot_validation_funnels(exp_name, model_name, dataset_name)
 
 	# taus, pears, losses = plot_validation_correlations(	exp_name, model_name, dataset_name,
 	# 													data_subset = 'training_set.dat',

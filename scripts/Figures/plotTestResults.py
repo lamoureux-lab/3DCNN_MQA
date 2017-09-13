@@ -133,7 +133,7 @@ def plotFunnelsSpecial(proteins, correlations, decoys, decoys_scores, outputFile
 	from mpl_toolkits.axes_grid1 import Grid
 	# grid = Grid(fig, rect=111, nrows_ncols=(nrows,ncols),
 	#             axes_pad=0.25, label_mode='L',share_x=False,share_y=False)
-	f, grid = plt.subplots(nrows, ncols, figsize=(12,6))
+	f, grid = plt.subplots(nrows, ncols, figsize=(4,4))
 	i=0 
 	j=0
 	for n,protein in enumerate(proteins):
@@ -143,17 +143,17 @@ def plotFunnelsSpecial(proteins, correlations, decoys, decoys_scores, outputFile
 			tmscores.append(decoy[1])
 			scores.append(decoys_scores[protein][decoy[0]])
 			
-		grid[i,j].plot(tmscores,scores,'.')
+		grid[i,j].plot(tmscores,scores,'.',color='grey')
 		# plt.xlim(-0.1, max(tmscores)+0.1)
 		# plt.ylim(min(scores)-1, max(scores)+1)
 		
-		grid[i,j].set_title(protein[:4] + ', R = %.2f'%correlations[protein][0], fontsize=12)
+		grid[i,j].set_title(protein[:4] + ', R = %.2f'%correlations[protein][0], fontsize=10)
 		if i==1:
-			grid[i,j].set_xlabel('GDT_TS', fontsize=12)
+			grid[i,j].set_xlabel('GDT_TS', fontsize=10)
 		if j==0:
-			grid[i,j].set_ylabel('3DCNN score', fontsize=12)
-		grid[i,j].tick_params(axis='x', which='major', labelsize=9)
-		grid[i,j].tick_params(axis='y', which='major', labelsize=9)
+			grid[i,j].set_ylabel('3DCNN score', fontsize=10)
+		grid[i,j].tick_params(axis='x', which='major', labelsize=8)
+		grid[i,j].tick_params(axis='y', which='major', labelsize=8)
 		j+=1
 		if j==ncols:
 			i+=1
@@ -163,8 +163,9 @@ def plotFunnelsSpecial(proteins, correlations, decoys, decoys_scores, outputFile
 		
 	plt.tick_params(axis='both', which='minor', labelsize=8)
 	# plt.savefig(outputFile, format='png', dpi=600)
+	plt.tight_layout()
 	outputFile = outputFile[:outputFile.rfind('.')]+'.png'
-	plt.savefig(outputFile, format='png', dpi=600)
+	plt.savefig(outputFile, format='png', dpi=1200)
 
 def plot_test_results(	experiment_name = 'QA',
 						model_name = 'ranking_model_11atomTypes',
@@ -222,8 +223,8 @@ def plot_test_results(	experiment_name = 'QA',
 		correlations_all = get_correlations(proteins, decoys, decoys_scores, subset, return_all=True)
 		correlations_all_sorted = OrderedDict(sorted(correlations_all.items(), key=lambda x: x[1][0]))
 		# print correlations_all_sorted
-		best = correlations_all_sorted.keys()[:4]
-		worst = correlations_all_sorted.keys()[-4:]
+		best = correlations_all_sorted.keys()[:2]
+		worst = correlations_all_sorted.keys()[-2:]
 		selected_proteins = best+worst
 		plotFunnelsSpecial(selected_proteins, correlations_all, decoys, decoys_scores, output_path)
 	else:
