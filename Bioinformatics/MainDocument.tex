@@ -237,41 +237,45 @@ type. Each grid has a resolution of 1~\AA\ and has $120\times
 
 \begin{table}[!t]
 \begin{center}
+%
+  \caption {Atom types used in this work. Atoms in each group are
+    identified using their standard PDB residue names and atom
+    names. Asterisks (*) correspond to either 1, 2, or 3.}
+%
 \begin{tabular}{ c | l | l }
     
     Type & Description & Atoms \\
     \hline
     1 & Sulfur/selenium & CYS:SG, MET:SD, MSE:SE \\ \hline
-    2 & Nitrogen (amide) & ASN:ND2, GLN:NE2, backbone N (including N-terminal) \\ \hline
+    2 & Nitrogen (amide) & ASN:ND2, GLN:NE2, \\
+     & & backbone N (including N-terminal) \\ \hline
     3 & Nitrogen (aromatic) & HIS:ND1/NE1, TRP:NE1 \\ \hline
-    4 & Nitrogen (guanidinium) & ARG:NE/NH1/NH2 \\ \hline
+    4 & Nitrogen (guanidinium) & ARG:NE/NH* \\ \hline
     5 & Nitrogen (ammonium) & LYS:NZ \\ \hline
-    6 & Oxygen (carbonyl) & ASN:OD1, GLN:OE1, backbone O (except C-terminal) \\ \hline
+    6 & Oxygen (carbonyl) & ASN:OD1, GLN:OE1, \\
+     & & backbone O (except C-terminal) \\ \hline
     7 & Oxygen (hydroxyl) & SER:OG, THR:OG1, TYR:OH \\ \hline
-    8 & Oxygen (carboxyl) & ASP:OD1/OD2, GLU:OE1/OE2, \\
+    8 & Oxygen (carboxyl) & ASP:OD*, GLU:OE*, \\
      & & C-terminal O, C-terminal OXT \\ \hline
-    9 & Carbon (sp2) & ARG:CZ, ASN:CG, ASP:CG, GLN:CD, GLU:CD, \\
-     & & backbone C \\ \hline
+    9 & Carbon (sp2) & ARG:CZ, ASN:CG, ASP:CG, \\
+     & & GLN:CD, GLU:CD, backbone C \\ \hline
     10 & Carbon (aromatic) & HIS:CG/CD2/CE1, \\
-     & & PHE:CG/CD1/CD2/CE1/CE2/CZ, \\ 
-     & & TRP:CG/CD1/CD2/CE2/CE3/CZ2/CZ3/CH2, \\
-     & & TYR:CG/CD1/CD2/CE1/CE2/CZ \\ \hline
-    11 & Carbon (sp3) & ALA:CB, ARG:CB/CG/CD, ASN:CB, ASP:CB, \\
-     & & CYS:CB, GLN:CB/CG, GLU:CB/CG, HIS:CB, \\
-     & & ILE:CB/CG1/CG2/CD1, \\
-     & & LEU:CB/CG/CD1/CD2, \\
+     & & PHE:CG/CD*/CE*/CZ, \\ 
+     & & TRP:CG/CD*/CE*/CZ*/CH2, \\
+     & & TYR:CG/CD*/CE*/CZ \\ \hline
+    11 & Carbon (sp3) & ALA:CB, ARG:CB/CG/CD, \\
+     & & ASN:CB, ASP:CB, CYS:CB, \\
+     & & GLN:CB/CG, GLU:CB/CG, \\
+     & & HIS:CB, ILE:CB/CG*/CD1, \\
+     & & LEU:CB/CG/CD*, \\
      & & LYS:CB/CG/CD/CE, \\
      & & MET:CB/CG/CE, MSE:CB/CG/CE, \\
      & & PHE:CB, PRO:CB/CG/CD, \\
      & & SER:CB, THR:CB/CG2, \\
-     & & TRP:CB, TYR:CB, VAL:CB/CG1/CG2, \\
+     & & TRP:CB, TYR:CB, VAL:CB/CG*, \\
      & & backbone CA \\ \hline    
 \end{tabular}
-    
-    \caption {Atom types used in this work. Atoms in each group are
-    identified using their standard PDB residue names and atom names.}
-
-    \label{Tbl:atomTypes}
+\label{Tbl:atomTypes}
 \end{center}
 \end{table}
 
@@ -508,15 +512,17 @@ the training and validation sets for the model at epoch 40.
 
 \begin{table}[!t]
 \begin{center}
+%
+  \caption {Performance of the model from epoch 40 on the training and
+    validation subsets.}
+%
 \begin{tabular}{ c | c | c | c | c }
     Data & Loss & Pearson $R$ & Spearman $\rho$ & Kendall $\tau$ \\
     \hline
     Training subset     &0.146 &0.71 &0.61 &0.45 \\
     Validation subset   &0.135 &0.71 &0.59 &0.44 \\ \hline
 \end{tabular}
-    \caption {Performance of the model from epoch 40 on the training
-      and validation subsets.}
-    \label{Tbl:TrainingResults}
+\label{Tbl:TrainingResults}
 \end{center}
 \end{table}
 
@@ -585,6 +591,13 @@ SCWRL4.
 
 \begin{table}[!t]
 \begin{center}
+%
+  \caption{Performance comparison of our method (3DCNN) with other
+    state-of-the-art model quality assessment methods on the CASP11
+    dataset stages~1 and 2 (see text). The table reports the absolute,
+    per-target average values of the correlation coefficients.
+    Targets T0797, T0798, T0825 were excluded from the evaluation.}
+%
 \begin{tabular}{ c | c | c | c | c }
     MQA method & Loss & Pearson $R$ & Spearmann $\rho$ & Kendall $\tau$ \\ \hline
     \multicolumn{5}{ c }{Stage 1} \\ \hline
@@ -602,13 +615,7 @@ SCWRL4.
     RWplus   &0.089 &0.206 &0.248 &0.176 \\ \hline
 
 \end{tabular}
-%
-    \caption{Performance comparison of our method (3DCNN) with other
-    state-of-the-art model quality assessment methods on the CASP11
-    dataset stages~1 and 2 (see text). The table reports the absolute,
-    per-target average values of the correlation coefficients. 
-    Targets T0797, T0798, T0825 were excluded from the evaluation. }
-    \label{Tbl:TestResults}
+\label{Tbl:TestResults}
 \end{center}
 \end{table}
 
