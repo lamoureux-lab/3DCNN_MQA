@@ -9,7 +9,9 @@
 \usepackage{multirow}
 \usepackage{color}
 \usepackage{tabularx}
-
+\usepackage{geometry}
+\usepackage{capt-of}
+% \renewcommand\floatpagefraction{0.9}
 \title{Supporting information for:\\ Deep convolutional networks for quality assessment of protein folds}
 \author{}
 
@@ -20,7 +22,6 @@
 
 \maketitle
 
-%\section{Datasets}
 
 \begin{figure}[H]
     \centering
@@ -59,9 +60,6 @@
 
 \begin{table}[H]
 \begin{center}
-%
-%%% GL: References numbers are not in the correct order (should be [1]
-%%% and [2] instead of [2] and [1]).
 \caption{Targets from test and training sets that belong to the same
   Pfam family \cite{finn2016pfam}, based on a HMMER search
   \cite{finn2015hmmer} with an E-value cutoff of 1.0. With that
@@ -106,35 +104,28 @@
 \end{center}
 \end{table}
 
-%%% GL: Table S3 should either be mentioned in the main text or be
-%%% removed. Isn't this information already contained in Figure 1,
-%%% though?
+% \begin{table}[H]
+% \begin{center}
 %
-%%% GL: What about T0797? It's blank in Figure 1 but is not present in
-%%% that table.
+% \caption{Targets from CASP11 that do not have corresponding PDB
+%   entries or ECOD classes.}
 %
-\begin{table}[H]
-\begin{center}
-%
-\caption{Targets from CASP11 that do not have corresponding PDB
-  entries or ECOD classes.}
-%
-\begin{tabular}{ l | l | l }
+% \begin{tabular}{ l | l | l }
 
-    Target & Has PDB & Has ECOD class \\
-    \hline
-    T0773 &True &False\\
-    T0820 &False &False\\
-    T0823 &False &False\\
-    T0824 &False &False\\
-    T0827 &False &False\\
-    T0835 &False &False\\
-    T0836 &False &False\\
-    T0838 &False &False\\
-\end{tabular}
-\label{Tbl:CASP11PDB_ECOD}
-\end{center}
-\end{table}
+%     Target & Has PDB & Has ECOD class \\
+%     \hline
+%     T0773 &True &False\\
+%     T0820 &False &False\\
+%     T0823 &False &False\\
+%     T0824 &False &False\\
+%     T0827 &False &False\\
+%     T0835 &False &False\\
+%     T0836 &False &False\\
+%     T0838 &False &False\\
+% \end{tabular}
+% \label{Tbl:CASP11PDB_ECOD}
+% \end{center}
+% \end{table}
 
 
 \begin{figure}[H]
@@ -165,10 +156,6 @@
     \label{Fig:foldsGraph}
 \end{figure}
 
-
-%\section{Model}
-
-%%% GL: Why writing the stride as 1x1x1? It's enough to write 1.
 \begin{table}[H]
 \begin{center}
 %
@@ -244,7 +231,6 @@
 
 \pagebreak
 \section*{Training procedure}
-%%% GL: This should be referenced to in the main text!!!
 
 \subsection*{Rotations}
 The rotations were sampled in the following way:
@@ -278,18 +264,19 @@ where $S_k$ are input size along the axes x,y,z and $B_k$ are the bounding box s
 
 \subsection*{Training parameters}
 
-The loss function is optimized using the Adam algorithm \ref{???},
+The loss function is optimized using the Adam algorithm \cite{kingma2014adam},
 with a learning rate of $0.0003$ and a learning rate decay of $0.01$.
 
-\pagebreak
+% \pagebreak
 \begin{figure}[H]
+
     \centering
-    \includegraphics[width=\linewidth]{Fig/epoch40_funnels.png}
-%%% GL: This figure should be bigger: The text is very hard to read.
-%
-%%% GL: Also: Is there a way to not show the last panel? (which
-%%% doesn't contain any data?)
-%
+    \makebox[0pt][c]{
+    \hskip-\footskip
+    \includegraphics[width=0.8\paperwidth]{Fig/epoch40_funnels.png}
+    \hskip\headheight
+    }
+
     \caption{Scoring funnels on the validation set at epoch 40. The
       $x$-axis is the GDT\_TS score and the $y$-axis is the $f$
       score. The score was sampled once using random rotation and
@@ -301,7 +288,6 @@ with a learning rate of $0.0003$ and a learning rate decay of $0.01$.
 
 %\section{Results}
 
-%%% GL: This figure is not referenced in the main text!!!
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{Fig/sampling_dist.eps}
@@ -317,116 +303,58 @@ with a learning rate of $0.0003$ and a learning rate decay of $0.01$.
     \label{Fig:ScoreDistribution}
 \end{figure}
 
-%%% GL: Move this text in the caption of Figure S5. Simplify if
-%%% necessary. We do not want ``floating'' text in the Supporting
-%%% information.
-%
-Figure~\ref{Fig:LossVsECOD} shows how the performance of each
-algorithm is affected by the ECOD similarity of the structures used
-for testing to those used for training. The test set in broken down
-into 5 subsets:
-\begin{itemize}
-\item
-``No overlap'', the structures for which there is no structure in the training set with 
-the same ECOD ``A'' class (T0797 and T0773); see Fig.~\ref{Fig:summaryTable});
-\item
-``A'', the structures in the same A-group of at least one training
-structure but not in the same X-group (T0759, T0763, T0769, etc.);
-\item
-``A+X'', the structures in the same X-group of at least one training
-structure but not in the same H-group (T0760, T0761, T0765, etc.);
-\item
-``A+X+H+T'', the structures in the same T-group of at least one
-training structure but not in the same F-group (T0762, T0766, T0767,
-etc.);
-\item
-``A+X+H+T+F'', the structures in the same F-group of at least one
-training structure (T0764, T0768, T0770, etc.).
-\end{itemize}
-%%% GL: Is this correct?
-%
-%%% GL: By the way, is Figure 1 correct for structures T0773, T0797,
-%%% and T0816?  The ECOD information is available but the structures
-%%% belong to A-groups not found in the training set?
-%G: to do on server
-%
-% We expect the performance of any knowledge-based MQA method to
-% increase as the structures used for testing become more similar to the
-% structures used for training. By contrast, we would expect a purely
-% first-principles method to show no increase in performance.
-%
-% Both our 3DCNN algorithm and the VoroMQA algorithm show marked
-% performance gains as proteins become more similar to the training set,
-% going from an average loss of around $0.10$ for ``no information''
-% structures to an average loss of around $0.04$ for ``A+X+H+T+F''
-% structures (see Fig.~\ref{Fig:LossVsECOD}).
-%
-% By comparison, algorithms ProQ2D and ProQ3D show modest performance
-% gains (if any) and algorithm RWPlus shows a performance independent
-% from structural similarity.
-%
-% Overall, these results suggest that the 3DCNN and VoroMQA methods make
-% better use of structural information---and rely more on
-% memorization---than the ProQ2D, ProQ3D, and RWPlus methods.
-%%% GL: Does it make sense?
-%G: to do on server
-
-%%% GL: What do you mean by ``to do on server''?
-
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{Fig/LossVsECOD.png}
 %
-%%% GL: This reference to Table ??? does not compile... Just hardcode it.
-    \caption{Per-target average loss of the MQA algorithms of Table~\ref{Tbl:TestResults}
+    \caption{Per-target average loss of the MQA algorithms of Table~3
     on the CASP11 test set stage~2, divided into 5 subsets of
     increasing structural similarity with the training set. The
     subsets are chosen according to the presence in the training set
     of structures belonging to the same ECOD categories (see text for
-    details). Error bars show per-target standard deviation of the loss}
+    details). 
+    ``No overlap'', the structures for which there is no structure in the training set with 
+    the same ECOD (T0797 and T0773). 
+    ``A'', the structures in the same A-group of at least one training
+    structure but not in the same X-group (T0759, T0763, T0769, etc.); 
+    ``A+X'', the structures in the same X-group of at least one training
+    structure but not in the same H-group (T0760, T0761, T0765, etc.);
+    ``A+X+H+T'', the structures in the same T-group of at least one
+    training structure but not in the same F-group (T0762, T0766, T0767,
+    etc.);
+    ``A+X+H+T+F'', the structures in the same F-group of at least one
+    training structure (T0764, T0768, T0770, etc.);
+    Error bars show per-target standard deviation of the loss.}
 %
     \label{Fig:LossVsECOD}
 \end{figure}
 
-%%% GL: Move this figure up so that the caption is not below the page number!!!
 \begin{figure}[H]
     \centering
     \makebox[0pt][c]{
     \hskip-\footskip
-    \includegraphics[width=\paperwidth]{Fig/CASP11Stage1_SCWRL_sFinal_funnels.png}
+    \includegraphics[width=0.8\paperwidth]{Fig/CASP11Stage1_SCWRL_sFinal_funnels.png}
     \hskip\headheight
     }
     \caption{Scoring funnels on Stage 1 CASP11}
     \label{Fig:Satage1CASP11Funnels}
 \end{figure}
 
-%%% GL: Move this figure up so that the caption is not below the page number!!!
 \begin{figure}[H]
     \centering
     \makebox[0pt][c]{
     \hskip-\footskip
-    \includegraphics[width=\paperwidth]{Fig/CASP11Stage2_SCWRL_sFinal_funnels.png}
+    \includegraphics[width=0.8\paperwidth]{Fig/CASP11Stage2_SCWRL_sFinal_funnels.png}
     \hskip\headheight
     }
     \caption{Scoring funnels on Stage 2 CASP11}
     \label{Fig:Satage2CASP11Funnels}
 \end{figure}
-
-%\section{Analysis}
-
-%%% GL: Remove this figure
-%\begin{figure}[H]
-%    \centering
-%    \includegraphics[width=\linewidth]{Fig/CASP11Stage1_SCWRL_activations_pca.png}
-%    \caption{First three principal components of layer 28 activations versus model score (color bar).}
-%    \label{Fig:PCA}
-%\end{figure}
-
-%%% GL: Add a caption to GradCAMTable!!!
+% \pagebreak
 \include{GradCAMTable}
 
 \bibliography{citations.bib}{}
-\bibliographystyle{plain}
+\bibliographystyle{unsrt}
 
 \end{document}

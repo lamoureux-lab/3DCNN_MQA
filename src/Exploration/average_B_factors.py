@@ -142,14 +142,14 @@ if __name__=='__main__':
 		num_proteins = [ (s,int(s[1:])) for s in proteins]
 		num_proteins = sorted(num_proteins, key=lambda x: x[1])
 		proteins, num_proteins = zip(*num_proteins)
-		with open('table.tex', 'w') as fout:
+		with open('GradCAMTable.tex', 'w') as fout:
 
 			fout.write("""
-\\documentclass[letter,10pt]{article}
-\\usepackage{graphicx}
-\\usepackage{tabularx}
-\\usepackage{ltxtable}
-\\begin{document}""")
+%\\documentclass[letter,10pt]{article}
+%\\usepackage{graphicx}
+%\\usepackage{tabularx}
+%\\usepackage{ltxtable}
+%\\begin{document}""")
 			num_pages = int(len(proteins)/4)
 			for page_num in range(0,num_pages):
 				fout.write("""	
@@ -166,13 +166,19 @@ if __name__=='__main__':
 					fout.write("\\hline\n")
 					# fout.write("%s &"%target)
 					for n,sel_bin in enumerate(bins):
+						decoy_gdt = sel_bin[0][1]
+						if n<(len(bins)-1):
+							fout.write("%s &"%target)
+						else:
+							fout.write("%s \\\\\n"%target)
+					for n,sel_bin in enumerate(bins):
 						decoy_path = sel_bin[0][0]
 						decoy_name = decoy_path[decoy_path.rfind('/')+1:]
 						decoy_name = decoy_name.replace('_','\\_')
 						if n<(len(bins)-1):
-							fout.write("%s %s &"%(target,decoy_name))
+							fout.write("\\tiny{%s} &"%(decoy_name))
 						else:
-							fout.write("%s %s \\\\\n"%(target,decoy_name))
+							fout.write("\\tiny{%s} \\\\\n"%(decoy_name))
 					# fout.write("GDT\\_TS&")
 					for n,sel_bin in enumerate(bins):
 						decoy_gdt = sel_bin[0][1]
@@ -197,4 +203,4 @@ if __name__=='__main__':
 \\hskip\\headheight}
 \\end{center}""")
 			fout.write("""
-\\end{document}""")
+%\\end{document}""")
