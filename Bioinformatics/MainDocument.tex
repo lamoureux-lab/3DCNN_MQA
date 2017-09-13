@@ -2,13 +2,14 @@
 \copyrightyear{2017} \pubyear{2017}
 \usepackage[english]{babel}
 \usepackage{float}
-\usepackage{graphicx}
-\usepackage{amsmath}
-\usepackage{multirow}
-\usepackage{color}
+% \usepackage[dvitex]{graphicx}
+% \usepackage{amsmath}
+% \usepackage{multirow}
+% \usepackage{color}
 
 \access{Advance Access Publication Date: Day Month Year}
 \appnotes{Original Paper}
+% \appnotes{Manuscript Category}
 
 \begin{document}
 \firstpage{1}
@@ -193,7 +194,7 @@ representation of the overlap between the test and training sets.)
 
 \begin{figure*}[!tpb]
     \makebox[\textwidth]{
-    \includegraphics[width=\paperwidth]{image1.eps}
+    \includegraphics[width=\paperwidth]{image1}
     }
 %
     \caption{Overlap of the training set on each target domain of the
@@ -281,7 +282,7 @@ shown.
 
 \begin{figure*}[!tpb]
     \centering
-    \includegraphics[width=0.7\linewidth]{image2.eps}
+    \centerline{\includegraphics[width=0.7\linewidth]{image2}}
 
     \caption{Representation of a protein structure (PDB code 5eh6)
     using atomic densities. The density maps are calculated according
@@ -306,7 +307,7 @@ single number, interpreted as the score of the input structure.
 
 \begin{figure*}[!tpb]
     \centering
-    \includegraphics[width=\linewidth]{image3.eps}
+    \includegraphics[width=\linewidth]{image3}
 
     \caption{Schematic representation of the convolutional neural
     network architecture used in this work. Line connections across
@@ -495,7 +496,7 @@ the training and validation sets for the model at epoch 40.
 
 \begin{figure}[!tpb]
     \centering
-    \includegraphics[width=\linewidth]{image4.eps}
+    \includegraphics[width=\linewidth]{image4}
     \caption{Loss, Kendall $\tau$, and Pearson $R$ coefficients
       evaluated on the validation subset during the training
       procedure.  One epoch corresponds to a cycle over all targets in
@@ -540,7 +541,7 @@ the Fig~S4 (see Supplementary Information).
 
 \begin{figure}[!tpb]
     \centering
-    \includegraphics[width=\linewidth]{image5.eps}
+    \includegraphics[width=\linewidth]{image5}
     \caption{Distributions of the $f$ scores of five decoys for target
     T0832 under random translations and rotations. A lower score
     represents a higher quality.}
@@ -648,7 +649,7 @@ coarseness.
 
 \begin{figure}[!tpb]
     \centering
-    \includegraphics[width=\linewidth]{image6.eps}
+    \includegraphics[width=\linewidth]{image6}
     \caption{Left: The output of the Grad-CAM algorithm for the layer 10 on
     candidate structure Distill\_TS3 of target T0776. The isosurface
     shows the scaled outputs at the two-sigma level. The intensities
@@ -688,7 +689,7 @@ differently. This placement also better corresponds to placement of the preceedi
 The Grad-CAM analysis for all the targets and selected representative decoys from CASP11 Stage2 can be found in 
 Table~S4 (see Supplementary Information).
 \begin{figure*}[!tpb]
-    \includegraphics[width=\linewidth]{image7.eps}
+    \includegraphics[width=\linewidth]{image7}
     \caption{The output of the Grad-CAM algorithm for the layer 10 of the network
     projected onto the atoms of the decoys. Each decoy is aligned to
     the native structure, shown as a transparent, blue cartoon.}
@@ -714,7 +715,7 @@ Figure~\ref{Fig:3DRobotBenchmark}. We see, that the MQA method devised
 in this work successfully ranks unrelated datasets.
 \begin{figure}[!tpb]
     \centering
-    \includegraphics[width=\linewidth]{image8.eps}
+    \includegraphics[width=\linewidth]{image8}
     \caption{The plots of score versus GDT\_TS for two best correlated targets and two
     least correlated targets in the 3DRobot benchmark.}
     \label{Fig:3DRobotBenchmark}
