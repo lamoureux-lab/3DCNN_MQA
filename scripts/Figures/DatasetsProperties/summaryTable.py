@@ -177,6 +177,6 @@ if __name__=='__main__':
 	ax.xaxis.grid(False, which='major')
 	ax.xaxis.grid(True, which='minor')
 	
-	plt.savefig("summary_table.tif", format='tif', dpi=600)
+	plt.savefig("summary_table.png", format='png', dpi=600)
 	# os.system('convert summary_table.tif -profile ../USWebUncoated.icc cmyk_summary_table.tif')
 	

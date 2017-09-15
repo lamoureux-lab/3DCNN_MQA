@@ -238,8 +238,8 @@ def plot_validation_correlations(	experiment_name, model_name, dataset_name, epo
 	plt.plot(epochs,pearsons, '--',color = 'grey', label ='Pearson R')
 	plt.plot(epochs,losses, '-', color='black', label ='Loss')
 
-	ax.annotate('Best validation loss', xy=(40, losses[40]), xytext=(20, losses[40] + 0.5),
-            arrowprops=dict(facecolor='black', shrink=0.05),
+	ax.annotate('Selected model', xy=(40, losses[40]), xytext=(30, losses[40] + 0.4),
+            arrowprops=dict(facecolor='black', shrink=0.05, width=2, headwidth = 5)
             )
 	plt.ylabel('Validation loss and correlations',fontsize=16)
 	plt.xlabel('Epoch',fontsize=14)
