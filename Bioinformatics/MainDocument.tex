@@ -141,7 +141,7 @@ pockets \citep{jimenez2017deepsite}, and to predict the effect of a
 protein mutation \citep{torng2017}. The molecules of interest are
 treated as 3D objects represented on a grid and the predictions are
 obtained from that information only. While a rigorous comparison of
-each of these methods is not always possible, they generally appear to
+these methods is not always possible, they generally appear to
 improve on the state of the art: both
 AtomNet \citep{wallach2015atomnet} and the 3D convolutional neural
 network of Ragoza et al.\ \citep{ragoza2017protein} perform
@@ -178,7 +178,7 @@ interatomic distance matrix as input.
     information for Pfam clans. A black tile in the ``Alignment'' row
     indicates that at least one sequence in the training set aligns to
     the target sequence with an E-value smaller than $10^{-4}$. (Grey
-    indicates that the protein structure is absent from the PDB database)}
+    indicates that the protein structure is absent from the PDB)}
     \label{Fig:summaryTable}
 \end{figure*}
 We train and assess our method using the protein decoy datasets from
@@ -240,7 +240,7 @@ structures were optimized using the SCWRL4 program
 \end{table}
 %
 Training and test datasets cover the same range of sequences
-lengths (see Figure~S1 in Supplementary Information). To ensure that the
+lengths (see Figure~S1 in Supplementary Information). To confirm that the
 training and test sets are significantly different, we have aligned
 all test sequences against all training sequences using
 blastp \citep{altschul1990basic}.  Less than 11\% of the targets in the
@@ -248,8 +248,8 @@ test set (9 out of 83) have sequence similarity with any target in the
 training set (see Table~S1 in Supplementary Information).
 
 To further assess the similarity of the two datasets, we have computed
-their overlap in terms of Pfam families \citep{finn2016pfam}. Pfam
-families were found using HMMER \citep{finn2015hmmer} with an E-value
+their overlap in terms of Pfam families \citep{finn2016pfam}. 
+Families were found using HMMER \citep{finn2015hmmer} with an E-value
 cutoff of 1.0 \citep{finn2016pfam}.  Accounting for targets for which
 no Pfam family could be determined, approximately 25\% of the test set
 targets share a family with approximately 10\% of the training set
@@ -257,13 +257,13 @@ targets (see Table~S2 in Supplementary Information).
 
 We have also compared the structures in the training and test sets
 using the ECOD database \citep{cheng2014ecod}. This database provides a
-5-tiered classification of all structures of the RCSB PDB
+5-tiered classification of all structures of the PDB
 \citep{berman2000protein} according to the following criteria:
 architecture (A-group), possible homology (X-group), homology
 (H-group), topology (T-group), and family (F-group).  Since the ECOD
 classification is domain-based, multi-domain protein chains can belong
-to multiple A-, X-, H-, T-, or F-groups.  The higher the level two
-protein domains occupy, the more structurally similar they are.
+to multiple A-, X-, H-, T-, or F-groups.  The higher the level of the group two
+protein domains share, the more structurally similar they are.
 %
 A summary of the overlap between the training and test sets is
 presented in Figure~\ref{Fig:summaryTable}. For each target domain in
@@ -364,25 +364,18 @@ during training). In practice, this layer normalizes each input value
 according to the mean and variance of the corresponding input within
 the subset of examples used to estimate the gradient (the ``batch''):
 \begin{equation}
-\hat{f}^\text{in}_k(\mathbf{r}) = \frac{f^\text{in}(\mathbf{r}) - \mu_\text{B}}{\sqrt{\sigma^{2}_\text{B} + \epsilon}}, \quad\forall k \in [1,N_\text{B}]
+\hat{f}^\text{in}_k(\mathbf{r}) = \frac{f^\text{in}_k(\mathbf{r}) - \mu_\text{B}(\mathbf{r})}{\sqrt{\sigma^{2}_\text{B}(\mathbf{r}) + \epsilon}}, \quad\forall k \in [1,N_\text{B}]
 \end{equation}
-where
-\begin{equation}
-\mu_\text{B}(\mathbf{r})
-= \frac{1}{N_\text{B}} \sum_{k=1}^{N_\text{B}}
-f^\text{in}_i(\mathbf{r})
-\end{equation}
-and
-\begin{equation}
-\sigma^{2}_\text{B}(\mathbf{r})
-= \frac{1}{N_\text{B}} \sum_{k=1}^{N_\text{B}} \left[
-f^\text{in}_i(\mathbf{r}) - \mu_\text{B}
-(\mathbf{r}) \right]^2
-\end{equation}
-$N_\text{B}$ is the number of examples in the
-minibatch. The constant $\epsilon \approx 10^{-5}$ is added to avoid division by
-zero. Afterwards, the output of this layer is computed by scaling the
-normalized inputs:
+where $\mu_\text{B}(\mathbf{r})$ is the mean of all
+$f^\text{in}(\mathbf{r})$ maps from the batch (calculated at each
+position $\mathbf{r}$) and $\sigma^{2}_\text{B}(\mathbf{r})$ is the
+variance.
+%%% GL: What's the difference between ``batch'' and ``minibatch''?
+%%% Probably best to stick to just one word.
+$N_\text{B}$ is the number of examples in the minibatch. The constant
+$\epsilon = 10^{-5}$ is added to avoid division by zero. Afterwards,
+the output of this layer is computed by scaling the normalized inputs:
+%%% GL: See what I wrote for epsilon. Is that better?
 \begin{equation}
 f^\text{out}_k(\mathbf{r}) = \gamma \hat{f}^\text{in}_k(\mathbf{r}) + \beta, \quad\forall k \in [1,N_B]
 \end{equation}
@@ -407,8 +400,9 @@ $\mathbf{x}_\text{in}$ as following:
 \begin{equation}
 \mathbf{x}_\text{out} = W \cdot \mathbf{x}_\text{in} + \mathbf{b}
 \end{equation}
-where $W$ is a matrix and $\mathbf{b}$ is a vector, learned during the
-training. Each output vector is then transformed by a ReLU layer.
+where $W$ is a reactangular matrix and $\mathbf{b}$ is a vector,
+learned during the training. Each output vector is then transformed by
+a ReLU layer.
 %
 %
 \subsection{Training loss function}
@@ -418,12 +412,12 @@ The problem of decoy quality assessment is essentially a ranking
 problem: we have to arrange decoys according to their similarity to
 the corresponding native structure as quantified, for instance, by the GDT\_TS score
 \citep{zemla2001casp4}. Such a ranking approach to the
-problem of model quality assessment has recently been used by the
+MQA problem has recently been used by the
 MQAPRank method \citep{jing2016sorting}, which, however, relies on a
 support vector machine model and uses high-level features as
 input.
 
-In the present work, we define the training loss function in terms of
+We define the training loss function in terms of
 the margin ranking loss \citep{joachims2002optimizing, gong2013deep}
 for each pair of decoys.  Let $\text{GDT\_TS}_i$ denote the global
 distance test total score of decoy $i$ and let $y_{ij}$ be the
@@ -434,11 +428,11 @@ y_{ij} = \begin{cases}
                -1& \text{if }\text{GDT\_TS}_i > \text{GDT\_TS}_j \\
             \end{cases}
 \end{equation}
-The GDT\_TS score belongs to the range $[0, 100]$, however in this work we normalize it to $[0,1]$ 
-to confine the loss within a reasonable range.
-
-Let $f_i$ denote the output of the network for decoy $i$. We use the
-following expression for the pairwise ranking loss:
+The original GDT\_TS score covers the range $[0,100]$ but, in this
+work, we use a GDT\_TS score normalized to the range $[0,1]$, so that
+the loss stays within reasonable bounds.  Let $f_i$ denote the output
+of the network for decoy $i$. We use the following expression for the
+pairwise ranking loss:
 \begin{equation}
 L_{ij} = w_{ij} \max \left[ 0, 1 - y_{ij} \cdot (f_i - f_j) \right]
 \end{equation}
@@ -450,7 +444,10 @@ w_{ij} = \begin{cases}
                0& \text{otherwise} \\ 
             \end{cases}
 \end{equation}
-where $T$ is a threshold constant set to 0.1 GDT\_TS unit.
+where $T$ is a threshold constant set to 0.1 (in the units of the
+normalized GDT\_TS score).
+%%% GL: Is this correct? I didn't understand what you meant by ``GDT_TS
+%%% unit''.
 
 During the training procedure we load $N_\text{B}$ decoy structures of
 a given target into memory (a ``batch'') and compute the output of the
@@ -464,7 +461,7 @@ to the network parameters and update them using the Adam algorithm
 %
 \subsection{Evaluation criteria}
 We evaluate the model using various correlation coefficients of the
-scores and using a test loss function, distinct from the training loss
+scores and using a test loss function distinct from the training loss
 function. The test loss is defined, for any given protein, as the
 absolute difference between the GDT\_TS of the best decoy and the
 GDT\_TS of the decoy with the lowest predicted score $f$:
@@ -475,16 +472,16 @@ The correlation coefficients between the $f$ score produced by the
 model and the GDT\_TS score are computed for all decoys of a given
 target in the test set and are then averaged over all targets. Since
 the value of GDT\_TS increases with the quality of a model but the
-value of $f$ decreases, an ideal QA algorithm would show a correlation
+value of $f$ decreases, an ideal MQA algorithm would show a correlation
 coefficient of $-1$ and a loss of zero.
 %
 Those two evaluation criteria measure different qualities of the
 model. One one hand, a perfect correlation coefficient of $-1$ would
 be achieved if the algorithm ranks all decoys in the exact decreasing
 order of their GDT\_TS score (from best to worst). On the other hand,
-a zero loss would be achieved if the algorithm assigns the lowest $f$
-value to the decoy with the highest GDT\_TS score, irrespective of the
-$f$ value it assigns to the other decoys.
+a zero loss would be achieved if the algorithm systematically assigns
+the lowest $f$ value to the decoy with the highest GDT\_TS score,
+irrespective of the $f$ value it assigns to the other decoys.
 %
 %
 \subsection{Optimization and dataset sampling}
@@ -568,23 +565,36 @@ the training and validation sets for the model at epoch 40.
 \end{figure}
 %
 
-Ideally, the score assigned to a decoy should not depend
-on its position and orientation in space.  To allow the model to learn this
+Ideally, the score assigned to a decoy should not depend on its
+position and orientation in space.  To allow the model to learn this
 invariance, the rotational and translational degrees of freedom of all
 decoy structures are randomly sampled during the training.
 Figure~\ref{Fig:DecoysScoreDistribution} shows the distributions of
 scores for several decoy structures of the same target (T0832),
-calculated for 900 rotations and translations sampled uniformly.
-While the score of a given structure is not strictly invariant under
-rotation and translation, it has a relatively narrow, unimodal
-distribution.  More importantly, the difference between the average
-scores of two decoys is usually larger than their variances. 
+calculated using the trained model for 900 rotations and translations
+sampled uniformly.  While the score of a given structure is not
+strictly invariant under rotation and translation, it has a relatively
+narrow, unimodal distribution.  More importantly, the difference
+between the average scores of two decoys is usually larger than their
+variances.
+
+To reduce
+the influence of the choice of rotation and translation on the final
+ranking, we estimate the score of each decoy from the average of 90
+scores calculated for random rotations and translations. The distribution
+of the scores under rotations and translations separately is shown on
+the Figure~S4 (see Supplementary Information).
+
 \begin{table}[H]
 %
   \caption{Performance comparison of our method (3DCNN) with other
     state-of-the-art MQA methods on the CASP11 dataset stages~1 and 2
     (see text). The table reports the absolute, per-target average
     values of the correlation coefficients.}
+%%% GL: Do you take the absolute value before the averaging or after
+%%% the averaging? It should be either ``reports the per-target
+%%% average of the absolute values...'' or ``reports the absolute
+%%% value of the per-target average values...''
 %
 \begin{tabular}{ c | c | c | c | c }
     MQA method & Loss & Pearson $R$ & Spearmann $\rho$ & Kendall $\tau$ \\ \hline
@@ -603,12 +613,6 @@ scores of two decoys is usually larger than their variances.
 \end{tabular}
 \label{Tbl:TestResults}
 \end{table}
-To reduce
-the influence of the choice of rotation and translation on the final
-ranking, we estimate the score of each decoy from the average of 90
-scores calculated for random rotations and translations. The distribution 
-of the scores under rotations and translations separately is shown on 
-the Figure~S4 (see Supplementary Information).
 
 Table~\ref{Tbl:TestResults} shows a comparison of our model (3DCNN)
 with a number of state-of-the-art MQA methods: ProQ2D,
@@ -617,7 +621,7 @@ VoroMQA~\citep{olechnovivc2017voromqa}, and
 RWplus~\citep{zhang2010novel}. Targets T0797, T0798, T0825 are removed
 from this benchmark because they were released for multimeric
 prediction.
-
+%
 The methods chosen all have available source codes or executables,
 which allows us to re-evaluate their performance on our CASP11
 benchmark.
@@ -648,37 +652,40 @@ method.
 \subsection{Analysis}
 %
 Deep neural networks are often thought of as ``black boxes'' that are
-easy to train but difficult to intepret. This difficulty of
-interpretation sometimes leads to the suspiction that the neural
+easy to train but difficult to interpret. This difficulty of
+interpretation sometimes leads to the suspicion that the neural
 network learns artifacts in the data that correlate with the target
-results but are not meaningful on any datasets other that those,
-chosen for training and evaluation.
+results but are not meaningful on any other dataset.
 %
-In this section we attempt to show that our network learns a relevant
+In this section we show that our network learns a relevant
 description of protein structure and can successfully rank decoys from
-the 3DRobot dataset.
+the independent 3DRobot dataset.
 
-First, we identify the regions of a structure that are responsible for
-an increase of its score (a \emph{decrease} in its quality). If the
-network has learned intepretable features of the data, we expect this
-analysis to show that the regions responsible for the poor quality of
-a decoy structure are those in which it deviates from the native
+First, we identify the regions of a decoy structure that are
+responsible for an increase of its score (a \emph{decrease} in its
+quality). If the network has learned intepretable features of the
+input, we expect these parts of the decoy to deviate from the native
 structure.
-
+%
 We use the Grad-CAM analysis technique proposed by Selvaraju et
 al.~\citep{selvaraju2016grad}. The key idea of this technique is to
-compute the gradient of the output of a certain layer (its
-``activations'') and weigh the sum of the activations by the gradient.
-This weighted sum highlights the regions of that layer that are both
-strongly activated and highly influential on the final score.  The
-weighted layer output is then upscaled using trilinear interpolation to 
-the size of the input of the network.
-
-It indicates which parts of the input contribute the most to the
-gradient of the score.  In our case we choose the ReLU layer 10, for
-which the output grid size is $25\times 25\times 25$ (see Table~S3).  We
-tested the method on the outputs of neighboring layers and layer 10
-represents the best tradeoff between interpretability and coarseness.
+compute the gradient of the final score with respect to the output of
+a certain layer of the network, then compute the sum of this layer
+output weighted by the gradient.
+%%% GL: This is more clear. Is this correct, though? I am still not
+%%% completely clear on what is being done, here.
+The weighted sum highlights the regions of the layer that are both
+strongly activated and highly influential on the final score. To
+generate an interpretable map, the weighted sum is then up-sampled to
+the size of the input of the network, using tri-linear interpolation.
+%%% GL: Ah... I think you meant ``up-sampled'', not ``up-scaled''.
+%
+This up-sampled map indicates which parts of the input contribute
+the most to the gradient of the score.  In our case we choose to
+analyze layer 10, for which the output grid size is $25\times 25\times
+25$ (see Table~S3).  We tested the method on neighboring layers and
+layer 10 represents the best tradeoff between interpretability and
+coarseness.
 
 An example of the Grad-CAM output is given in
 Figure~\ref{Fig:GradCAMT0776} (for decoy Distill\_TS3 of target
@@ -691,14 +698,15 @@ onto the atoms of the decoy, represented as a color-coded value on the
 cartoon rendering of the structure, and a projection onto a 3D grid,
 represented as an isosurface. The isosurface of
 Figure~\ref{Fig:GradCAMT0776} is a hollow shell containing most of the
-solvent-exposed region of the decoy but excluding the protein core. In
-other words, the quality of the decoy would go down for any increase
-in atomic density at the surface but would be unaffected by an
-increase in density in the core. This suggests that the network
-recognizes and enforces packing.  Interestingly, we also find that the
-Grad-CAM outputs are mostly zero for structures close to the native
-ones, despite the fact that no gradient information was included in
-the training procedure (see Table~S4 in Supplementary Information).
+solvent-exposed region of the decoy but excluding the protein
+core. This shows that the quality of the decoy would go down for any
+increase in atomic density at the surface but would be unaffected by
+an increase in density in the core. I also suggests that the neural
+network recognizes and enforces packing.  Interestingly, we also find
+that the Grad-CAM outputs are mostly zero for decoy structures close
+to the native ones, despite the fact that no gradient information was
+included in the training procedure (see Table~S4 in Supplementary
+Information).
 %
 \begin{figure}[H]
     \centering
@@ -722,23 +730,39 @@ the training procedure (see Table~S4 in Supplementary Information).
       aligned to the native structure, shown as a transparent blue
       cartoon. The C-terminal region (residues 1-38) and loop (residues 165-172) 
       are labeled on decoys Distill\_TS3 and BAKER-ROSETTASERVER\_TS3 correspondingly.}
+    %%% GL: Is the native structure blue just because it's blue or
+    %%% because its Grad-CAM output is close to zero everywhere?
+%
+    %%% GL: It would reinforce our message if the decoys were arranged
+    %%% in increasing order of GDT_TS score (like for the big table in
+    %%% Supplementary Information).
     \label{Fig:GradCAMT0776_more}
 \end{figure*}
 %
 Figure~\ref{Fig:GradCAMT0776_more} shows the color-coded values of the
-Grad-CAM result for four decoys of target T0776 (including the decoy
+Grad-CAM results for four decoys of target T0776 (including the decoy
 from Figure~\ref{Fig:GradCAMT0776}).  For all decoys, we see that the
-quality assessment is sensitive to the presence of the C-terminal
-$\alpha$-helix absent in the native X-Ray structure. For decoys
+quality assessment is sensitive to the presence of a C-terminal
+$\alpha$-helix absent from the native X-Ray structure. For decoys
 Distill\_TS3 and 3D-Jigsaw-V5\_1\_TS2, our algorithm highlights this
-helix as the region of the structural model that most affects its
-quality. In these structures the residues 38-48 are not aligned with the corresponding residues 
-int the native structure. On the contrary, for decoy FALCON\_TOPO\_TS3, 
-the placement of the residues 38-48 corresponds to that in the native structure and
-the neural network does not penalize the C-terminal helix.
-In the case of BAKER-ROSETTASERVER\_TS3, no attempt was made to model the C-terminal region 
-and the incorrect structure of the loop (residues 165-172) 
+incorrect helix as the region of the structural model that most affects its
+quality. In these structures residues 38-48 are not aligned with the
+corresponding residues from the native structure.
+%%% GL: I don't understand why you talk about residues 38-48. Isn't
+%%% the helix going from 1 to 38?
+%
+On the contrary, for
+decoy FALCON\_TOPO\_TS3, the placement of the residues 38-48
+corresponds to that in the native structure and the neural network
+does not penalize the C-terminal helix.
+%%% GL: I don't see it... On the figure, it looks like the helix
+%%% is much higher than the loop.
+%
+In the case of
+BAKER-ROSETTASERVER\_TS3, no attempt was made to model the C-terminal
+region and the incorrect structure of the loop (residues 165-172)
 contribute mostly to the quality of the model.
+%%% GL: You mean the BAKER decoy does not contain residues 1-38???
 %
 The Grad-CAM analysis for representative ``stage~2''
 decoys of all CASP11 targets can be found in Table~S4 (see
@@ -747,12 +771,13 @@ Supplementary Information).
 To verify that the network does not rely on artifacts in the data to
 rank decoys, we have assessed its performance on a second, independent
 dataset generated by the 3DRobot algorithm \citep{deng20163drobot}.
-The authors of this dataset followed standard ITASSER structure prediciton protocol
-with the exception of the last step, where they used two additional terms in
-the scoring function: one to favor the number of hydrogen bonds and the other 
-to penalize radius of gyration. Also, unlike in ITASSER protocol, 
-during the last step the structures were not confined to the template.
-This procedure yielded the decoys that are uniformly distributed
+The authors of this dataset follow the standard ITASSER structure
+prediction protocol \citep{REF_ITASSER???} with the exception of the
+last step, where they use two additional terms in the scoring
+function: one to favor the formation of hydrogen bonds and one to
+penalize a high radius of gyration. Also in departure from the ITASSER
+protocol, the structures are not confined to the template during the
+last step. This algorithm yields decoys that are uniformly distributed
 within an RMSD range of 0 to 12~\AA\ of the native structure.
 %
 \begin{figure}
@@ -763,14 +788,29 @@ within an RMSD range of 0 to 12~\AA\ of the native structure.
     \label{Fig:3DRobotBenchmark}
 \end{figure}
 %
-The dataset consists of 300 decoys for each of the 200 non-redundant proteins. The proteins were 
-selected from the PDB database with less than 20\% pair sequence identity, containing 48 $\alpha$, 
-40 $\beta$ and 112 $\alpha/\beta$ signle-domain proteins with length from 80 to 250 residues. 
-The absolute Pearson $R$ coefficient averaged per-target over all the
-targets in this benchmark was $0.85$. Spearman $\rho$ coefficient
-and Kendall $\tau$ coefficient were $0.83$ and $0.64$, respectively.
+The 3DRobot dataset consists of 300 decoys for each of 200
+single-domain target proteins selected from the PDB. The proteins have
+less than 20\% sequence identity with one another and are between 80
+to 250 residue long. Out of the list of 200, 48 are all-$\alpha$
+proteins, 40 are all-$\beta$, and 112 are $\alpha/\beta$.
+%%% GL: What classification is that? Are these SCOP classes? We should
+%%% mention it, then -- and cite the SCOP paper.
+%
+%%% GL: When you say alpha/beta, do you mean ``a/b'' only or ``a+b''
+%%% as well?
+%
+For these 60000 decoy structures, the pre-trained network yields an
+per-target average absolute Pearson $R$ coefficient of $0.85$.
+%%% GL: Are you taking the absolute value before or after the
+%%% averaging? See my earlier comment about that.
+Spearman $\rho$ coefficient and Kendall $\tau$ coefficient are $0.83$
+and $0.64$, respectively.
+%%% GL: Is this good? Is this bad? Is it normal that it's so much
+%%% higher than the values reported in Table 3? Is it known to be an
+%%% easier set of decoys to rank? You provide no point of comparison...
+%
 Representative examples of score versus GDT\_TS plots are shown in
-Figure~\ref{Fig:3DRobotBenchmark}. We see, that the MQA method devised
+Figure~\ref{Fig:3DRobotBenchmark}. We see that the MQA method devised
 in this work successfully ranks unrelated datasets.
 %
 %
