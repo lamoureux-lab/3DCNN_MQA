@@ -154,10 +154,9 @@ conformations (or even various isomeric states). These models,
 intended to be used as universal force fields, are trained on ab
 initio quantum energies and forces, and use only the nuclear charges and the
 interatomic distance matrix as input.
-
-
+%
 \section{Materials and Methods}
-
+%
 \subsection{Datasets}
 \begin{figure*}[!tpb]
     \makebox[\textwidth]{
@@ -276,7 +275,6 @@ representation of the overlap data.)
 \subsection{Input}
 %
 \begin{figure*}[!tpb]
-    \centering
     \centerline{\includegraphics[width=0.7\linewidth]{image2}}
 %
     \caption{Representation of a protein structure (PDB code 5eh6)
@@ -314,9 +312,9 @@ shown. The 5 other maps have zero density everywhere.
 %
 %
 \begin{figure*}[!tpb]
-    \makebox[\textwidth]{
+    \centerline{\makebox[0.8\textwidth]{
     \includegraphics[width=\textwidth]{image3.png}
-    }
+    }}
 %
     \caption{Schematic representation of the convolutional neural
     network architecture used in this work. Line connections across
@@ -369,13 +367,9 @@ the subset of examples used to estimate the gradient (the ``batch''):
 where $\mu_\text{B}(\mathbf{r})$ is the mean of all
 $f^\text{in}(\mathbf{r})$ maps from the batch (calculated at each
 position $\mathbf{r}$) and $\sigma^{2}_\text{B}(\mathbf{r})$ is the
-variance.
-%%% GL: What's the difference between ``batch'' and ``minibatch''?
-%%% Probably best to stick to just one word.
-$N_\text{B}$ is the number of examples in the minibatch. The constant
+variance. $N_\text{B}$ is the number of examples in the batch. The constant
 $\epsilon = 10^{-5}$ is added to avoid division by zero. Afterwards,
 the output of this layer is computed by scaling the normalized inputs:
-%%% GL: See what I wrote for epsilon. Is that better?
 \begin{equation}
 f^\text{out}_k(\mathbf{r}) = \gamma \hat{f}^\text{in}_k(\mathbf{r}) + \beta, \quad\forall k \in [1,N_B]
 \end{equation}
@@ -446,8 +440,6 @@ w_{ij} = \begin{cases}
 \end{equation}
 where $T$ is a threshold constant set to 0.1 (in the units of the
 normalized GDT\_TS score).
-%%% GL: Is this correct? I didn't understand what you meant by ``GDT_TS
-%%% unit''.
 
 During the training procedure we load $N_\text{B}$ decoy structures of
 a given target into memory (a ``batch'') and compute the output of the
@@ -489,7 +481,7 @@ irrespective of the $f$ value it assigns to the other decoys.
 %
 \begin{figure}[!tpb]
     \centering
-    \includegraphics[width=\linewidth]{image4.png}
+    \centerline{\includegraphics[width=0.7\linewidth]{image4.png}}
     \caption{Loss, Kendall $\tau$, and Pearson $R$ coefficients
       evaluated on the validation subset during the training
       procedure.  One epoch corresponds to a cycle over all targets in
@@ -554,17 +546,6 @@ the training and validation sets for the model at epoch 40.
 %
 \section{Results}
 %
-%
-\begin{figure}[!tpb]
-    \centering
-    \includegraphics[width=\linewidth]{image5}
-    \caption{Distributions of the $f$ scores of five decoys for target
-    T0832 under random translations and rotations. A lower score
-    represents a higher quality.}
-    \label{Fig:DecoysScoreDistribution}
-\end{figure}
-%
-
 Ideally, the score assigned to a decoy should not depend on its
 position and orientation in space.  To allow the model to learn this
 invariance, the rotational and translational degrees of freedom of all
@@ -578,23 +559,18 @@ narrow, unimodal distribution.  More importantly, the difference
 between the average scores of two decoys is usually larger than their
 variances.
 
-To reduce
-the influence of the choice of rotation and translation on the final
+To reduce the influence of the choice of rotation and translation on the final
 ranking, we estimate the score of each decoy from the average of 90
 scores calculated for random rotations and translations. The distribution
 of the scores under rotations and translations separately is shown on
 the Figure~S4 (see Supplementary Information).
-
-\begin{table}[H]
+%
+\begin{table}[t]
 %
   \caption{Performance comparison of our method (3DCNN) with other
     state-of-the-art MQA methods on the CASP11 dataset stages~1 and 2
     (see text). The table reports the absolute, per-target average
     values of the correlation coefficients.}
-%%% GL: Do you take the absolute value before the averaging or after
-%%% the averaging? It should be either ``reports the per-target
-%%% average of the absolute values...'' or ``reports the absolute
-%%% value of the per-target average values...''
 %
 \begin{tabular}{ c | c | c | c | c }
     MQA method & Loss & Pearson $R$ & Spearmann $\rho$ & Kendall $\tau$ \\ \hline
@@ -613,7 +589,15 @@ the Figure~S4 (see Supplementary Information).
 \end{tabular}
 \label{Tbl:TestResults}
 \end{table}
-
+%
+\begin{figure}[!tpb]
+    \centerline{\includegraphics[width=0.7\linewidth]{image5}}
+    \caption{Distributions of the $f$ scores of five decoys for target
+    T0832 under random translations and rotations. A lower score
+    represents a higher quality.}
+    \label{Fig:DecoysScoreDistribution}
+\end{figure}
+%
 Table~\ref{Tbl:TestResults} shows a comparison of our model (3DCNN)
 with a number of state-of-the-art MQA methods: ProQ2D,
 ProQ3D~\citep{uziela2017proq3d},
@@ -672,13 +656,11 @@ al.~\citep{selvaraju2016grad}. The key idea of this technique is to
 compute the gradient of the final score with respect to the output of
 a certain layer of the network, then compute the sum of this layer
 output weighted by the gradient.
-%%% GL: This is more clear. Is this correct, though? I am still not
-%%% completely clear on what is being done, here.
+
 The weighted sum highlights the regions of the layer that are both
 strongly activated and highly influential on the final score. To
-generate an interpretable map, the weighted sum is then up-sampled to
+generate an interpretable map, the weighted sum is then up-scaled to
 the size of the input of the network, using tri-linear interpolation.
-%%% GL: Ah... I think you meant ``up-sampled'', not ``up-scaled''.
 %
 This up-sampled map indicates which parts of the input contribute
 the most to the gradient of the score.  In our case we choose to
@@ -708,9 +690,8 @@ to the native ones, despite the fact that no gradient information was
 included in the training procedure (see Table~S4 in Supplementary
 Information).
 %
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{image6}
+\begin{figure}[!tbp]
+    \centerline{\includegraphics[width=0.7\linewidth]{image6}}
     \caption{Left: Output of the Grad-CAM algorithm for layer 10 of
       the network projected on candidate structure Distill\_TS3 of
       target T0776. The isosurface shows the scaled outputs at the
@@ -724,18 +705,12 @@ Information).
 \end{figure}
 %
 \begin{figure*}[!tbp]
-    \includegraphics[width=\linewidth]{image7.png}
+    \centerline{\includegraphics[width=0.8\linewidth]{image7.png}}
     \caption{Output of the Grad-CAM algorithm for layer 10 of the
       network projected on four decoys of target T0776. Each decoy is
       aligned to the native structure, shown as a transparent blue
       cartoon. The C-terminal region (residues 1-38) and loop (residues 165-172) 
       are labeled on decoys Distill\_TS3 and BAKER-ROSETTASERVER\_TS3 correspondingly.}
-    %%% GL: Is the native structure blue just because it's blue or
-    %%% because its Grad-CAM output is close to zero everywhere?
-%
-    %%% GL: It would reinforce our message if the decoys were arranged
-    %%% in increasing order of GDT_TS score (like for the big table in
-    %%% Supplementary Information).
     \label{Fig:GradCAMT0776_more}
 \end{figure*}
 %
@@ -748,21 +723,16 @@ Distill\_TS3 and 3D-Jigsaw-V5\_1\_TS2, our algorithm highlights this
 incorrect helix as the region of the structural model that most affects its
 quality. In these structures residues 38-48 are not aligned with the
 corresponding residues from the native structure.
-%%% GL: I don't understand why you talk about residues 38-48. Isn't
-%%% the helix going from 1 to 38?
 %
 On the contrary, for
 decoy FALCON\_TOPO\_TS3, the placement of the residues 38-48
 corresponds to that in the native structure and the neural network
 does not penalize the C-terminal helix.
-%%% GL: I don't see it... On the figure, it looks like the helix
-%%% is much higher than the loop.
 %
 In the case of
 BAKER-ROSETTASERVER\_TS3, no attempt was made to model the C-terminal
 region and the incorrect structure of the loop (residues 165-172)
 contribute mostly to the quality of the model.
-%%% GL: You mean the BAKER decoy does not contain residues 1-38???
 %
 The Grad-CAM analysis for representative ``stage~2''
 decoys of all CASP11 targets can be found in Table~S4 (see
@@ -781,8 +751,7 @@ last step. This algorithm yields decoys that are uniformly distributed
 within an RMSD range of 0 to 12~\AA\ of the native structure.
 %
 \begin{figure}
-    \centering
-    \includegraphics[width=\linewidth]{image8}
+    \centerline{\includegraphics[width=0.7\linewidth]{image8}}
     \caption{The plots of score versus GDT\_TS for two best correlated targets and two
     least correlated targets in the 3DRobot benchmark.}
     \label{Fig:3DRobotBenchmark}
@@ -800,14 +769,9 @@ proteins, 40 are all-$\beta$, and 112 are $\alpha/\beta$.
 %%% as well?
 %
 For these 60000 decoy structures, the pre-trained network yields an
-per-target average absolute Pearson $R$ coefficient of $0.85$.
-%%% GL: Are you taking the absolute value before or after the
-%%% averaging? See my earlier comment about that.
+absolute per-target average Pearson $R$ coefficient of $0.85$.
 Spearman $\rho$ coefficient and Kendall $\tau$ coefficient are $0.83$
 and $0.64$, respectively.
-%%% GL: Is this good? Is this bad? Is it normal that it's so much
-%%% higher than the values reported in Table 3? Is it known to be an
-%%% easier set of decoys to rank? You provide no point of comparison...
 %
 Representative examples of score versus GDT\_TS plots are shown in
 Figure~\ref{Fig:3DRobotBenchmark}. We see that the MQA method devised

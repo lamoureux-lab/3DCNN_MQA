@@ -152,13 +152,20 @@ if __name__=='__main__':
 %\\begin{document}""")
 			num_pages = int(len(proteins)/4)
 			for page_num in range(0,num_pages):
+				if page_num==0:
+					fout.write("""
+\\captionof{table}{Output of the Grad-CAM algorithm on the selected representative decoys in CASP11 Stage2.
+The interval of all the decoys GDT\\_TS was divided into four bins of equal size and random decoys from each bin were 
+selected. Then 30 samples with random rotations and translations for each selected decoys were used to generate Grad-CAM
+output dencity maps. Afterwards, each map was projected on the atoms of each sampled decoy. Finally, average values of the 
+projected values were calculated for each atom. These values were plotted using Pymol with the rainbow color scheme.}
+	""")
 				fout.write("""	
-\\begin{center}
-\\makebox[0pt][c]{
-\\hskip-\\footskip
-\\begin{tabularx}{0.9\paperwidth}{X*{4}{p{4.5cm}}}
-
-				""")
+	\\begin{center}
+	\\makebox[10pt][c]{
+	\\hskip-\\footskip
+	\\begin{tabularx}{0.95\paperwidth}{X*{4}{p{5.0cm}}}
+					""")
 				from_num = 4*page_num
 				till_num = int(np.min([from_num+4, len(proteins)]))
 				for target in proteins[from_num:till_num]:
@@ -168,9 +175,9 @@ if __name__=='__main__':
 					for n,sel_bin in enumerate(bins):
 						decoy_gdt = sel_bin[0][1]
 						if n<(len(bins)-1):
-							fout.write("%s &"%target)
+							fout.write("\\tiny{%s} &"%target)
 						else:
-							fout.write("%s \\\\\n"%target)
+							fout.write("\\tiny{%s} \\\\\n"%target)
 					for n,sel_bin in enumerate(bins):
 						decoy_path = sel_bin[0][0]
 						decoy_name = decoy_path[decoy_path.rfind('/')+1:]
@@ -183,9 +190,9 @@ if __name__=='__main__':
 					for n,sel_bin in enumerate(bins):
 						decoy_gdt = sel_bin[0][1]
 						if n<(len(bins)-1):
-							fout.write("GDT\\_TS = %.2f &"%decoy_gdt)
+							fout.write("\\tiny{GDT\\_TS = %.2f} &"%decoy_gdt)
 						else:
-							fout.write("GDT\\_TS = %.2f \\\\\n"%decoy_gdt)
+							fout.write("\\tiny{GDT\\_TS = %.2f} \\\\\n"%decoy_gdt)
 					# fout.write("&")
 					for n,sel_bin in enumerate(bins):
 						decoy_path = sel_bin[0][0]
@@ -195,7 +202,6 @@ if __name__=='__main__':
 							fout.write("&")
 						else:
 							fout.write("\\\\\n")
-
 
 				fout.write("""
 \\end{tabularx}
