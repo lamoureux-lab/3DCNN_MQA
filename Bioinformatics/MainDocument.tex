@@ -69,15 +69,11 @@ at \textit{Bioinformatics} online.}
 The protein folding problem remains one of the outstanding challenges
 in structural biology \citep{dill2012folding}.  It is usually defined
 as the task of predicting the three-dimensional (3D) structure of a
-protein from its amino acid sequence. A crucial step when making such
-prediction is the ranking of candidate structures: given a number of
-structural models, can we computationally predict how close each of
-them is to the unknown native fold of the protein?
-
+protein from its amino acid sequence.
 Progress in the field is monitored through the Critical Assessment of
 protein Structure Prediction (CASP) competition \citep{moult1995large},
 in which protein folding methods are evaluated in terms of their
-accuracy at predicting protein structures ahead of their
+accuracy at predicting structures ahead of their
 publication. Most methods in competition include a conformational
 sampling step, which generates a number of plausible protein
 conformations, and a quality assessment step, which attempts to select
@@ -94,7 +90,7 @@ learning a hierarchical representation of the raw data at hand. It
 alleviates the need for feature engineering, which has traditionally
 constituted the bulk of the work done by researchers.
 
-Deep learning has recently been applied to biological data and has
+Deep learning has been applied to biological data and has
 yielded remarkable results for predicting the effects of genetic
 variations on human RNA splicing \citep{xiong2015human}, for
 identifying DNA- and RNA-binding
@@ -114,8 +110,7 @@ reported to outperform ProQ2 \citep{ray2012proq2},
 which was the top-performing method in the CASP11
 competition \citep{kryshtafovych2015}.  ProQ3D \citep{uziela2017proq3d}
 uses the same high-level input features as the earlier ProQ3
-method \citep{uziela2016proq3} (including the
-Rosetta score \citep{leaverfay2011rosetta}) but achieves better
+method \citep{uziela2016proq3} but achieves better
 performance by replacing the support vector machine model by a deep
 neural network. Since the original ProQ3 method had one of the top
 performances in CASP12 \citep{elofsson2017qacasp12}, it can be expected
@@ -141,7 +136,7 @@ pockets \citep{jimenez2017deepsite}, and to predict the effect of a
 protein mutation \citep{torng2017}. The molecules of interest are
 treated as 3D objects represented on a grid and the predictions are
 obtained from that information only. While a rigorous comparison of
-these methods is not always possible, they generally appear to
+these methods is not always possible, they appear to
 improve on the state of the art: both
 AtomNet \citep{wallach2015atomnet} and the 3D convolutional neural
 network of Ragoza et al.\ \citep{ragoza2017protein} perform
@@ -154,13 +149,15 @@ conformations (or even various isomeric states). These models,
 intended to be used as universal force fields, are trained on ab
 initio quantum energies and forces, and use only the nuclear charges and the
 interatomic distance matrix as input.
-%
+
+
 \section{Materials and Methods}
-%
+
 \subsection{Datasets}
-\begin{figure*}[!tpb]
+
+\begin{figure*}[t]
     \makebox[\textwidth]{
-    \includegraphics[width=\paperwidth]{image1.png}
+    \includegraphics[width=0.78\paperwidth]{image1.png}
     }
     \caption{Overlap of the training set on each target domain of the
     test set (from T0759 to T0858). The first 5 rows of tiles
@@ -180,6 +177,7 @@ interatomic distance matrix as input.
     indicates that the protein structure is absent from the PDB)}
     \label{Fig:summaryTable}
 \end{figure*}
+
 We train and assess our method using the protein decoy datasets from
 the CASP competition \citep{moult2014critical}.  We use the CASP7 to
 CASP10 data as training set and the CASP11 data as test set, for a
@@ -196,14 +194,46 @@ during the training phase nor during the testing phase. To make the
 structural data more consistent, the side chains of all decoy
 structures were optimized using the SCWRL4 program
 \citep{krivov2009improved}.
+
+Training and test datasets cover the same range of sequences
+lengths (see Figure~S1 in Supplementary Information). To confirm that the
+training and test sets are significantly different, we have aligned
+all test sequences against all training sequences using
+blastp \citep{altschul1990basic}.  Less than 11\% of the targets in the
+test set (9 out of 83) have sequence similarity with any target in the
+training set (see Table~S1 in Supplementary Information).
+
+To further assess the similarity of the two datasets, we have computed
+their overlap in terms of Pfam families \citep{finn2016pfam}. 
+Families were found using HMMER \citep{finn2015hmmer} with an E-value
+cutoff of 1.0 \citep{finn2016pfam}.  Accounting for targets for which
+no Pfam family could be determined, approximately 25\% of the test set
+targets share a family with approximately 10\% of the training set
+targets (see Table~S2 in Supplementary Information).
+
+We have also compared the structures in the training and test sets
+using the ECOD database \citep{cheng2014ecod}. This database provides a
+5-tiered classification of all structures of the PDB
+\citep{berman2000protein} according to the following criteria:
+architecture (A-group), possible homology (X-group), homology
+(H-group), topology (T-group), and family (F-group).  Since the ECOD
+classification is domain-based, multi-domain protein chains can belong
+to multiple A-, X-, H-, T-, or F-groups.
 %
-\begin{table}[H]
+A summary of the overlap between the training and test sets is
+presented in Figure~\ref{Fig:summaryTable}. For each target domain in
+the test set (T0759 to T0858), a black tile indicates that at least
+one structure from the training set belong to the same ECOD
+group. (See Figure~S2 in Supplementary Information for another
+representation of the overlap data.)
+
+\begin{table}[t]
 %
   \caption {Atom types used in this work. Atoms in each group are
     identified using their standard PDB residue names and atom
     names. Asterisks (*) correspond to either 1, 2, or 3.}
 %
-\begin{tabular}{ c | l | l }
+\begin{tabular}{ c l l }
     Type & Description & Atoms \\
     \hline
     1 & Sulfur/selenium & CYS:SG, MET:SD, MSE:SE \\ \hline
@@ -237,54 +267,10 @@ structures were optimized using the SCWRL4 program
 \end{tabular}
 \label{Tbl:atomTypes}
 \end{table}
-%
-Training and test datasets cover the same range of sequences
-lengths (see Figure~S1 in Supplementary Information). To confirm that the
-training and test sets are significantly different, we have aligned
-all test sequences against all training sequences using
-blastp \citep{altschul1990basic}.  Less than 11\% of the targets in the
-test set (9 out of 83) have sequence similarity with any target in the
-training set (see Table~S1 in Supplementary Information).
 
-To further assess the similarity of the two datasets, we have computed
-their overlap in terms of Pfam families \citep{finn2016pfam}. 
-Families were found using HMMER \citep{finn2015hmmer} with an E-value
-cutoff of 1.0 \citep{finn2016pfam}.  Accounting for targets for which
-no Pfam family could be determined, approximately 25\% of the test set
-targets share a family with approximately 10\% of the training set
-targets (see Table~S2 in Supplementary Information).
 
-We have also compared the structures in the training and test sets
-using the ECOD database \citep{cheng2014ecod}. This database provides a
-5-tiered classification of all structures of the PDB
-\citep{berman2000protein} according to the following criteria:
-architecture (A-group), possible homology (X-group), homology
-(H-group), topology (T-group), and family (F-group).  Since the ECOD
-classification is domain-based, multi-domain protein chains can belong
-to multiple A-, X-, H-, T-, or F-groups.  The higher the level of the group two
-protein domains share, the more structurally similar they are.
-%
-A summary of the overlap between the training and test sets is
-presented in Figure~\ref{Fig:summaryTable}. For each target domain in
-the test set (T0759 to T0858), a black tile indicates that at least
-one structure from the training set belong to the same ECOD group (A,
-X, H, T, or F). (See Figure~S2 in Supplementary Information for another
-representation of the overlap data.)
-%
-%
 \subsection{Input}
-%
-\begin{figure*}[!tpb]
-    \centerline{\includegraphics[width=0.7\linewidth]{image2}}
-%
-    \caption{Representation of a protein structure (PDB code 5eh6)
-    using atomic densities. The density maps are calculated according
-    to Eq.~\ref{eq:rho} and rendered using Pymol \citep{PyMOL} with an
-    isosurface level of $0.5$.}
-%
-    \label{Fig:atomic_densities}
-\end{figure*}
-%
+
 Each protein structure is represented by 11 density maps corresponding
 to the atom types defined in Table~\ref{Tbl:atomTypes}. These atom
 types are a simplification of the 20 types proposed by Huang and
@@ -306,38 +292,52 @@ Figure~\ref{Fig:atomic_densities} illustrates the atomic densities for
 a simple $\alpha$-helical peptide (PDB code 5eh6). This structure
 contains only 6 of the 11 atom types, and only those density maps are
 shown. The 5 other maps have zero density everywhere.
+
+\begin{figure*}[t]
+    \centerline{\includegraphics[width=0.6\linewidth]{image2}}
 %
+    \caption{Representation of a protein structure (PDB code 5eh6)
+    using atomic densities. The density maps are calculated according
+    to Eq.~\ref{eq:rho} and rendered using Pymol \citep{PyMOL} with an
+    isosurface level of $0.5$.}
 %
+    \label{Fig:atomic_densities}
+\end{figure*}
+
+
 \subsection{Model}
-%
-%
-\begin{figure*}[!tpb]
+
+\begin{figure*}[t]
     \centerline{\makebox[0.8\textwidth]{
     \includegraphics[width=\textwidth]{image3.png}
     }}
 %
     \caption{Schematic representation of the convolutional neural
-    network architecture used in this work. Line connections across
+    network architecture used in this work. Unless otherwise specified, line connections across
     boxes denote the consecutive application of a 3D convolutional
     layer (``Convolution''), a batch normalization layer
-    (``BatchNorm''), and a ReLU layer. Arrows between boxes denote
-    maximum pooling layers (``MaxPooling''). The labels ``$\times M$''
-    denote the number of filters used in the corresponding 3D
-    convolutional layer. The size of all filters and maximum pooling
-    domains are $3\times 3\times 3$. The grey stripes denote
+    (``BatchNorm''), and a ReLU layer. Grey arrows between boxes denote
+    maximum pooling layers (``MaxPooling''). Labels ``$\times M$''
+    denote the number of 3D grids and the number of filters used in the corresponding
+    convolutional layer.
+%%% GL: Some of the ``xM'' labels are following a MaxPooling layer,
+%%% not a Convolution layer, so I'm talking in terms of # of grids.
+    The grey stripes denote
     one-dimensional vectors and crossed lines between them stand for
-    fully-connected layers with ReLU non-linearities. Details of the
-    model parameters can be found in Supplementary Information Table~S4.}
+    fully-connected layers with ReLU nonlinearities. Details of the
+    model can be found in Supplementary Information Table~S3.}
     \label{Fig:CNNModel}
 \end{figure*}
-Convolutional neural networks were first proposed for image
+
+In this work we score protein structures using 3D convolutional neural
+networks (CNNs). CNNs were first proposed for image
 recognition by LeCun et al.\ \citep{lecun1989backpropagation} but have
 gained wider recognition after the ImageNet 2012
-competition \citep{krizhevsky2012imagenet}. In this work we use 3D
-convolutional networks to score protein structures. The architecture
+competition \citep{krizhevsky2012imagenet}. The architecture
 of the model is shown in Figure~\ref{Fig:CNNModel}.  It is comprised of
-four blocks of alternating convolutional, volumetric batch
-normalization, and ReLU layers, followed by three fully-connected
+four blocks of alternating convolutional, batch
+normalization, and ReLU layers (terminated by a maximum pooling layer),
+followed by three fully-connected
 layers with ReLU nonlinearities. The final output of the network is a
 single number, interpreted as the score of the input structure.
 
@@ -358,7 +358,7 @@ f^\text{out}_i (\mathbf{r}) = \begin{cases}
 The concept of batch normalization was introduced by Ioffe and
 Szegedy \citep{ioffe2015batch} to address the problem of internal
 covariate shift (the shift in the distribution of subnetwork outputs
-during training). In practice, this layer normalizes each input value
+during training). This layer normalizes each input value
 according to the mean and variance of the corresponding input within
 the subset of examples used to estimate the gradient (the ``batch''):
 \begin{equation}
@@ -368,40 +368,39 @@ where $\mu_\text{B}(\mathbf{r})$ is the mean of all
 $f^\text{in}(\mathbf{r})$ maps from the batch (calculated at each
 position $\mathbf{r}$) and $\sigma^{2}_\text{B}(\mathbf{r})$ is the
 variance. $N_\text{B}$ is the number of examples in the batch. The constant
-$\epsilon = 10^{-5}$ is added to avoid division by zero. Afterwards,
-the output of this layer is computed by scaling the normalized inputs:
+$\epsilon = 10^{-5}$ is added to avoid division by zero.
+The output of the layer is computed by scaling the normalized inputs:
 \begin{equation}
 f^\text{out}_k(\mathbf{r}) = \gamma \hat{f}^\text{in}_k(\mathbf{r}) + \beta, \quad\forall k \in [1,N_B]
 \end{equation}
-The parameters $\gamma$ and $\beta$ are learned along with other
+Parameters $\gamma$ and $\beta$ are learned along with other
 parameters of the network during the training.
 
 The maximum pooling layer (``MaxPool'') is used to build a
 coarse-grained representation of the input. The output of this layer
 is the maximum over the cubes of size $d \times d \times d$ that cover
-the input domain with the stride $l$ (the distance between two
-consequtive cubes along one dimension).  The output size is then
-approximately $l$ times smaller than the input data bounding box.  All
-four ``MaxPool'' layers of the model (Figure~\ref{Fig:CNNModel}) use
-$d=3$ and $l=2$ (see Table~S3 in Supplementary information).
+the input domain with a stride $l$ in each direction.  This operation
+makes the output size approximately $l$ times smaller than the
+input in each direction.  All four ``MaxPool'' layers of the model
+(Figure~\ref{Fig:CNNModel}) use $d=3$ and $l=2$ (see Table~S3 in
+Supplementary information).
 
 During the coarse-graining procedure, the size of the individual data
 grids eventually shrinks to a single cell. The flattening layer
-reshapes the array of $1\times 1\times 1$ density maps to a single
+reshapes the array of $1\times 1\times 1$ density maps into a single
 vector. Afterwards, we compute several transformations using
-fully-connected layers. These layers transform a vector
+fully-connected layers. Each of these layers transform a vector
 $\mathbf{x}_\text{in}$ as following:
 \begin{equation}
 \mathbf{x}_\text{out} = W \cdot \mathbf{x}_\text{in} + \mathbf{b}
 \end{equation}
-where $W$ is a reactangular matrix and $\mathbf{b}$ is a vector,
+where $W$ is a rectangular matrix and $\mathbf{b}$ is a vector,
 learned during the training. Each output vector is then transformed by
 a ReLU layer.
-%
-%
+
+
 \subsection{Training loss function}
-%
-%
+
 The problem of decoy quality assessment is essentially a ranking
 problem: we have to arrange decoys according to their similarity to
 the corresponding native structure as quantified, for instance, by the GDT\_TS score
@@ -424,61 +423,90 @@ y_{ij} = \begin{cases}
 \end{equation}
 The original GDT\_TS score covers the range $[0,100]$ but, in this
 work, we use a GDT\_TS score normalized to the range $[0,1]$, so that
-the loss stays within reasonable bounds.  Let $f_i$ denote the output
+the loss stays within reasonable bounds.  Let $s_i$ denote the output
 of the network for decoy $i$. We use the following expression for the
 pairwise ranking loss:
 \begin{equation}
-L_{ij} = w_{ij} \max \left[ 0, 1 - y_{ij} \cdot (f_i - f_j) \right]
+L_{ij} = w_{ij} \max \left[ 0, 1 - y_{ij} \cdot (s_i - s_j) \right]
 \end{equation}
 The term $w_{ij}$ represents the weight of each example and is defined
-so that decoys with similar scores are removed from the training:
+so that decoys with similar scores (within $0.1$) are removed from the training:
 \begin{equation}
 w_{ij} = \begin{cases}
-               1& \text{if } \left| \text{GDT\_TS}_i - \text{GDT\_TS}_j \right| > T \\
+               1& \text{if } \left| \text{GDT\_TS}_i - \text{GDT\_TS}_j \right| > 0.1 \\
                0& \text{otherwise} \\ 
             \end{cases}
 \end{equation}
-where $T$ is a threshold constant set to 0.1 (in the units of the
-normalized GDT\_TS score).
 
 During the training procedure we load $N_\text{B}$ decoy structures of
 a given target into memory (a ``batch'') and compute the output of the
 network and the average ranking loss:
 \begin{equation}
-L = \frac{1}{N_\text{B}^2} \sum_{i=1}^{N_\text{B}}\sum_{\substack{j=1\\j\neq i}}^{N_\text{B}} L_{ij}
+L = \frac{1}{N_\text{B}^2} \sum_{i=1}^{N_\text{B}}\sum_{j=1}^{N_\text{B}} L_{ij}
+\label{Eq:loss}
 \end{equation}
+%%% GL: L_{ii} is zero, so no need to specify that j should be different from i.
 Afterwards, we compute the gradient of the average loss with respect
 to the network parameters and update them using the Adam algorithm
 \citep{kingma2014adam}.
-%
+
 \subsection{Evaluation criteria}
+
 We evaluate the model using various correlation coefficients of the
-scores and using a test loss function distinct from the training loss
-function. The test loss is defined, for any given protein, as the
+scores and using a validation loss function distinct from the training loss
+function. The validation loss is defined, for any given protein, as the
 absolute difference between the GDT\_TS of the best decoy and the
-GDT\_TS of the decoy with the lowest predicted score $f$:
+GDT\_TS of the decoy with the lowest predicted score $s$:
 \begin{equation}
-\mathrm{Loss} = \left| \mathrm{max}_i(\text{GDT\_TS}_i) - \text{GDT\_TS}_{\mathrm{argmin}_i(f_i)} \right|
+\mathrm{Loss} = \left| \mathrm{max}_i(\text{GDT\_TS}_i) - \text{GDT\_TS}_{\mathrm{argmin}_i(s_i)} \right|
 \end{equation}
-The correlation coefficients between the $f$ score produced by the
+The correlation coefficients between the $s$ score produced by the
 model and the GDT\_TS score are computed for all decoys of a given
 target in the test set and are then averaged over all targets. Since
 the value of GDT\_TS increases with the quality of a model but the
-value of $f$ decreases, an ideal MQA algorithm would show a correlation
+value of $s$ decreases, an ideal MQA algorithm would show a correlation
 coefficient of $-1$ and a loss of zero.
-%
 Those two evaluation criteria measure different qualities of the
 model. One one hand, a perfect correlation coefficient of $-1$ would
-be achieved if the algorithm ranks all decoys in the exact decreasing
+be achieved if the algorithm ranks all decoys in the exact
 order of their GDT\_TS score (from best to worst). On the other hand,
 a zero loss would be achieved if the algorithm systematically assigns
-the lowest $f$ value to the decoy with the highest GDT\_TS score,
-irrespective of the $f$ value it assigns to the other decoys.
-%
-%
+the lowest $s$ value to the decoy with the highest GDT\_TS score,
+irrespective of the $s$ value it assigns to the other decoys.
+
+
 \subsection{Optimization and dataset sampling}
-%
-%
+
+The parameter optimization of the model was performed using the Adam
+algorithm \citep{kingma2014adam}. The gradient of the loss function (Eq.~\ref{Eq:loss})
+with respect to the model parameters was computed on the pairs of
+models in the batch. The batch size was set to $N_\text{B} = 9$
+models.
+
+The training dataset is sampled by first choosing a random target from
+the dataset, then sampling decoys of this target. One epoch
+corresponds to one pass through all targets in the dataset. The decoys
+are sampled in a homogeneous way, by dividing all decoys of a given
+target into $N_\text{B}$ bins according to the value of their GDT\_TS score
+and by picking one decoy from each bin at random.
+Precisely, decoy $i$ belongs to the bin number 
+\begin{equation}
+1 + \floor*{ N_B \times \frac{\text{GDT\_TS}_i - \min(\text{GDT\_TS}) }{\max(\text{GDT\_TS}) - \min(\text{GDT\_TS})} }
+\end{equation}
+where $\max(\text{GDT\_TS})$ and $\min(\text{GDT\_TS})$ are computed
+on all decoys of the chosen target.  If a bin
+is empty, the decoy is picked from another non-empty bin chosen at
+random.  The order of targets and the order of decoys in the bins are
+shuffled at the end of each epoch.
+
+Decoy structures are randomly rotated and translated each time they
+are used as input. The rotations are sampled uniformly
+\citep{shoemake1992uniform} and the translation are chosen in such a
+%%% GL: Is it Shoemake or Shoemaker???
+way that the translated protein fits inside the $120$~\AA${}\times
+120$~\AA${}\times 120$~\AA\ input grid (see text in Supplementary
+Information for details).
+
 \begin{figure}[!tpb]
     \centering
     \centerline{\includegraphics[width=0.7\linewidth]{image4.png}}
@@ -490,10 +518,11 @@ irrespective of the $f$ value it assigns to the other decoys.
       saved (at epoch 40).}
     \label{Fig:TrainingLoss}
 \end{figure}
+
 \begin{table}[!t]
   \caption {Performance of the model from epoch 40 on the training and
     validation subsets.}
-\begin{tabular}{ c | c | c | c | c }
+\begin{tabular}{ c c c c c }
     Data & Loss & Pearson $R$ & Spearman $\rho$ & Kendall $\tau$ \\
     \hline
     Training subset     &0.146 &0.71 &0.61 &0.45 \\
@@ -501,36 +530,6 @@ irrespective of the $f$ value it assigns to the other decoys.
 \end{tabular}
 \label{Tbl:TrainingResults}
 \end{table}
-The parameter optimization of the model was performed using the Adam
-algorithm \citep{kingma2014adam}. The gradient of the loss function
-with respect to the model parameters was computed on the pairs of
-models in the batch. The batch size was set to $N_\text{B} = 9$
-models.
-
-The training dataset is sampled by first choosing a random target from
-the dataset, then sampling decoys of this target. One epoch
-corresponds to one pass through all targets in the dataset. The decoys
-are sampled in a homogeneous way, by dividing all decoys of a given
-target into $N_\text{B} = 9$ bins by the value of their GDT\_TS score
-and picking one decoy from each bin at random.
-Precisely, decoy $i$ belongs to the bin number 
-\begin{equation}
-1 + \floor*{ N_B \times \frac{\text{GDT\_TS}_i - \min(\text{GDT\_TS}) }{\max(\text{GDT\_TS}) - \min(\text{GDT\_TS})} }
-\end{equation}
-where $\max(\text{GDT\_TS})$ and $\min(\text{GDT\_TS})$ are computed
-on all decoys of the chosen target.  During the training we pick
-$N_\text{B}$ decoys from bins $1, 2, 3, \ldots, N_\text{B}$.  If a bin
-is empty, the decoy is picked from another non-empty bin chosen at
-random.  The order of targets and the order of decoys in the bins are
-shuffled at the end of each epoch.
-
-Decoy structures are randomly rotated and translated each time they
-are used as input. The rotations are sampled uniformly
-\citep{shoemake1992uniform} and the translation are chosen in such a
-%%% GL: Is it Shoemake or Shoemaker?
-way that the translated protein fits inside the $120$~\AA${}\times
-120$~\AA${}\times 120$~\AA\ input grid (see text in Supplementary
-Information for details).
 
 We select the final model based on its performance on a
 \emph{validation subset} consisting of 35 targets (and their decoys)
@@ -542,10 +541,10 @@ epochs of training.  Models are saved every 10 epochs and we pick the
 one that has the smallest loss (at epoch 40).
 Table~\ref{Tbl:TrainingResults} summarizes the performance metrics on
 the training and validation sets for the model at epoch 40.
-%
-%
+
+
 \section{Results}
-%
+
 Ideally, the score assigned to a decoy should not depend on its
 position and orientation in space.  To allow the model to learn this
 invariance, the rotational and translational degrees of freedom of all
@@ -555,16 +554,15 @@ scores for several decoy structures of the same target (T0832),
 calculated using the trained model for 900 rotations and translations
 sampled uniformly.  While the score of a given structure is not
 strictly invariant under rotation and translation, it has a relatively
-narrow, unimodal distribution.  More importantly, the difference
-between the average scores of two decoys is usually larger than their
+narrow, unimodal distribution.  (See Figure~S4 in Supplementary
+Information for a distribution of score under rotations and
+translations separately.)  More importantly, the difference between
+the average scores of two decoys is usually larger than their
 variances.
+To reduce the influence of the choice of rotation and translation on
+the final ranking, we estimate the score of each decoy from the
+average of 90 scores calculated for random rotations and translations.
 
-To reduce the influence of the choice of rotation and translation on the final
-ranking, we estimate the score of each decoy from the average of 90
-scores calculated for random rotations and translations. The distribution
-of the scores under rotations and translations separately is shown on
-the Figure~S4 (see Supplementary Information).
-%
 \begin{table}[t]
 %
   \caption{Performance comparison of our method (3DCNN) with other
@@ -572,15 +570,15 @@ the Figure~S4 (see Supplementary Information).
     (see text). The table reports the absolute, per-target average
     values of the correlation coefficients.}
 %
-\begin{tabular}{ c | c | c | c | c }
+\begin{tabular}{ c c c c c }
     MQA method & Loss & Pearson $R$ & Spearmann $\rho$ & Kendall $\tau$ \\ \hline
-    \multicolumn{5}{ c }{Stage 1} \\ \hline
+    \multicolumn{5}{ l }{Stage 1} \\ \hline
     ProQ3D   &0.046 &0.755 &0.673 &0.529 \\
     ProQ2D   &0.064 &0.729 &0.604 &0.468 \\
     \textbf{3DCNN} &0.064 &0.535 &0.425 &0.325 \\    
     VoroMQA  &0.087 &0.637 &0.521 &0.394 \\
     RWplus   &0.122 &0.512 &0.402 &0.303 \\ \hline    
-    \multicolumn{5}{ c }{Stage 2} \\ \hline
+    \multicolumn{5}{ l }{Stage 2} \\ \hline
     VoroMQA  &0.063 &0.457 &0.449 &0.321 \\ 
     \textbf{3DCNN} &0.064 &0.421 &0.409 &0.288 \\
     ProQ3D   &0.066 &0.452 &0.433 &0.307 \\
@@ -589,61 +587,54 @@ the Figure~S4 (see Supplementary Information).
 \end{tabular}
 \label{Tbl:TestResults}
 \end{table}
-%
-\begin{figure}[!tpb]
+
+%\begin{figure}[!tpb]
+\begin{figure}[t]
     \centerline{\includegraphics[width=0.7\linewidth]{image5}}
-    \caption{Distributions of the $f$ scores of five decoys for target
+    \caption{Distributions of the $s$ scores of five decoys for target
     T0832 under random translations and rotations. A lower score
     represents a higher quality.}
     \label{Fig:DecoysScoreDistribution}
 \end{figure}
-%
+
 Table~\ref{Tbl:TestResults} shows a comparison of our model (3DCNN)
 with a number of state-of-the-art MQA methods: ProQ2D,
 ProQ3D~\citep{uziela2017proq3d},
 VoroMQA~\citep{olechnovivc2017voromqa}, and
-RWplus~\citep{zhang2010novel}. Targets T0797, T0798, T0825 are removed
-from this benchmark because they were released for multimeric
-prediction.
+RWplus~\citep{zhang2010novel}.
 %
-The methods chosen all have available source codes or executables,
-which allows us to re-evaluate their performance on our CASP11
-benchmark.
+ProQ2D uses a number of carefully crafted features such as atomic
+contacts, residue-residue contacts, surface accessibilities (observed
+in the structure and predicted from the sequence), and secondary
+structure (observed and predicted). ProQ3D employs the same features
+as ProQ2D, as well as some Rosetta energy
+terms~\citep{leaverfay2011rosetta}.
 %
-ProQ2D uses carefully tuned features based on surface area
-accessibilities, residue-residue contacts, predicted and observed
-seconday structure, residue conservation and atomic contacts. ProQ3D
-employs the same features as ProQ2D, as well as some Rosetta energy
-terms~\citep{leaverfay2011rosetta}. For both ProQ2D and ProQ3D, the
-features are used as input for a deep neural network to predict both
-the local and global quality of the structure.
-ProQ2D and ProQ3D methods are derived from ProQ2, the best-performing
-single-model algorithm in CASP11, and are expected to perform better
-than the original ProQ2 and ProQ3 methods.
-%
-RWplus is a representative of the widespread knowledge-based approach
-to separating the native structure from its decoys, such as
-DOPE~\citep{shen2006statistical}  or DFIRE~\citep{zhou2002distance}.
+RWplus, similar to DOPE~\citep{shen2006statistical} and
+DFIRE~\citep{zhou2002distance}, uses a scoring approach based on
+statistical pairwise potentials.
 %
 VoroMQA uses knowledge-based potentials that depend on the contact
-surface between every pair of heavy atoms in the protein (or the
-solvent). It uses an approach distinct from both the common
-machine-learning techniques exemplified by the ``ProQ'' methods and
-the knowledge-based potential techniques exemplified by the RWplus
-method.
+surface between pairs of heavy atoms in the protein (or the
+solvent). Its approach is distinct from both the machine-learning
+techniques exemplified by the ``ProQ'' methods and the statistical
+potential techniques exemplified by the RWplus method.
 %
-%
+The methods chosen have available codes and could be re-evaluated on
+our CASP11 benchmark. Targets T0797, T0798, T0825 were removed from
+the benchmark because they were released for multimeric prediction.
+
+Despite relying only on atomic coordinates, the 3DCNN model achieves a
+performance comparable to those of the heavily engineered ProQ2D and
+ProQ3D models, with validation losses either slightly above or
+slightly below, depending on the test set.
+
+
 \subsection{Analysis}
-%
-Deep neural networks are often thought of as ``black boxes'' that are
-easy to train but difficult to interpret. This difficulty of
-interpretation sometimes leads to the suspicion that the neural
-network learns artifacts in the data that correlate with the target
-results but are not meaningful on any other dataset.
-%
-In this section we show that our network learns a relevant
-description of protein structure and can successfully rank decoys from
-the independent 3DRobot dataset.
+
+In this section we show that the 3DCNN network has learned a relevant
+description of the protein structure and not merely artifacts of the
+dataset that correlate with the desired outcome.
 
 First, we identify the regions of a decoy structure that are
 responsible for an increase of its score (a \emph{decrease} in its
@@ -656,7 +647,7 @@ al.~\citep{selvaraju2016grad}. The key idea of this technique is to
 compute the gradient of the final score with respect to the output of
 a certain layer of the network, then compute the sum of this layer
 output weighted by the gradient.
-
+%
 The weighted sum highlights the regions of the layer that are both
 strongly activated and highly influential on the final score. To
 generate an interpretable map, the weighted sum is then up-scaled to
@@ -689,10 +680,10 @@ that the Grad-CAM outputs are mostly zero for decoy structures close
 to the native ones, despite the fact that no gradient information was
 included in the training procedure (see Table~S4 in Supplementary
 Information).
-%
-\begin{figure}[!tbp]
-    \centerline{\includegraphics[width=0.7\linewidth]{image6}}
-    \caption{Left: Output of the Grad-CAM algorithm for layer 10 of
+
+\begin{figure}[!t]
+    \centerline{\includegraphics[width=0.8\linewidth]{image6}}
+    \caption{Left: Output of the Grad-CAM analysis for layer 10 of
       the network projected on candidate structure Distill\_TS3 of
       target T0776. The isosurface shows the scaled outputs at the
       two-sigma level. The intensities of the outputs at the positions
@@ -703,52 +694,65 @@ Information).
       red).}
     \label{Fig:GradCAMT0776}
 \end{figure}
+
+Figure~\ref{Fig:GradCAMT0776_more} shows the color-coded values of the
+Grad-CAM results for four decoys of target T0776 (including the decoy
+from Figure~\ref{Fig:GradCAMT0776}).  For all decoys, the quality
+assessment is sensitive to the presence of a C-terminal $\alpha$-helix
+(residues 1-37) unresolved in the native X-ray structure. For decoys
+Distill\_TS3 and 3D-Jigsaw-V5\_1\_TS2, residues 38-48 are not aligned
+with the native structure, and the Grad-CAM analysis highlights the
+incorrect C-terminal helix as the region that most affects the quality
+of the model.
+%%% GL: Is what I wrote above correct? I've changed 1-38 for 1-37,
+%%% since you say that residue 38 is resolved.
 %
-\begin{figure*}[!tbp]
+%%% GL: Can you add a label ``Loop(38-48)''? It's impossible to see it
+%%% on the structures.
+%
+By contrast, for decoy FALCON\_TOPO\_TS3, residues 38-48 align well
+with the native structure and the neural network does not penalize the
+C-terminal helix.
+%%% GL: The image for the FALCON decoy is partially hidden by the
+%%% Baker image!!!
+%
+%%% GL: What is the light-blue helix we see at the top? Which part of
+%%% the sequence is it? YOU LEAVE THE READER WITH MANY QUESTIONS...
+%
+Decoy BAKER-ROSETTASERVER\_TS3 does not contain residues 1-38 and the
+quality of the model is affected mostly by the incorrect structure of
+a loop formed by residues 165-172.
+%%% GL: What about the red bit on the right?
+%
+%%% GL: Why is the ``Loop(165-172)'' label on the 3D-Jigsaw decoy and
+%%% not on the Baker decoy?
+%
+The Grad-CAM analysis for representative ``stage~2'' decoys of all
+CASP11 targets can be found in Table~S4 (see Supplementary
+Information).
+
+\begin{figure*}[!b]
     \centerline{\includegraphics[width=0.8\linewidth]{image7.png}}
-    \caption{Output of the Grad-CAM algorithm for layer 10 of the
+    \caption{Output of the Grad-CAM analysis for layer 10 of the
       network projected on four decoys of target T0776. Each decoy is
       aligned to the native structure, shown as a transparent blue
       cartoon. The C-terminal region (residues 1-38) and loop (residues 165-172) 
       are labeled on decoys Distill\_TS3 and BAKER-ROSETTASERVER\_TS3 correspondingly.}
+%%% GL: Do you have to move the ``Loop(165-172)'' label?
     \label{Fig:GradCAMT0776_more}
 \end{figure*}
-%
-Figure~\ref{Fig:GradCAMT0776_more} shows the color-coded values of the
-Grad-CAM results for four decoys of target T0776 (including the decoy
-from Figure~\ref{Fig:GradCAMT0776}).  For all decoys, we see that the
-quality assessment is sensitive to the presence of a C-terminal
-$\alpha$-helix absent from the native X-Ray structure. For decoys
-Distill\_TS3 and 3D-Jigsaw-V5\_1\_TS2, our algorithm highlights this
-incorrect helix as the region of the structural model that most affects its
-quality. In these structures residues 38-48 are not aligned with the
-corresponding residues from the native structure.
-%
-On the contrary, for
-decoy FALCON\_TOPO\_TS3, the placement of the residues 38-48
-corresponds to that in the native structure and the neural network
-does not penalize the C-terminal helix.
-%
-In the case of
-BAKER-ROSETTASERVER\_TS3, no attempt was made to model the C-terminal
-region and the incorrect structure of the loop (residues 165-172)
-contribute mostly to the quality of the model.
-%
-The Grad-CAM analysis for representative ``stage~2''
-decoys of all CASP11 targets can be found in Table~S4 (see
-Supplementary Information).
 
 To verify that the network does not rely on artifacts in the data to
 rank decoys, we have assessed its performance on a second, independent
 dataset generated by the 3DRobot algorithm \citep{deng20163drobot}.
-The authors of this dataset follow the standard ITASSER structure
-prediction protocol \citep{yang2015tasser} with the exception of the
-last step, where they use two additional terms in the scoring
-function: one to favor the formation of hydrogen bonds and one to
-penalize a high radius of gyration. Also in departure from the ITASSER
-protocol, the structures are not confined to the template during the
-last step. This algorithm yields decoys that are uniformly distributed
-within an RMSD range of 0 to 12~\AA\ of the native structure.
+%The authors of this dataset follow the standard ITASSER structure
+%prediction protocol \citep{yang2015tasser} with the exception of the
+%last step, where they modify the scoring function to favor the
+%formation of hydrogen bonds and to penalize a high radius of
+%gyration. Also in departure from the ITASSER protocol, the structures
+%are not confined to the template during the last step. 
+This algorithm yields decoys that are uniformly distributed within an
+RMSD range of 0 to 12~\AA\ of the native structure.
 %
 The 3DRobot dataset consists of 300 decoys for each of 200
 single-domain target proteins selected from the PDB. The proteins have
@@ -762,21 +766,22 @@ Spearman $\rho$ coefficient and Kendall $\tau$ coefficient are $0.83$
 and $0.64$, respectively.
 %
 Representative examples of score versus GDT\_TS plots are shown in
-Figure~\ref{Fig:3DRobotBenchmark}. We see that the MQA method devised
-in this work successfully ranks unrelated datasets.
-%
-%
-\section{Discussion}
-%
-%
-\begin{figure}
+Figure~\ref{Fig:3DRobotBenchmark}. This confirms that the 3DCNN model
+can successfully rank unrelated datasets.
+
+\begin{figure}[h]
     \centerline{\includegraphics[width=0.7\linewidth]{image8}}
-    \caption{The plots of score versus GDT\_TS for two best correlated targets and two
-    least correlated targets in the 3DRobot benchmark.}
+    \caption{3DCNN score versus GDT\_TS for the two most correlated
+      targets and the two least correlated targets in the 3DRobot
+      benchmark.}
+%%% GL: Are they really the two most and the two least? Or just some
+%%% strongly and weakly correlated targets?
     \label{Fig:3DRobotBenchmark}
 \end{figure}
-%
-%
+
+
+\section{Discussion}
+
 In this work we showed that it is possible to construct an algorithm that learns to assess the quality of protein models from 
 raw representation of the model. Our work used the atom types densities as such representation, however it is clear that 
 any other physical quantity defined on the grid can be employed. The examples of such quantites are electrodymanic potential and 
@@ -805,10 +810,7 @@ engineer features and shows that the drawbacks of this approach can be solved wi
 \section*{Funding}
 This work was supported by \dots
 
-\section*{Acknowledgements}
-
 \bibliography{citations.bib}
 \bibliographystyle{natbib}
-
 
 \end{document}
