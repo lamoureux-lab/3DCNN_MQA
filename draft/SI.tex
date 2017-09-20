@@ -351,8 +351,35 @@ with a learning rate of $0.0003$ and a learning rate decay of $0.01$.
     \caption{Scoring funnels on Stage 2 CASP11}
     \label{Fig:Satage2CASP11Funnels}
 \end{figure}
-% \pagebreak
+
+\begin{figure}[H]
+    \centerline{\includegraphics[width=0.8\linewidth]{Fig/FigT0776.eps}}
+    \caption{Left: Output of the Grad-CAM analysis for layer 10 of
+      the network projected on candidate structure Distill\_TS3 of
+      target T0776. The isosurface shows the scaled outputs at the
+      two-sigma level. The intensities of the outputs at the positions
+      of the protein atoms are color-coded on the cartoon rendering of
+      the structure, from blue (low intensity) to red (high
+      intensity). Right: Cartoon representation of the Distill\_TS3
+      decoy structure (in blue) aligned to the native structure (in
+      red).}
+    \label{Fig:GradCAMT0776}
+\end{figure}
+
+
 \include{GradCAMTable}
+
+
+\begin{figure}[h]
+    \centerline{\includegraphics[width=0.7\linewidth]{Fig/image8}}
+    \caption{3DCNN score versus GDT\_TS for the two most correlated
+      targets and the two least correlated targets in the 3DRobot
+      benchmark.}
+%%% GL: Are they really the two most and the two least? Or just some
+%%% strongly and weakly correlated targets?
+    \label{Fig:3DRobotBenchmark}
+\end{figure}
+
 
 \bibliography{citations.bib}{}
 \bibliographystyle{unsrt}
