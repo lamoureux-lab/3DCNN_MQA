@@ -10,9 +10,9 @@
 \DeclarePairedDelimiter\ceil{\lceil}{\rceil}
 \DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
 
+
 \access{Advance Access Publication Date: Day Month Year}
 \appnotes{Original Paper}
-% \appnotes{Manuscript Category}
 
 \begin{document}
 \firstpage{1}
@@ -45,11 +45,11 @@ have attempted to learn these features directly from the data.\\
 to predict the ranking of model structures solely on the basis of
 their raw three-dimensional atomic densities, without any feature
 tuning. We develop a deep neural network that performs on par with
-state-of-the-art algorithms from the literature. In particular the loss 
-of our method on the CASP11 Stage2 dataset is 0.064, whereas the best 
-performing method attains the loss 0.063. The network is
+state-of-the-art algorithms from the literature.  The network is
 trained on decoys from the CASP7 to CASP10 datasets and its
-performance is tested on the CASP11 dataset. While the network learns to assess
+performance is tested on the CASP11 dataset.  On the CASP11 stage~2
+dataset, it achieves a loss of 0.064, whereas the best performing
+method achieves a loss of 0.063.  While the network learns to assess
 structural decoys globally and does not rely on any predefined
 features, it can be analyzed to show that it implicitly identifies
 regions that deviate from the native structure.\\
@@ -101,20 +101,18 @@ common: they use raw data directly as input and do not attempt to
 engineer features from them.
 
 DL-inspired methods have been used for protein structure quality
-assessment as well \citep{nguyen2014dlpro, cao2016deepqa,
-uziela2017proq3d}. For instance, DeepQA \citep{cao2016deepqa} uses 9
+assessment as well. For instance, DeepQA \citep{cao2016deepqa} uses 9
 scores from other MQA methods and 7 physico-chemical features
 extracted from the structure as input features to a deep restricted
-Boltzmann machine \citep{hinton2006fast}. The method has been
-reported to outperform ProQ2 \citep{ray2012proq2},
-which was the top-performing method in the CASP11
-competition \citep{kryshtafovych2015}.  ProQ3D \citep{uziela2017proq3d}
-uses the same high-level input features as the earlier ProQ3
-method \citep{uziela2016proq3} but achieves better
+Boltzmann machine \citep{hinton2006fast}. The method has been reported
+to outperform ProQ2 \citep{ray2012proq2}, which was the top-performing
+method in the CASP11 competition \citep{kryshtafovych2015}.  ProQ3D
+\citep{uziela2017proq3d} uses the same high-level input features as
+the earlier ProQ3 method \citep{uziela2016proq3} but achieves better
 performance by replacing the support vector machine model by a deep
 neural network. Since the original ProQ3 method had one of the top
-performances in CASP12 \citep{elofsson2017qacasp12}, it can be expected
-that ProQ3D performs equally well.
+performances in CASP12 \citep{elofsson2017qacasp12}, it can be
+expected that ProQ3D performs equally well.
 
 Although both DeepQA and ProQ3D
 methods are based on deep neural networks, they use high-level
@@ -142,7 +140,7 @@ AtomNet \citep{wallach2015atomnet} and the 3D convolutional neural
 network of Ragoza et al.\ \citep{ragoza2017protein} perform
 consistently better than either Smina \citep{koes2013smina} or AutoDock
 Vina \citep{trott2009vina}.
-For small molecules, Sch\"{u}tt and coworkers \cite{schutt2017quantum,
+For small molecules, Sch\"{u}tt and coworkers \citep{schutt2017quantum,
 schutt2017moleculenet} have recently developed deep neural networks to predict
 the molecular energy of a variety of chemical compounds in various
 conformations (or even various isomeric states). These models,
@@ -159,6 +157,7 @@ interatomic distance matrix as input.
     \makebox[\textwidth]{
     \includegraphics[width=0.78\paperwidth]{image1.png}
     }
+    \vspace{-10pt}
     \caption{Overlap of the training set on each target domain of the
     test set (from T0759 to T0858). The first 5 rows of tiles
     correspond to the ECOD classification of protein domains (A-, X-,
@@ -214,7 +213,8 @@ targets (see Table~S2 in Supplementary Information).
 We have also compared the structures in the training and test sets
 using the ECOD database \citep{cheng2014ecod}. This database provides a
 5-tiered classification of all structures of the PDB
-\citep{berman2000protein} according to the following criteria:
+%\citep{berman2000protein}
+according to the following criteria:
 architecture (A-group), possible homology (X-group), homology
 (H-group), topology (T-group), and family (F-group).  Since the ECOD
 classification is domain-based, multi-domain protein chains can belong
@@ -297,6 +297,7 @@ shown. The 5 other maps have zero density everywhere.
 \begin{figure*}[t]
     \centerline{\includegraphics[width=0.6\linewidth]{image2}}
 %
+    \vspace{-10pt}
     \caption{Representation of a protein structure (PDB code 5eh6)
     using atomic densities. The density maps are calculated according
     to Eq.~\ref{eq:rho} and rendered using Pymol \citep{PyMOL} with an
@@ -313,6 +314,7 @@ shown. The 5 other maps have zero density everywhere.
     \includegraphics[width=\textwidth]{image3.png}
     }}
 %
+    \vspace{-10pt}
     \caption{Schematic representation of the convolutional neural
     network architecture used in this work. Unless otherwise specified, line connections across
     boxes denote the consecutive application of a 3D convolutional
@@ -383,7 +385,7 @@ is the maximum over the cubes of size $d \times d \times d$ that cover
 the input domain with a stride $l$ in each direction.  This operation
 makes the output size approximately $l$ times smaller than the
 input in each direction.  All four ``MaxPool'' layers of the model
-(Figure~\ref{Fig:CNNModel}) use $d=3$ and $l=2$ (see Table~S3).
+(Figure~\ref{Fig:CNNModel}) use $d=3$ and $l=2$.
 
 During the coarse-graining procedure, the size of the individual data
 grids eventually shrinks to a single cell. The flattening layer
@@ -505,6 +507,7 @@ Information for details).
 
 \begin{figure}[!tpb]
     \centerline{\includegraphics[width=0.7\linewidth]{image4.png}}
+    \vspace{-15pt}
     \caption{Loss, Kendall $\tau$, and Pearson $R$ coefficients
       evaluated on the validation subset during the training
       procedure.  One epoch corresponds to a cycle over all targets in
@@ -588,6 +591,7 @@ average of 90 scores calculated for random rotations and translations.
 %\begin{figure}[!tpb]
 \begin{figure}[t]
     \centerline{\includegraphics[width=0.7\linewidth]{image5}}
+    \vspace{-15pt}
     \caption{Distributions of the $s$ scores of five decoys for target
     T0832 under random translations and rotations. A lower score
     represents a higher quality.}
@@ -631,6 +635,7 @@ training set increases (see Figure~S5).
 
 \begin{figure*}[!t]
     \centerline{\includegraphics[width=0.8\linewidth]{image7.png}}
+    \vspace{-10pt}
     \caption{Output of the Grad-CAM analysis for layer 10 of the
       network projected on four decoys of target T0776. Each decoy is
       aligned to the native structure, shown as a transparent blue
@@ -649,7 +654,7 @@ dataset that correlate with the desired outcome.
 
 First, we identify the regions of a decoy structure that are
 responsible for an increase of its score (a \emph{decrease} in its
-quality). If the network has learned intepretable features of the
+quality). If the network has learned interpretable features of the
 input, we expect these parts of the decoy to deviate from the native
 structure.
 %
@@ -667,7 +672,7 @@ the size of the input of the network, using tri-linear interpolation.
 This up-sampled map indicates which parts of the input contribute
 the most to the gradient of the score.  In our case we choose to
 analyze layer 10, for which the output grid size is $25\times 25\times
-25$ (see Table~S3).  We tested the method on neighboring layers and
+25$.  We tested the method on neighboring layers and
 layer 10 represents the best tradeoff between interpretability and
 coarseness.
 %
@@ -757,9 +762,9 @@ representation. We have used 3D atomic densities broken down by atom
 types as such representation. However it is clear that any other
 physical quantity defined on a grid can be employed, such as the
 electrostatic potential calculated using Poisson-Boltzmann equation
-\citep{DELPHI???} or the solvent density calculated using 3D-RISM
-\citep{REF???}. So far, no other MQA method has managed to include
-these crucial properties.
+\citep{honig95} or the solvent density calculated using 3D-RISM
+\citep{stumpe2011}. So far, no other MQA method has managed
+to include these crucial properties.
 
 The loss function we used for training does not aim to predict GDT\_TS
 of a decoy, but rather to sort decoys according to their quality. We
@@ -792,11 +797,10 @@ these features would not be used for prediction but for interpretation
 of the prediction.
 
 \section*{Funding}
-This work was supported by a Natural Sciences and Engineering Research
-Council of Canada (NSERC) Discovery Grant RGPIN 355789 (to G.L.) and
-\ldots
+This work was supported by the Natural Sciences and Engineering Research
+Council of Canada (NSERC) [RGPIN 355789 to G.L.] and XXX.
 %%% GL: Any other support???
-Computational resources were provided by Calcul Qu{\'e}́bec and
+Computational resources were provided by Calcul Qu{\'e}bec and
 Compute Canada.
 
 
