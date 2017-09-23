@@ -137,10 +137,10 @@ obtained from that information only. While a rigorous comparison of
 these methods is not always possible, they appear to
 improve on the state of the art: both
 AtomNet \citep{wallach2015atomnet} and the 3D convolutional neural
-network of Ragoza et al.\ \citep{ragoza2017protein} perform
+network of \citealp{ragoza2017protein} perform
 consistently better than either Smina \citep{koes2013smina} or AutoDock
 Vina \citep{trott2009vina}.
-For small molecules, Sch\"{u}tt and coworkers \citep{schutt2017quantum,
+For small molecules, \citealp{schutt2017quantum,
 schutt2017moleculenet} have recently developed deep neural networks to predict
 the molecular energy of a variety of chemical compounds in various
 conformations (or even various isomeric states). These models,
@@ -188,8 +188,8 @@ The test dataset is split into two subsets \citep{kryshtafovych2015}:
 server predictions and ``stage~2'' with, for each target, the 150 decoys
 considered best by the Davis-QAconsensus evaluation
 method \citep{kryshtafovych2015}.
-The native structures are not included in the analysis, neither
-during the training phase nor during the testing phase. To make the
+The native structures are excluded from both training 
+and test datasets. To make the
 structural data more consistent, the side chains of all decoy
 structures ae optimized using SCWRL4
 \citep{krivov2009improved}.
@@ -212,7 +212,7 @@ targets (see Table~S2 in Supplementary Information).
 
 We have also compared the structures in the training and test sets
 using the ECOD database \citep{cheng2014ecod}. This database provides a
-5-tiered classification of all structures of the PDB
+5-tiered classification of all structures in the PDB
 %\citep{berman2000protein}
 according to the following criteria:
 architecture (A-group), possible homology (X-group), homology
@@ -274,8 +274,7 @@ representation of the overlap data.)
 
 Each protein structure is represented by 11 density maps corresponding
 to the atom types defined in Table~\ref{Tbl:atomTypes}. These atom
-types are a simplification of the 20 types proposed by Huang and
-Zou \citep{huang2006iterative, huang2008iterative}, to reduce the
+types are a simplification of the 20 types proposed by \citealp{huang2006iterative, huang2008iterative}, to reduce the
 memory footprint of the model.
 The density of an atom is represented using the function
 \begin{equation}
@@ -334,7 +333,7 @@ shown. The 5 other maps have zero density everywhere.
 
 In this work we score protein structures using 3D convolutional neural
 networks (CNNs). CNNs were first proposed for image recognition by
-LeCun et al.\ \citep{lecun1989backpropagation} but have gained wider
+\citealp{lecun1989backpropagation} but have gained wider
 recognition after the ImageNet 2012 competition
 \citep{krizhevsky2012imagenet}. The architecture of the model is shown
 in Figure~\ref{Fig:CNNModel}.  It is comprised of four blocks of
@@ -359,8 +358,8 @@ f^\text{out}_i (\mathbf{r}) = \begin{cases}
                0                         &\text{if } f^\text{in}_i(\mathbf{r})<0\\
             \end{cases}, \quad\forall i \in [1,M]
 \end{equation}
-The idea of batch normalization was introduced by Ioffe and Szegedy
-\citep{ioffe2015batch} to reduce the shift in the distribution of
+The idea of batch normalization was introduced by 
+\citealp{ioffe2015batch} to reduce the shift in the distribution of
 subnetwork outputs during training. This layer normalizes each input
 value according to the mean and variance within the subset of examples
 used to estimate the gradient (the ``batch''):
@@ -452,19 +451,20 @@ L = \frac{1}{N_\text{B}^2} \sum_{i=1}^{N_\text{B}}\sum_{j=1}^{N_\text{B}} L_{ij}
 \subsection{Evaluation criteria}
 
 We evaluate the model using various correlation coefficients of the
-scores and using a validation loss function distinct from the training loss
-function. The validation loss is defined, for any given protein, as the
+scores and using a evaluation loss function distinct from the training loss
+function. The evaluation loss is defined, for any given protein, as the
 absolute difference between the GDT\_TS of the best decoy and the
 GDT\_TS of the decoy with the lowest predicted score $s$:
 \begin{equation}
 \mathrm{Loss} = \left| \mathrm{max}_i(\text{GDT\_TS}_i) - \text{GDT\_TS}_{\mathrm{argmin}_i(s_i)} \right|
+\label{Eq:eloss}
 \end{equation}
 The correlation coefficients between the $s$ score produced by the
 model and the GDT\_TS score are computed for all decoys of a given
 target in the test set and are then averaged over all targets. Since
 the value of GDT\_TS increases with the quality of a model but the
-value of $s$ decreases, an ideal MQA algorithm would show a correlation
-coefficient of $-1$ and a loss of zero.
+value of $s$ decreases, an ideal MQA algorithm would show the correlation
+coefficient of $-1$ and zero loss.
 Those two evaluation criteria measure different qualities of the
 model. One one hand, a perfect correlation coefficient of $-1$ would
 be achieved if the algorithm ranks all decoys in the exact
@@ -477,8 +477,9 @@ irrespective of the $s$ value it assigns to the other decoys.
 \subsection{Optimization and dataset sampling}
 
 The parameter optimization of the model was performed using the Adam
-algorithm \citep{kingma2014adam}. The gradient of the loss function (Eq.~\ref{Eq:loss})
-with respect to the model parameters was computed on the pairs of
+algorithm \citep{kingma2014adam}. The gradient of the 
+average training loss function (Eq.~\ref{Eq:loss})
+with respect to the model parameters is computed on the pairs of
 models in the batch. The batch size was set to $N_\text{B} = 9$
 models.
 
@@ -505,10 +506,22 @@ way that the translated protein fits inside the $120$~\AA${}\times
 120$~\AA${}\times 120$~\AA\ input grid (see text in Supplementary
 Information for details).
 
+We select the final model based on its performance on a
+\emph{validation subset} consisting of 35 targets (and their decoys)
+picked at random from the training set and excluded from the training
+procedure. The remaining 529 targets are called the \emph{training
+subset}.  Figure~\ref{Fig:TrainingLoss} shows the Kendall $\tau$ and
+Pearson $R$ coefficients and the evaluation loss on the validation subset over 52
+epochs of training.  Models are saved every 10 epochs and we pick the
+one that has the smallest evaluation loss (at epoch 40).
+Table~\ref{Tbl:TrainingResults} summarizes the performance metrics on
+the training and validation sets for the model at epoch 40.
+
+\section{Results}
 \begin{figure}[!tpb]
     \centerline{\includegraphics[width=0.7\linewidth]{image4.png}}
     \vspace{-15pt}
-    \caption{Loss, Kendall $\tau$, and Pearson $R$ coefficients
+    \caption{Evaluation loss (Eq.~\ref{Eq:eloss}), Kendall $\tau$, and Pearson $R$ coefficients
       evaluated on the validation subset during the training
       procedure.  One epoch corresponds to a cycle over all targets in
       the training subset. Models are saved every 10 epochs and the
@@ -522,30 +535,15 @@ Information for details).
   \caption {Performance of the model from epoch 40 on the training and
     validation subsets.}
 \begin{tabular}{ c c c c c }
-    Data & Loss & Pearson $R$ & Spearman $\rho$ & Kendall $\tau$ \\
+    Data & Loss (Eq.~\ref{Eq:eloss}) & Pearson $R$ & Spearman $\rho$ & Kendall $\tau$ \\
     \hline
     Training subset     &0.146 &0.71 &0.61 &0.45 \\
     Validation subset   &0.135 &0.71 &0.59 &0.44 \\ \hline
 \end{tabular}
 \label{Tbl:TrainingResults}
 \end{table}
-
-We select the final model based on its performance on a
-\emph{validation subset} consisting of 35 targets (and their decoys)
-picked at random from the training set and excluded from the training
-procedure. The remaining 529 targets are called the \emph{training
-subset}.  Figure~\ref{Fig:TrainingLoss} shows the Kendall $\tau$ and
-Pearson $R$ coefficients and the loss on the validation subset over 52
-epochs of training.  Models are saved every 10 epochs and we pick the
-one that has the smallest loss (at epoch 40).
-Table~\ref{Tbl:TrainingResults} summarizes the performance metrics on
-the training and validation sets for the model at epoch 40.
-
-
-\section{Results}
-
 Ideally, the score assigned to a decoy should not depend on its
-position and orientation in space.  To allow the model to learn this
+position and orientation in space. To allow the model to learn this
 invariance, the rotational and translational degrees of freedom of all
 decoy structures are randomly sampled during the training.
 Figure~\ref{Fig:DecoysScoreDistribution} shows the distributions of
@@ -562,41 +560,7 @@ To reduce the influence of the choice of rotation and translation on
 the final ranking, we estimate the score of each decoy from the
 average of 90 scores calculated for random rotations and translations.
 
-\begin{table}[t]
-%
-  \centering
-  \caption{Performance comparison of our method (3DCNN) with other
-    state-of-the-art MQA methods on the CASP11 dataset stages~1 and 2
-    (see text). The table reports the absolute, per-target average
-    values of the correlation coefficients.}
-%
-\begin{tabular}{ c c c c c }
-    MQA method & Loss & Pearson $R$ & Spearmann $\rho$ & Kendall $\tau$ \\ \hline
-    \multicolumn{5}{ l }{Stage 1} \\ \hline
-    ProQ3D   &0.046 &0.755 &0.673 &0.529 \\
-    ProQ2D   &0.064 &0.729 &0.604 &0.468 \\
-    \textbf{3DCNN} &0.064 &0.535 &0.425 &0.325 \\    
-    VoroMQA  &0.087 &0.637 &0.521 &0.394 \\
-    RWplus   &0.122 &0.512 &0.402 &0.303 \\ \hline    
-    \multicolumn{5}{ l }{Stage 2} \\ \hline
-    VoroMQA  &0.063 &0.457 &0.449 &0.321 \\ 
-    \textbf{3DCNN} &0.064 &0.421 &0.409 &0.288 \\
-    ProQ3D   &0.066 &0.452 &0.433 &0.307 \\
-    ProQ2D   &0.072 &0.437 &0.422 &0.299 \\
-    RWplus   &0.089 &0.206 &0.248 &0.176 \\ \hline
-\end{tabular}
-\label{Tbl:TestResults}
-\end{table}
-
 %\begin{figure}[!tpb]
-\begin{figure}[t]
-    \centerline{\includegraphics[width=0.7\linewidth]{image5}}
-    \vspace{-15pt}
-    \caption{Distributions of the $s$ scores of five decoys for target
-    T0832 under random translations and rotations. A lower score
-    represents a higher quality.}
-    \label{Fig:DecoysScoreDistribution}
-\end{figure}
 
 Table~\ref{Tbl:TestResults} shows a comparison of our model (3DCNN)
 with a number of state-of-the-art MQA methods: ProQ2D,
@@ -615,6 +579,40 @@ RWplus, similar to DOPE~\citep{shen2006statistical} and
 DFIRE~\citep{zhou2002distance}, uses a scoring approach based on
 statistical pairwise potentials.
 %
+\begin{figure}[t]
+    \centerline{\includegraphics[width=0.7\linewidth]{image5}}
+    \vspace{-15pt}
+    \caption{Distributions of the $s$ scores of five decoys for target
+    T0832 under random translations and rotations. A lower score
+    represents a higher quality.}
+    \label{Fig:DecoysScoreDistribution}
+\end{figure}
+%
+\begin{table}[t]
+%
+  \centering
+  \caption{Performance comparison of our method (3DCNN) with other
+    state-of-the-art MQA methods on the CASP11 dataset stages~1 and 2
+    (see text). The table reports the absolute, per-target average
+    values of the correlation coefficients.}
+%
+\begin{tabular}{ c c c c c }
+    MQA method & Loss (Eq.~\ref{Eq:eloss}) & Pearson $R$ & Spearmann $\rho$ & Kendall $\tau$ \\ \hline
+    \multicolumn{5}{ l }{Stage 1} \\ \hline
+    ProQ3D   &0.046 &0.755 &0.673 &0.529 \\
+    ProQ2D   &0.064 &0.729 &0.604 &0.468 \\
+    \textbf{3DCNN} &0.064 &0.535 &0.425 &0.325 \\    
+    VoroMQA  &0.087 &0.637 &0.521 &0.394 \\
+    RWplus   &0.122 &0.512 &0.402 &0.303 \\ \hline    
+    \multicolumn{5}{ l }{Stage 2} \\ \hline
+    VoroMQA  &0.063 &0.457 &0.449 &0.321 \\ 
+    \textbf{3DCNN} &0.064 &0.421 &0.409 &0.288 \\
+    ProQ3D   &0.066 &0.452 &0.433 &0.307 \\
+    ProQ2D   &0.072 &0.437 &0.422 &0.299 \\
+    RWplus   &0.089 &0.206 &0.248 &0.176 \\ \hline
+\end{tabular}
+\label{Tbl:TestResults}
+\end{table}
 VoroMQA uses knowledge-based potentials that depend on the contact
 surface between pairs of heavy atoms in the protein (or the
 solvent). Its approach is distinct from both the machine-learning
@@ -627,7 +625,7 @@ the benchmark because they were released for multimeric prediction.
 
 Despite relying solely on atomic coordinates, the 3DCNN model achieves
 a performance comparable to those of the heavily engineered ProQ2D and
-ProQ3D models, with validation losses either slightly above or
+ProQ3D models, with evaluation losses either slightly above or
 slightly below, depending on the test set. Moreover, like that of
 ProQ3D, its performance increases as structural similarity with the
 training set increases (see Figure~S5).
@@ -637,12 +635,10 @@ training set increases (see Figure~S5).
     \centerline{\includegraphics[width=0.8\linewidth]{image7.png}}
     \vspace{-10pt}
     \caption{Output of the Grad-CAM analysis for layer 10 of the
-      network projected on four decoys of target T0776. Each decoy is
-      aligned to the native structure, shown as a transparent blue
-      cartoon. The C-terminal region (residues 1-38) and loop (residues 165-172) 
-      are labeled on decoys Distill\_TS3 and BAKER-ROSETTASERVER\_TS3 correspondingly.}
-%%% GL: Do you have to move the ``Loop(165-172)'' label?
-    \label{Fig:GradCAMT0776_more}
+      network projected on four decoys of target T0786 (PDB code 4QVU).
+      The values are represented using ``rainbow'' color scheme. 
+      Each decoy is aligned to the native structure and shares the same camera settings.}
+    \label{Fig:GradCAMT0786_more}
 \end{figure*}
 
 
@@ -658,8 +654,8 @@ quality). If the network has learned interpretable features of the
 input, we expect these parts of the decoy to deviate from the native
 structure.
 %
-We use the Grad-CAM analysis technique proposed by Selvaraju et
-al.~\citep{selvaraju2016grad}. The key idea of this technique is to
+We use the Grad-CAM analysis technique proposed by \citealp{selvaraju2016grad}. 
+The key idea of this technique is to
 compute the gradient of the final score with respect to the output of
 a certain layer of the network, then compute the sum of this layer
 output weighted by the gradient.
@@ -681,62 +677,24 @@ from the Grad-CAM analysis over 90 rotations and translations of the
 decoy. We obtain the Grad-CAM output for each transformation and
 project it onto the atoms of the decoy.  
 
-Figure~\ref{Fig:GradCAMT0776_more} shows a projection of the Grad-CAM
-results onto the atoms of four decoys of target T0776, represented as
+Figure~\ref{Fig:GradCAMT0786_more} shows a projection of the Grad-CAM
+results onto the atoms of four decoys of target T0786, represented as
 a color-coded value on the cartoon rendering of the structure.  The
 orange/yellow regions are mainly found at the surface of the decoy
 while the blue/green regions are at its core. This indicates that the
 quality of the decoy would go down for any increase in atomic density
 at the surface but would be unaffected by an increase in density in
 the core. This also suggests that the neural network recognizes and
-enforces packing.  Interestingly, we also find that the Grad-CAM
+enforces packing. Moreover we see, that greater content of secondary 
+structure in decoy eThread\_TS2 does not necessarily increase the quality assigned by 3DCNN. 
+Interestingly, we also find that the Grad-CAM
 outputs are mostly zero for decoys close to the native structure,
 despite the fact that no gradient information was included in the
 training procedure (see Table~S4 in Supplementary Information).
 
-For all decoys of Figure~\ref{Fig:GradCAMT0776_more} the quality
-assessment is sensitive to the presence of a C-terminal $\alpha$-helix
-(residues 1-37), which is unresolved in the native X-ray
-structure. For decoys Distill\_TS3 and 3D-Jigsaw-V5\_1\_TS2, residues
-38-48 are not aligned with the native structure, and the Grad-CAM
-analysis highlights the incorrect C-terminal helix as the region that
-most affects the quality of the model.
-%%% GL: Is what I wrote above correct? I've changed 1-38 for 1-37,
-%%% since you say that residue 38 is resolved.
-%
-%%% GL: Can you add a label ``Loop(38-48)''? It's impossible to see it
-%%% on the structures.
-%
-By contrast, for decoy FALCON\_TOPO\_TS3, residues 38-48 align well
-with the native structure and the neural network does not penalize the
-C-terminal helix.
-%%% GL: The image for the FALCON decoy is partially hidden by the
-%%% Baker image!!!
-%
-%%% GL: What is the light-blue helix we see at the top? Which part of
-%%% the sequence is it? YOU LEAVE THE READER WITH MANY QUESTIONS...
-%
-Decoy BAKER-ROSETTASERVER\_TS3 does not contain residues 1-38 and the
-quality of the model is affected mostly by the incorrect structure of
-a loop formed by residues 165-172.
-%%% GL: What about the red bit on the right?
-%
-%%% GL: Why is the ``Loop(165-172)'' label on the 3D-Jigsaw decoy and
-%%% not on the Baker decoy?
-%
-%The Grad-CAM analysis for representative ``stage~2'' decoys of all
-%CASP11 targets can be found in Table~S4 (see Supplementary
-%Information).
-
 To verify that the network does not rely on artifacts in the data to
 rank decoys, we have assessed its performance on a second, independent
 dataset generated by the 3DRobot algorithm \citep{deng20163drobot}.
-%The authors of this dataset follow the standard ITASSER structure
-%prediction protocol \citep{yang2015tasser} with the exception of the
-%last step, where they modify the scoring function to favor the
-%formation of hydrogen bonds and to penalize a high radius of
-%gyration. Also in departure from the ITASSER protocol, the structures
-%are not confined to the template during the last step. 
 This algorithm yields decoys that are uniformly distributed within an
 RMSD range of 0 to 12~\AA\ away from the native structure.
 %
@@ -777,8 +735,7 @@ ensure that the score indeed reaches a local minimum there.
 This work also identifies important avenues for improvement. First,
 the model captures the invariance of the score under translations and
 rotations only in an approximate way. This invariance problem can
-however be solved using the approach of Worral et
-al.\ \citep{worrall2016harmonic}, in which the coefficient space of
+however be solved using the approach of \citealp{worrall2016harmonic}, in which the coefficient space of
 the convolutional filters is restricted to circular harmonics, which
 encodes equivariance under rotations at each layer of the network and
 leads to invariance of the final output.
@@ -799,7 +756,6 @@ of the prediction.
 \section*{Funding}
 This work was supported by the Natural Sciences and Engineering Research
 Council of Canada (NSERC) [RGPIN 355789 to G.L.] and XXX.
-%%% GL: Any other support???
 Computational resources were provided by Calcul Qu{\'e}bec and
 Compute Canada.
 
