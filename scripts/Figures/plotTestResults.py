@@ -321,7 +321,7 @@ def plot_matched_results(	experiment_name = 'QA',
 			print idx, len(match_targets[idx])
 
 			res.append(np.mean(all_loss))
-			std.append(np.std(all_loss))
+			std.append(np.std(all_loss)/np.sqrt(len(all_loss)))
 		else:
 			print idx, 'No match'
 			# res.append(0)
@@ -376,9 +376,9 @@ def plot_test_outliers(	experiment_name = 'QA',
 	
 	
 if __name__=='__main__':
-	testResults = True
+	testResults = False
 	inspect_monomers = False
-	lossVsEcod = False
+	lossVsEcod = True
 	getOutliers = False
 	uniformDecoys = False
 	if testResults:

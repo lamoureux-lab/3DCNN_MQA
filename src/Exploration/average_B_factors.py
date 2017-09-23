@@ -72,9 +72,9 @@ def process_structure(target, decoys = []):
 	native_path = os.path.abspath('GradCAM/%s/average_%s.pdb'%(target, native))
 	pymol.cmd.load(native_path, native)
 	pymol.cmd.hide('lines', native)
-	pymol.cmd.show('cartoon', native)
+	#pymol.cmd.show('cartoon', native)
 	pymol.cmd.spectrum('b', 'rainbow', native)
-	pymol.cmd.do('set cartoon_transparency, 0.5, %s'%native)
+	#pymol.cmd.do('set cartoon_transparency, 0.5, %s'%native)
 
 	for name in decoys:
 		path = os.path.abspath('GradCAM/%s/average_%s.pdb'%(target, name))
@@ -87,12 +87,14 @@ def process_structure(target, decoys = []):
 
 	pymol.cmd.bg_color("white")
 	pymol.cmd.center(native)
-	pymol.cmd.zoom('all')
+	pymol.cmd.zoom(native)
 
-	for n,name in enumerate(decoys):
+	proteins = decoys+[native]
+	for n,name in enumerate(proteins):
 		pymol.cmd.show('cartoon', name)
-		if n>0: pymol.cmd.hide('cartoon', decoys[n-1])
-
+		if n>0: pymol.cmd.hide('cartoon', proteins[n-1])
+		if name.find('.')!=-1:
+			name = name[:name.find('.')]
 		output_name = 'GradCAMOutput/%s/%s_%s.png'%(target, target, name)
 		pymol.cmd.png(output_name, 800, 600, dpi=30, ray=1)
 		time.sleep(1)
@@ -111,6 +113,7 @@ def sort_into_bins(decoys, n_bins = 4):
 
 if __name__=='__main__':
 	generate = False
+	process = False
 	make_table = True
 
 	proteins, decoys = read_dataset_description('/media/lupoglaz/ProteinsDataset/CASP11Stage2_SCWRL/Description', 'datasetDescription.dat')
@@ -134,8 +137,19 @@ if __name__=='__main__':
 			
 			if not os.path.exists('GradCAMOutput/%s'%target):
 				os.mkdir('GradCAMOutput/%s'%target)
+	if process:
+		for target in proteins:
+			bins = sort_into_bins(decoys[target])
+			decoys_names = []
+			for sel_bin in bins:
+				decoy_path = sel_bin[0][0]
+				decoy_gdt = sel_bin[0][1]
+				decoy_name = decoy_path[decoy_path.rfind('/')+1:]
+				decoys_names.append(decoy_name)
+				print 'Selected decoy', decoy_name, decoy_gdt
 			
 			process_structure(target = target, decoys = decoys_names)
+	
 	pymol.cmd.quit()
 
 	if make_table:
@@ -144,9 +158,9 @@ if __name__=='__main__':
 		proteins, num_proteins = zip(*num_proteins)
 		with open('GradCAMTable.tex', 'w') as fout:
 
-			fout.write("""
-%\\documentclass[letter,10pt]{article}
+			fout.write("""%\\documentclass[letter,10pt]{article}
 %\\usepackage{graphicx}
+%\\usepackage{capt-of}
 %\\usepackage{tabularx}
 %\\usepackage{ltxtable}
 %\\begin{document}""")
@@ -162,43 +176,48 @@ projected values were calculated for each atom. These values were plotted using 
 	""")
 				fout.write("""	
 	\\begin{center}
-	\\makebox[10pt][c]{
-	\\hskip-\\footskip
-	\\begin{tabularx}{0.95\paperwidth}{X*{4}{p{5.0cm}}}
+	\\makebox[0pt][c]{
+	\\hskip\\footskip
+	\\begin{tabularx}{\paperwidth}{X*{5}{p{3.9cm}}}
 					""")
 				from_num = 4*page_num
 				till_num = int(np.min([from_num+4, len(proteins)]))
 				for target in proteins[from_num:till_num]:
 					bins = sort_into_bins(decoys[target])
 					fout.write("\\hline\n")
-					# fout.write("%s &"%target)
-					for n,sel_bin in enumerate(bins):
+
+					target_bin = [ [target, 1.0]]
+					all_bins = bins+[target_bin]
+					#target name row
+					for n,sel_bin in enumerate(all_bins):
 						decoy_gdt = sel_bin[0][1]
-						if n<(len(bins)-1):
+						print decoy_gdt
+						if n<(len(all_bins)-1):
 							fout.write("\\tiny{%s} &"%target)
 						else:
 							fout.write("\\tiny{%s} \\\\\n"%target)
-					for n,sel_bin in enumerate(bins):
+					#decoy name row
+					for n,sel_bin in enumerate(bins+[target_bin]):
 						decoy_path = sel_bin[0][0]
 						decoy_name = decoy_path[decoy_path.rfind('/')+1:]
 						decoy_name = decoy_name.replace('_','\\_')
-						if n<(len(bins)-1):
+						if n<(len(all_bins)-1):
 							fout.write("\\tiny{%s} &"%(decoy_name))
 						else:
 							fout.write("\\tiny{%s} \\\\\n"%(decoy_name))
-					# fout.write("GDT\\_TS&")
-					for n,sel_bin in enumerate(bins):
+					#decoy GDT_TS row
+					for n,sel_bin in enumerate(bins+[target_bin]):
 						decoy_gdt = sel_bin[0][1]
-						if n<(len(bins)-1):
+						if n<(len(all_bins)-1):
 							fout.write("\\tiny{GDT\\_TS = %.2f} &"%decoy_gdt)
 						else:
 							fout.write("\\tiny{GDT\\_TS = %.2f} \\\\\n"%decoy_gdt)
-					# fout.write("&")
-					for n,sel_bin in enumerate(bins):
+					#Figures row
+					for n,sel_bin in enumerate(bins+[target_bin]):
 						decoy_path = sel_bin[0][0]
 						decoy_name = decoy_path[decoy_path.rfind('/')+1:]
-						fout.write("\\begin{minipage}{\linewidth}\\includegraphics[width=\linewidth]{GradCAMOutput/%s/%s_%s.png}\\end{minipage}"%(target, target, decoy_name))
-						if n<(len(bins)-1):
+						fout.write("\\begin{minipage}{\linewidth}\\includegraphics[width=\linewidth]{GradCAMOutput/%s/%s_%s}\\end{minipage}"%(target, target, decoy_name))
+						if n<(len(all_bins)-1):
 							fout.write("&")
 						else:
 							fout.write("\\\\\n")
