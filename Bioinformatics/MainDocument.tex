@@ -23,7 +23,7 @@
 
 \author[G. Derevyanko \textit{et~al}.]{Georgy Derevyanko\,$^{\text{\sfb 1,}*}$, Sergei Grudinin\,$^{\text{\sfb 2}}$, Yoshua Bengio\,$^{\text{\sfb 3}}$ and Guillaume Lamoureux\,$^{\text{\sfb 1,}*}$}
 \address{$^{\text{\sf 1}}$Department of Chemistry and Biochemistry and Centre for Research in Molecular Modeling (CERMM), Concordia University, Montr{\'e}al, H4B 1R6, Canada,
-$^{\text{\sf 2}}$Department, Institution, City, Post Code, France and
+$^{\text{\sf 2}}$Department XXX, Institution XXX, City XXX, Post Code XXX, France and
 $^{\text{\sf 3}}$Department of Computer Science and Operations Research, Universit{\'e} de Montr{\'e}al, Montr{\'e}al, H3C 3J7, Canada.}
 
 \corresp{$^\ast$To whom correspondence should be addressed.}
@@ -82,7 +82,7 @@ the conformations closest to the unknown native structure.
 In this work we explore the application of deep learning to the
 problem of ``model quality assessment'' (MQA), also called
 ``estimation of model accuracy'' (EMA) \citep{kryshtafovych2015}. Deep
-learning (DL) has recently garnered considerable interest in the
+learning has recently garnered considerable interest in the
 research community \citep{lecun2015deep}, particularly in computer
 vision and natural language processing. Unlike more ``shallow''
 machine learning approaches, deep learning improves performance by
@@ -100,7 +100,7 @@ precision \citep{zhou2015predicting}. These successes have one thing in
 common: they use raw data directly as input and do not attempt to
 engineer features from them.
 
-DL-inspired methods have been used for protein structure quality
+Deep-learning-inspired methods have been used for protein structure quality
 assessment as well. For instance, DeepQA \citep{cao2016deepqa} uses 9
 scores from other MQA methods and 7 physico-chemical features
 extracted from the structure as input features to a deep restricted
@@ -116,10 +116,10 @@ expected that ProQ3D performs equally well.
 
 Although both DeepQA and ProQ3D
 methods are based on deep neural networks, they use high-level
-features as input. In that sense, they use DL models more as
+features as input. In that sense, they use deep learning models more as
 traditional ``shallow'' classifiers than as end-to-end learning
 models. It is likely that they do not get all the advantages offered
-by the DL approach.
+by the deep learning approach.
 By comparison, the DL-Pro algorithm \citep{nguyen2014dlpro} uses a
 sligthly more raw input, consisting of the eigenvectors of the
 C$\alpha$-to-C$\alpha$ distance matrix. The model itself is an
@@ -137,10 +137,10 @@ obtained from that information only. While a rigorous comparison of
 these methods is not always possible, they appear to
 improve on the state of the art: both
 AtomNet \citep{wallach2015atomnet} and the 3D convolutional neural
-network of \citealp{ragoza2017protein} perform
+network of \citet{ragoza2017protein} perform
 consistently better than either Smina \citep{koes2013smina} or AutoDock
 Vina \citep{trott2009vina}.
-For small molecules, \citealp{schutt2017quantum,
+For small molecules, \citet{schutt2017quantum,
 schutt2017moleculenet} have recently developed deep neural networks to predict
 the molecular energy of a variety of chemical compounds in various
 conformations (or even various isomeric states). These models,
@@ -274,7 +274,7 @@ representation of the overlap data.)
 
 Each protein structure is represented by 11 density maps corresponding
 to the atom types defined in Table~\ref{Tbl:atomTypes}. These atom
-types are a simplification of the 20 types proposed by \citealp{huang2006iterative, huang2008iterative}, to reduce the
+types are a simplification of the 20 types proposed by \citet{huang2006iterative, huang2008iterative}, to reduce the
 memory footprint of the model.
 The density of an atom is represented using the function
 \begin{equation}
@@ -333,7 +333,7 @@ shown. The 5 other maps have zero density everywhere.
 
 In this work we score protein structures using 3D convolutional neural
 networks (CNNs). CNNs were first proposed for image recognition by
-\citealp{lecun1989backpropagation} but have gained wider
+\citet{lecun1989backpropagation} but have gained wider
 recognition after the ImageNet 2012 competition
 \citep{krizhevsky2012imagenet}. The architecture of the model is shown
 in Figure~\ref{Fig:CNNModel}.  It is comprised of four blocks of
@@ -359,7 +359,7 @@ f^\text{out}_i (\mathbf{r}) = \begin{cases}
             \end{cases}, \quad\forall i \in [1,M]
 \end{equation}
 The idea of batch normalization was introduced by 
-\citealp{ioffe2015batch} to reduce the shift in the distribution of
+\citet{ioffe2015batch} to reduce the shift in the distribution of
 subnetwork outputs during training. This layer normalizes each input
 value according to the mean and variance within the subset of examples
 used to estimate the gradient (the ``batch''):
@@ -516,6 +516,7 @@ epochs of training.  Models are saved every 10 epochs and we pick the
 one that has the smallest evaluation loss (at epoch 40).
 Table~\ref{Tbl:TrainingResults} summarizes the performance metrics on
 the training and validation sets for the model at epoch 40.
+(See Figure~S3 for results broken by target.)
 
 \section{Results}
 \begin{figure}[!tpb]
@@ -567,6 +568,8 @@ with a number of state-of-the-art MQA methods: ProQ2D,
 ProQ3D~\citep{uziela2017proq3d},
 VoroMQA~\citep{olechnovivc2017voromqa}, and
 RWplus~\citep{zhang2010novel}.
+%
+(See Figures~S5 and S6 for ranking results broken by target.)
 %
 ProQ2D uses a number of carefully crafted features such as atomic
 contacts, residue-residue contacts, surface accessibilities (as found
@@ -627,17 +630,20 @@ Despite relying solely on atomic coordinates, the 3DCNN model achieves
 a performance comparable to those of the heavily engineered ProQ2D and
 ProQ3D models, with evaluation losses either slightly above or
 slightly below, depending on the test set. Moreover, like that of
-ProQ3D, its performance increases as structural similarity with the
-training set increases (see Figure~S5).
+VoroMQA, its performance increases as structural similarity with the
+training set increases (see Figure~S7).
 
 
 \begin{figure*}[!t]
     \centerline{\includegraphics[width=0.8\linewidth]{image7.png}}
     \vspace{-10pt}
     \caption{Output of the Grad-CAM analysis for layer 10 of the
-      network projected on four decoys of target T0786 (PDB code 4QVU).
-      The values are represented using ``rainbow'' color scheme. 
-      Each decoy is aligned to the native structure and shares the same camera settings.}
+      network projected on four decoys of target T0786 (PDB code
+      4QVU).  The values are represented using the ``rainbow'' color
+      scheme.  The decoys are arranged in increasing quality from left
+      to right, with the native structure on the right.  Each decoy is
+      aligned on the native structure and viewed in the same
+      orientation.}
     \label{Fig:GradCAMT0786_more}
 \end{figure*}
 
@@ -654,7 +660,7 @@ quality). If the network has learned interpretable features of the
 input, we expect these parts of the decoy to deviate from the native
 structure.
 %
-We use the Grad-CAM analysis technique proposed by \citealp{selvaraju2016grad}. 
+We use the Grad-CAM analysis technique proposed by \citet{selvaraju2016grad}. 
 The key idea of this technique is to
 compute the gradient of the final score with respect to the output of
 a certain layer of the network, then compute the sum of this layer
@@ -679,18 +685,24 @@ project it onto the atoms of the decoy.
 
 Figure~\ref{Fig:GradCAMT0786_more} shows a projection of the Grad-CAM
 results onto the atoms of four decoys of target T0786, represented as
-a color-coded value on the cartoon rendering of the structure.  The
-orange/yellow regions are mainly found at the surface of the decoy
-while the blue/green regions are at its core. This indicates that the
-quality of the decoy would go down for any increase in atomic density
-at the surface but would be unaffected by an increase in density in
-the core. This also suggests that the neural network recognizes and
-enforces packing. Moreover we see, that greater content of secondary 
-structure in decoy eThread\_TS2 does not necessarily increase the quality assigned by 3DCNN. 
-Interestingly, we also find that the Grad-CAM
-outputs are mostly zero for decoys close to the native structure,
-despite the fact that no gradient information was included in the
-training procedure (see Table~S4 in Supplementary Information).
+a color-coded value on the cartoon rendering of the structures. The
+orange/yellow regions are mainly found at the surface of the
+lower-quality decoys while the blue/green regions are found at the
+core. This indicates that the quality of the decoy would go down for
+any increase in atomic density at the surface but would be unaffected
+by an increase in density at the core. It also suggests that the
+neural network recognizes and enforces packing.
+%
+Moreover, we see that the higher secondary structure content of decoy
+eThread\_TS2 actually decreases the score.  This suggests that the
+3DCNN network does not estimate the quality based only on the presence
+of local structural elements but that it detects large-scale features
+of the fold as well.
+%
+Interestingly, we find that the Grad-CAM outputs are mostly zero for
+decoys close to the native structure, despite the fact that no
+gradient information was included in the training procedure (see
+Table~S4 in Supplementary Information).
 
 To verify that the network does not rely on artifacts in the data to
 rank decoys, we have assessed its performance on a second, independent
@@ -735,7 +747,8 @@ ensure that the score indeed reaches a local minimum there.
 This work also identifies important avenues for improvement. First,
 the model captures the invariance of the score under translations and
 rotations only in an approximate way. This invariance problem can
-however be solved using the approach of \citealp{worrall2016harmonic}, in which the coefficient space of
+however be solved using the approach of \citet{worrall2016harmonic},
+in which the coefficient space of
 the convolutional filters is restricted to circular harmonics, which
 encodes equivariance under rotations at each layer of the network and
 leads to invariance of the final output.

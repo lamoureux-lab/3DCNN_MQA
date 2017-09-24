@@ -12,8 +12,10 @@
 \usepackage{geometry}
 \usepackage{capt-of}
 % \renewcommand\floatpagefraction{0.9}
-\title{Supporting information for:\\ Deep convolutional networks for quality assessment of protein folds}
-\author{}
+
+\title{Supporting information for:\\ Deep convolutional networks for quality assessment\\ of protein folds}
+\date{}
+
 
 \renewcommand*{\thefigure}{S\arabic{figure}}
 \renewcommand*{\thetable}{S\arabic{table}}
@@ -22,7 +24,22 @@
 
 \maketitle
 
+\noindent
+Georgy Derevyanko\,$^{\text{1,}*}$, Sergei Grudinin\,$^{\text{2}}$, Yoshua Bengio\,$^{\text{3}}$ and Guillaume Lamoureux\,$^{\text{1,}*}$
 
+\vspace{1em}
+\noindent
+$^{\text{1}}$Department of Chemistry and Biochemistry and Centre for Research in Molecular Modeling (CERMM), Concordia University, Montr{\'e}al, H4B 1R6, Canada,
+$^{\text{2}}$Department XXX, Institution XXX, City XXX, Post Code XXX, France and
+$^{\text{3}}$Department of Computer Science and Operations Research, Universit{\'e} de Montr{\'e}al, Montr{\'e}al, H3C 3J7, Canada.
+
+\vspace{1em}
+\noindent
+$^\ast$To whom correspondence should be addressed. \\
+Contact: georgy.derevyanko@gmail.com or guillaume.lamoureux@concordia.ca
+
+
+\newpage
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{Fig/datasetLengthDistributions.png}
@@ -30,6 +47,7 @@
     \label{Fig:dataLengthDist}
 \end{figure}
 
+\newpage
 \begin{table}[H]
 \begin{center}
 %
@@ -229,7 +247,7 @@
 \end{table}
 
 
-\pagebreak
+\newpage
 \section*{Training procedure}
 
 \subsection*{Rotations}
@@ -267,7 +285,7 @@ where $S_k$ are input size along the axes x,y,z and $B_k$ are the bounding box s
 The loss function is optimized using the Adam algorithm \cite{kingma2014adam},
 with a learning rate of $0.0003$ and a learning rate decay of $0.01$.
 
-% \pagebreak
+%\newpage
 \begin{figure}[H]
 
     \centering
@@ -278,7 +296,7 @@ with a learning rate of $0.0003$ and a learning rate decay of $0.01$.
     }
 
     \caption{Scoring funnels on the validation set at epoch 40. The
-      $x$-axis is the GDT\_TS score and the $y$-axis is the $f$
+      $x$-axis is the GDT\_TS score and the $y$-axis is the $s$
       score. The score was sampled once using random rotation and
       translation.}
 %
@@ -303,6 +321,36 @@ with a learning rate of $0.0003$ and a learning rate decay of $0.01$.
     \label{Fig:ScoreDistribution}
 \end{figure}
 
+\begin{figure}[H]
+    \vspace{-2em}
+    \centering
+    \makebox[0pt][c]{
+    \hskip-\footskip
+    \includegraphics[width=0.9\paperwidth]{Fig/CASP11Stage1_SCWRL_sFinal_funnels.png}
+    \hskip\headheight
+    }
+    \caption{Scoring funnels on stage 1 CASP11 targets. The
+      $x$-axis is the GDT\_TS score and the $y$-axis is the $s$
+      score. The score was sampled once using random rotation and
+      translation.}
+    \label{Fig:Satage1CASP11Funnels}
+\end{figure}
+
+\begin{figure}[H]
+    \vspace{-2em}
+    \centering
+    \makebox[0pt][c]{
+    \hskip-\footskip
+    \includegraphics[width=0.9\paperwidth]{Fig/CASP11Stage2_SCWRL_sFinal_funnels.png}
+    \hskip\headheight
+    }
+    \caption{Scoring funnels on stage 2 CASP11 targets. The
+      $x$-axis is the GDT\_TS score and the $y$-axis is the $s$
+      score. The score was sampled once using random rotation and
+      translation.}
+    \label{Fig:Satage2CASP11Funnels}
+\end{figure}
+
 
 \begin{figure}[H]
     \centering
@@ -312,44 +360,27 @@ with a learning rate of $0.0003$ and a learning rate decay of $0.01$.
     on the CASP11 test set stage~2, divided into 5 subsets of
     increasing structural similarity with the training set. The
     subsets are chosen according to the presence in the training set
-    of structures belonging to the same ECOD categories (see text for
-    details). 
-    ``No overlap'', the structures for which there is no structure in the training set with 
-    the same ECOD (T0797 and T0773). 
+    of structures belonging to the same ECOD categories (see Figure~1). 
+%
+    ``No overlap'', the structures which have no ECOD group in common
+    with the training set (T0797 and T0773);
+%
     ``A'', the structures in the same A-group of at least one training
     structure but not in the same X-group (T0759, T0763, T0769, etc.); 
+%
     ``A+X'', the structures in the same X-group of at least one training
     structure but not in the same H-group (T0760, T0761, T0765, etc.);
+%
     ``A+X+H+T'', the structures in the same T-group of at least one
     training structure but not in the same F-group (T0762, T0766, T0767,
     etc.);
+%
     ``A+X+H+T+F'', the structures in the same F-group of at least one
-    training structure (T0764, T0768, T0770, etc.);
+    training structure (T0764, T0768, T0770, etc.).
+%
     Error bars show per-target standard error of mean of the loss.}
 %
     \label{Fig:LossVsECOD}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \makebox[0pt][c]{
-    \hskip-\footskip
-    \includegraphics[width=0.9\paperwidth]{Fig/CASP11Stage1_SCWRL_sFinal_funnels.png}
-    \hskip\headheight
-    }
-    \caption{Scoring funnels on Stage 1 CASP11}
-    \label{Fig:Satage1CASP11Funnels}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \makebox[0pt][c]{
-    \hskip-\footskip
-    \includegraphics[width=0.9\paperwidth]{Fig/CASP11Stage2_SCWRL_sFinal_funnels.png}
-    \hskip\headheight
-    }
-    \caption{Scoring funnels on Stage 2 CASP11}
-    \label{Fig:Satage2CASP11Funnels}
 \end{figure}
 
 \begin{figure}[H]
@@ -366,6 +397,23 @@ with a learning rate of $0.0003$ and a learning rate decay of $0.01$.
     \label{Fig:GradCAMT0776}
 \end{figure}
 
+
+\newpage
+\captionof{table}{(Next page) Output of the Grad-CAM algorithm on
+  representative decoys from the CASP11 test set stage~2.
+%
+  For each target, decoys are divided into four GDT\_TS binds of equal
+  width, and one decoy was selected from each bin. The Grad-CAM output
+  map of each decoy is generated from 30 inputs rotated and translated
+  at random. The 30 output maps are projected on the atoms of the
+  decoys, and the average values of the projections are plotted using
+  Pymol with the ``rainbow'' color scheme.
+%
+%%% GL: What is going on with targets T0787, T0792, T0797, T0821, and
+%%% T0831 ??? You were saying that some of these were monomers from
+%%% multimeric structures?
+%
+}
 
 \include{GradCAMTable}
 
