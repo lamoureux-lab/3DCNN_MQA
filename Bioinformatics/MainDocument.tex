@@ -23,7 +23,7 @@
 
 \author[G. Derevyanko \textit{et~al}.]{Georgy Derevyanko\,$^{\text{\sfb 1},*}$, Sergei Grudinin\,$^{\text{\sfb 2}}$, Yoshua Bengio\,$^{\text{\sfb 3},\dagger}$ and Guillaume Lamoureux\,$^{\text{\sfb 1},*}$}
 \address{$^{\text{\sf 1}}$Department of Chemistry and Biochemistry and Centre for Research in Molecular Modeling (CERMM), Concordia University, Montr{\'e}al, H4B 1R6, Canada,
-$^{\text{\sf 2}}$Department XXX, Institution XXX, City XXX, Post Code XXX, France and
+$^{\text{\sf 2}}$NANO-D, INRIA Rh{\^o}ne-Alpes Research Center, Grenoble, 38054, France and
 $^{\text{\sf 3}}$Department of Computer Science and Operations Research, Universit{\'e} de Montr{\'e}al, Montr{\'e}al, H3C 3J7, Canada}
 
 \corresp{$^\ast$To whom correspondence should be addressed.\\ $^\dagger$CIFAR Fellow.}
@@ -74,7 +74,7 @@ Progress in the field is monitored through the Critical Assessment of
 protein Structure Prediction (CASP) competition \citep{moult1995large},
 in which protein folding methods are evaluated in terms of their
 accuracy at predicting structures ahead of their
-publication. Most methods in competition include a conformational
+publication. Most methods participating in CASP include a conformational
 sampling step, which generates a number of plausible protein
 conformations, and a quality assessment step, which attempts to select
 the conformations closest to the unknown native structure.
@@ -177,7 +177,7 @@ interatomic distance matrix as input.
     \label{Fig:summaryTable}
 \end{figure*}
 
-We train and assess our method using the protein decoy datasets from
+We train and assess our method using the protein non-native conformations (decoys) datasets from
 the CASP competition \citep{moult2014critical}.  We use the CASP7 to
 CASP10 data as training set and the CASP11 data as test set, for a
 total of 564 target structures in the training set and 83 target
@@ -190,9 +190,8 @@ considered best by the Davis-QAconsensus evaluation
 method \citep{kryshtafovych2015}.
 The native structures are excluded from both training 
 and test datasets. To make the
-structural data more consistent, the side chains of all decoy
-structures ae optimized using SCWRL4
-\citep{krivov2009improved}.
+structural data more consistent we optimized the side chains of all decoy
+structures using SCWRL4 \citep{krivov2009improved}.
 
 Training and test datasets cover a similar range of sequence
 lengths (see Figure~S1 in Supplementary Information). To confirm that the
@@ -204,7 +203,7 @@ training set (see Table~S1 in Supplementary Information).
 
 To further assess the similarity of the two datasets, we have computed
 their overlap in terms of Pfam families \citep{finn2016pfam}. 
-Families were found using HMMER \citep{finn2015hmmer} with an E-value
+The families were found using HMMER \citep{finn2015hmmer} with an E-value
 cutoff of 1.0 \citep{finn2016pfam}.  Accounting for targets for which
 no Pfam family could be determined, approximately 25\% of the test set
 targets share a family with approximately 10\% of the training set
@@ -223,7 +222,7 @@ to multiple A-, X-, H-, T-, or F-groups.
 A summary of the overlap between the training and test sets is
 presented in Figure~\ref{Fig:summaryTable}. For each target domain in
 the test set (T0759 to T0858), a black tile indicates that at least
-one structure from the training set belong to the same ECOD
+one structure from the training set belongs to the same ECOD
 group. (See Figure~S2 in Supplementary Information for another
 representation of the overlap data.)
 
@@ -333,7 +332,8 @@ shown. The 5 other maps have zero density everywhere.
 
 In this work we score protein structures using 3D convolutional neural
 networks (CNNs). CNNs were first proposed for image recognition by
-\citet{lecun1989backpropagation} but have gained wider
+\citet{lecun1989backpropagation}. Historically first application of CNN to biological data
+was done by \citet{bengio1990neural}. Concolutional neural networks have gained wider
 recognition after the ImageNet 2012 competition
 \citep{krizhevsky2012imagenet}. The architecture of the model is shown
 in Figure~\ref{Fig:CNNModel}.  It is comprised of four blocks of
@@ -351,7 +351,7 @@ formula:
 f^\text{out}_i (\mathbf{r}) = \sum^{N}_{j=1} \int F_i (\mathbf{r} - \mathbf{r'}) \cdot f^\text{in}_j(\mathbf{r'}) ~d\mathbf{r'}, \quad\forall i \in [1,M]
 \end{equation}
 In practice, these convolutions are approximated by sums on a 3D grid.
-The ReLU nonlinearity is computed as following:
+The ReLU nonlinearity is computed as follows:
 \begin{equation}
 f^\text{out}_i (\mathbf{r}) = \begin{cases}
                f^\text{in}_i(\mathbf{r}) &\text{if } f^\text{in}_i(\mathbf{r})\geq 0\\
@@ -391,7 +391,7 @@ grids eventually shrinks to a single cell. The flattening layer
 reshapes the array of $1\times 1\times 1$ density maps into a single
 vector. Afterwards, we compute several transformations using
 fully-connected layers. Each of these layers transform a vector
-$\mathbf{x}_\text{in}$ as following:
+$\mathbf{x}_\text{in}$ as follows:
 \begin{equation}
 \mathbf{x}_\text{out} = W \cdot \mathbf{x}_\text{in} + \mathbf{b}
 \end{equation}
@@ -465,8 +465,8 @@ target in the test set and are then averaged over all targets. Since
 the value of GDT\_TS increases with the quality of a model but the
 value of $s$ decreases, an ideal MQA algorithm would show the correlation
 coefficient of $-1$ and zero loss.
-Those two evaluation criteria measure different qualities of the
-model. One one hand, a perfect correlation coefficient of $-1$ would
+These two evaluation criteria measure different qualities of the
+model. One the one hand, a perfect correlation coefficient of $-1$ would
 be achieved if the algorithm ranks all decoys in the exact
 order of their GDT\_TS score (from best to worst). On the other hand,
 a zero loss would be achieved if the algorithm systematically assigns
@@ -556,7 +556,7 @@ narrow, unimodal distribution.  (See Figure~S4 in Supplementary
 Information for a distribution of score under rotations and
 translations separately.)  More importantly, the difference between
 the average scores of two decoys is usually larger than their
-variances.
+standard deviations.
 To reduce the influence of the choice of rotation and translation on
 the final ranking, we estimate the score of each decoy from the
 average of 90 scores calculated for random rotations and translations.
@@ -626,7 +626,7 @@ The methods chosen have available codes and could be re-evaluated on
 our CASP11 benchmark. Targets T0797, T0798, T0825 were removed from
 the benchmark because they were released for multimeric prediction.
 
-Despite relying solely on atomic coordinates, the 3DCNN model achieves
+Despite relying solely on atomic coordinates, the 3DCNN model (Figure~\ref{Fig:CNNModel}) achieves
 a performance comparable to those of the heavily engineered ProQ2D and
 ProQ3D models, with evaluation losses either slightly above or
 slightly below, depending on the test set. Moreover, like that of

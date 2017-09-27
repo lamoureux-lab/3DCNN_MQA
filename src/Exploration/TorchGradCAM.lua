@@ -171,6 +171,9 @@ function outputLocalQualityMap(decoy_path, model, cnn_gb, output_path, dens, gra
     Protein.protProjectToTensor(cutorch.getState(),batch:cdata(),coords:cdata(),num_atoms:cdata(), 120, 1.0)
     print('Forward')
     local output = model.net:forward(batch)
+    local file = io.open(output_path..'_score','w')
+    file:write(tostring(output[1]))
+    file:close()
     print('Score:', output[1])
     local outputs_gpu = cnn_gb:forward(batch)
     local n_feature = 1

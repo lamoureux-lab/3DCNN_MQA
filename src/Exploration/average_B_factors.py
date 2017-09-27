@@ -60,6 +60,21 @@ def average_B_factors(target = 'T0776', decoy = 'BAKER-ROSETTASERVER_TS3', num_s
 				if len(bfactors[n])>0:
 					f_out.write(line[:61] + '%.2f\n'%(np.mean(bfactors[n])))#/(np.max(all_b) - np.min(all_b))))
 
+def get_scores(target = 'T0776', decoy = 'BAKER-ROSETTASERVER_TS3', num_samples = 30):
+	scores = []
+	print decoy
+	for i in range(1,num_samples+1):
+		if decoy[0:2]=='T0':
+			filename = 'GradCAM/%s/rs%d_%s.pdb.pdb_score'%(target,i,decoy)
+		else:
+			filename = 'GradCAM/%s/rs%d_%s.pdb_score'%(target,i,decoy)
+			# if not os.path.exists(filename):
+			# 	filename = 'GradCAM/%s/rs%d_%s.pdb.pdb_score'%(target,i,decoy)
+		with open(filename,'r') as f:
+			score = float(f.read())
+		scores.append(score)
+	return scores
+
 def get_B_factors(target = 'T0776', decoy = 'BAKER-ROSETTASERVER_TS3', num_samples = 30):
 	os.system('th TorchGradCAM.lua -target %s -decoy %s -num_samples %s'%(target, decoy, num_samples))
 
@@ -166,14 +181,14 @@ if __name__=='__main__':
 %\\begin{document}""")
 			num_pages = int(len(proteins)/4)
 			for page_num in range(0,num_pages):
-				if page_num==0:
-					fout.write("""
-\\captionof{table}{Output of the Grad-CAM algorithm on the selected representative decoys in CASP11 Stage2.
-The interval of all the decoys GDT\\_TS was divided into four bins of equal size and random decoys from each bin were 
-selected. Then 30 samples with random rotations and translations for each selected decoys were used to generate Grad-CAM
-output dencity maps. Afterwards, each map was projected on the atoms of each sampled decoy. Finally, average values of the 
-projected values were calculated for each atom. These values were plotted using Pymol with the rainbow color scheme.}
-	""")
+				# if page_num==0:
+# 					fout.write("""
+# \\captionof{table}{Output of the Grad-CAM algorithm on the selected representative decoys in CASP11 Stage2.
+# The interval of all the decoys GDT\\_TS was divided into four bins of equal size and random decoys from each bin were 
+# selected. Then 30 samples with random rotations and translations for each selected decoys were used to generate Grad-CAM
+# output dencity maps. Afterwards, each map was projected on the atoms of each sampled decoy. Finally, average values of the 
+# projected values were calculated for each atom. These values were plotted using Pymol with the rainbow color scheme.}
+# 	""")
 				fout.write("""	
 	\\begin{center}
 	\\makebox[0pt][c]{
@@ -209,9 +224,22 @@ projected values were calculated for each atom. These values were plotted using 
 					for n,sel_bin in enumerate(bins+[target_bin]):
 						decoy_gdt = sel_bin[0][1]
 						if n<(len(all_bins)-1):
-							fout.write("\\tiny{GDT\\_TS = %.2f} &"%decoy_gdt)
+							fout.write("\\tiny{GDT\\_TS = %.2f} &"%(decoy_gdt))
 						else:
-							fout.write("\\tiny{GDT\\_TS = %.2f} \\\\\n"%decoy_gdt)
+							fout.write("\\tiny{GDT\\_TS = %.2f} \\\\\n"%(decoy_gdt))
+					#decoy score row
+					for n,sel_bin in enumerate(bins+[target_bin]):
+						decoy_path = sel_bin[0][0]
+						decoy_name = decoy_path[decoy_path.rfind('/')+1:]
+						idx = decoy_name.find('.')
+						if idx!=-1:
+							decoy_name = decoy_name[:idx]
+						# decoy_name = decoy_name.replace('_','\\_')
+						scores = get_scores(target = target, decoy = decoy_name, num_samples = 30)
+						if n<(len(all_bins)-1):
+							fout.write("\\tiny{Score = $%.2f \pm %.2f$} &"%(np.average(scores), np.std(scores)))
+						else:
+							fout.write("\\tiny{Score = $%.2f \pm %.2f$} \\\\\n"%(np.average(scores), np.std(scores)))
 					#Figures row
 					for n,sel_bin in enumerate(bins+[target_bin]):
 						decoy_path = sel_bin[0][0]
