@@ -23,10 +23,10 @@
 
 \author[G. Derevyanko \textit{et~al}.]{Georgy Derevyanko\,$^{\text{\sfb 1},*}$, Sergei Grudinin\,$^{\text{\sfb 2}}$, Yoshua Bengio\,$^{\text{\sfb 3},\dagger}$ and Guillaume Lamoureux\,$^{\text{\sfb 1},*}$}
 \address{$^{\text{\sf 1}}$Department of Chemistry and Biochemistry and Centre for Research in Molecular Modeling (CERMM), Concordia University, Montr{\'e}al, H4B 1R6, Canada,
-$^{\text{\sf 2}}$NANO-D, INRIA Rh{\^o}ne-Alpes Research Center, Grenoble, 38054, France and
+$^{\text{\sf 2}}$Inria, Universit{\'e} Grenoble Alpes, CNRS, Grenoble INP, LJK, Grenoble, 38000, France and
 $^{\text{\sf 3}}$Department of Computer Science and Operations Research, Universit{\'e} de Montr{\'e}al, Montr{\'e}al, H3C 3J7, Canada}
 
-\corresp{$^\ast$To whom correspondence should be addressed.\\ $^\dagger$CIFAR Fellow.}
+\corresp{$^\ast$To whom correspondence should be addressed. $^\dagger$CIFAR Fellow.}
 
 \history{Received on XXXXX; revised on XXXXX; accepted on XXXXX}
 
@@ -141,7 +141,7 @@ network of \citet{ragoza2017protein} perform
 consistently better than either Smina \citep{koes2013smina} or AutoDock
 Vina \citep{trott2009vina}.
 For small molecules, \citet{schutt2017quantum,
-schutt2017moleculenet} have recently developed deep neural networks to predict
+schutt2017moleculenet} and \citet{smith2017ani1} have recently developed deep neural networks to predict
 the molecular energy of a variety of chemical compounds in various
 conformations (or even various isomeric states). These models,
 intended to be used as universal force fields, are trained on ab
@@ -157,7 +157,7 @@ interatomic distance matrix as input.
     \makebox[\textwidth]{
     \includegraphics[width=0.78\paperwidth]{image1.png}
     }
-    \vspace{-10pt}
+    \vspace{-15pt}
     \caption{Overlap of the training set on each target domain of the
     test set (from T0759 to T0858). The first 5 rows of tiles
     correspond to the ECOD classification of protein domains (A-, X-,
@@ -177,7 +177,8 @@ interatomic distance matrix as input.
     \label{Fig:summaryTable}
 \end{figure*}
 
-We train and assess our method using the protein non-native conformations (decoys) datasets from
+We train and assess our method using the datasets of non-native protein
+conformations (``decoys'') from
 the CASP competition \citep{moult2014critical}.  We use the CASP7 to
 CASP10 data as training set and the CASP11 data as test set, for a
 total of 564 target structures in the training set and 83 target
@@ -190,7 +191,7 @@ considered best by the Davis-QAconsensus evaluation
 method \citep{kryshtafovych2015}.
 The native structures are excluded from both training 
 and test datasets. To make the
-structural data more consistent we optimized the side chains of all decoy
+structural data more consistent we optimize the side chains of all decoy
 structures using SCWRL4 \citep{krivov2009improved}.
 
 Training and test datasets cover a similar range of sequence
@@ -293,7 +294,7 @@ contains only 6 of the 11 atom types, and only those density maps are
 shown. The 5 other maps have zero density everywhere.
 
 \begin{figure*}[t]
-    \centerline{\includegraphics[width=0.6\linewidth]{image2}}
+    \centerline{\includegraphics[width=0.6\linewidth]{image2.png}}
 %
     \vspace{-10pt}
     \caption{Representation of a protein structure (PDB code 5eh6)
@@ -332,8 +333,8 @@ shown. The 5 other maps have zero density everywhere.
 
 In this work we score protein structures using 3D convolutional neural
 networks (CNNs). CNNs were first proposed for image recognition by
-\citet{lecun1989backpropagation}. Historically first application of CNN to biological data
-was done by \citet{bengio1990neural}. Concolutional neural networks have gained wider
+\citet{lecun1989backpropagation} and first applied to biological data
+by \citet{bengio1990neural}. Convolutional neural networks have gained wider
 recognition after the ImageNet 2012 competition
 \citep{krizhevsky2012imagenet}. The architecture of the model is shown
 in Figure~\ref{Fig:CNNModel}.  It is comprised of four blocks of
@@ -583,7 +584,7 @@ DFIRE~\citep{zhou2002distance}, uses a scoring approach based on
 statistical pairwise potentials.
 %
 \begin{figure}[t]
-    \centerline{\includegraphics[width=0.7\linewidth]{image5}}
+    \centerline{\includegraphics[width=0.7\linewidth]{image5.png}}
     \vspace{-15pt}
     \caption{Distributions of the $s$ scores of five decoys for target
     T0832 under random translations and rotations. A lower score
