@@ -25,12 +25,12 @@
 \maketitle
 
 \noindent
-Georgy Derevyanko\,$^{\text{1,}*}$, Sergei Grudinin\,$^{\text{2}}$, Yoshua Bengio\,$^{\text{3}}$ and Guillaume Lamoureux\,$^{\text{1,}*}$
+Georgy Derevyanko\,$^{\text{1,}*}$, Sergei Grudinin\,$^{\text{2}}$, Yoshua Bengio\,$^{\text{3},\dagger}$ and Guillaume Lamoureux\,$^{\text{1,}*}$
 
 \vspace{1em}
 \noindent
 $^{\text{1}}$Department of Chemistry and Biochemistry and Centre for Research in Molecular Modeling (CERMM), Concordia University, Montr{\'e}al, H4B 1R6, Canada,
-$^{\text{2}}$Department XXX, Institution XXX, City XXX, Post Code XXX, France and
+$^{\text{2}}$Inria, Universit{\'e} Grenoble Alpes, CNRS, Grenoble INP, LJK, Grenoble, 38000, France and
 $^{\text{3}}$Department of Computer Science and Operations Research, Universit{\'e} de Montr{\'e}al, Montr{\'e}al, H3C 3J7, Canada.
 
 \vspace{1em}
@@ -38,6 +38,9 @@ $^{\text{3}}$Department of Computer Science and Operations Research, Universit{\
 $^\ast$To whom correspondence should be addressed. \\
 Contact: georgy.derevyanko@gmail.com or guillaume.lamoureux@concordia.ca
 
+\vspace{1em}
+\noindent
+$^\dagger$CIFAR Fellow.
 
 \newpage
 \begin{figure}[H]
@@ -178,7 +181,7 @@ Contact: georgy.derevyanko@gmail.com or guillaume.lamoureux@concordia.ca
 \begin{center}
 %
 \caption{Details of the model architecture. Layer 10 is marked with an
-  asterisk to indicate that its output was used in the Grad-CAM
+  asterisk to indicate that its output is used in the Grad-CAM
   analysis reported in Section~4 of the main text.}
 %
 \makebox[0pt][c]{
@@ -297,7 +300,7 @@ with a learning rate of $0.0003$ and a learning rate decay of $0.01$.
 
     \caption{Scoring funnels on the validation set at epoch 40. The
       $x$-axis is the GDT\_TS score and the $y$-axis is the $s$
-      score. The score was sampled once using random rotation and
+      score. The score is sampled once using random rotation and
       translation.}
 %
     \label{Fig:ValidationEpoch40}
@@ -331,7 +334,7 @@ with a learning rate of $0.0003$ and a learning rate decay of $0.01$.
     }
     \caption{Scoring funnels on stage 1 CASP11 targets. The
       $x$-axis is the GDT\_TS score and the $y$-axis is the $s$
-      score. The score was sampled once using random rotation and
+      score. The score is sampled once using random rotation and
       translation.}
     \label{Fig:Satage1CASP11Funnels}
 \end{figure}
@@ -346,7 +349,7 @@ with a learning rate of $0.0003$ and a learning rate decay of $0.01$.
     }
     \caption{Scoring funnels on stage 2 CASP11 targets. The
       $x$-axis is the GDT\_TS score and the $y$-axis is the $s$
-      score. The score was sampled once using random rotation and
+      score. The score is sampled once using random rotation and
       translation.}
     \label{Fig:Satage2CASP11Funnels}
 \end{figure}
@@ -403,7 +406,7 @@ with a learning rate of $0.0003$ and a learning rate decay of $0.01$.
   representative decoys from the CASP11 test set stage~2.
 %
   For each target, decoys are divided into four GDT\_TS binds of equal
-  width, and one decoy was selected from each bin. The Grad-CAM output
+  width, and one decoy is selected from each bin. The Grad-CAM output
   map of each decoy is generated from 30 inputs rotated and translated
   at random. The 30 output maps are projected on the atoms of the
   decoys, and the average values of the projections are plotted using
