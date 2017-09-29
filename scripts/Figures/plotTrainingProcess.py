@@ -81,8 +81,13 @@ def plotFunnels(proteins, decoys, decoys_scores, outputFile):
 	fig = plt.figure(figsize=(20,20))
 
 	N = len(proteins)
-	nrows = int(np.sqrt(N))+1
-	ncols = int(N/nrows)
+	sqrt_n = int(np.sqrt(N))
+	if N==sqrt_n*sqrt_n:
+		nrows = int(np.sqrt(N))
+		ncols = int(N/nrows)	
+	else:
+		nrows = int(np.sqrt(N))+1
+		ncols = int(N/nrows)
 	if nrows*ncols<N: ncols+=1
 
 	from mpl_toolkits.axes_grid1 import Grid

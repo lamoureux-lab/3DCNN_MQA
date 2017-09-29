@@ -185,7 +185,7 @@ def plot_test_results(	experiment_name = 'QA',
 	"""
 	print "Test dataset: ", test_dataset_name
 
-	proteins, decoys = read_dataset_description('/media/lupoglaz/ProteinsDataset/%s/Description'%test_dataset_name,
+	proteins, decoys = read_dataset_description('/home/lupoglaz/ProteinsDataset/%s/Description'%test_dataset_name,
 												test_dataset_subset, decoy_ranging=decoy_ranging_column)
 	if (not model_name is None) and (not trainig_dataset_name is None):
 		input_path = '../../models/%s_%s_%s/%s/epoch_0.dat'%(	experiment_name, model_name, trainig_dataset_name,
@@ -194,14 +194,14 @@ def plot_test_results(	experiment_name = 'QA',
 		input_path = '../../models/%s/%s/epoch_0.dat'%(	experiment_name, test_dataset_name+suffix)
 
 	loss_function_values, decoys_scores = read_epoch_output(input_path)
-
+	print 'Num targets = ', len(proteins)
 	included_proteins = []
 	for protein in proteins:
 		if protein in ['T0797','T0798','T0825']:
 			print 'Excluded CAPRI target', protein
 			continue
 		included_proteins.append(protein)
-
+	print 'Num included targets = ', len(included_proteins)
 
 	correlations = get_correlations(included_proteins, decoys, decoys_scores, subset)
 	print 'Correlations:'
@@ -228,7 +228,7 @@ def plot_test_results(	experiment_name = 'QA',
 		selected_proteins = best+worst
 		plotFunnelsSpecial(selected_proteins, correlations_all, decoys, decoys_scores, output_path)
 	else:
-		plotFunnels(proteins, decoys, decoys_scores, output_path)
+		plotFunnels(included_proteins, decoys, decoys_scores, output_path)
 
 def get_uniformly_dist_decoys(	experiment_name = 'QA_uniform',
 								model_name = 'ranking_model_8',
@@ -376,29 +376,29 @@ def plot_test_outliers(	experiment_name = 'QA',
 	
 	
 if __name__=='__main__':
-	testResults = False
+	testResults = True
 	inspect_monomers = False
-	lossVsEcod = True
+	lossVsEcod = False
 	getOutliers = False
 	uniformDecoys = False
 	if testResults:
-		plot_test_results(	experiment_name = 'QA_uniform',
-							model_name = 'ranking_model_8',
-							trainig_dataset_name = 'CASP_SCWRL',
-							test_dataset_name = '3DRobot_set',
-							# test_dataset_name = 'CASP_SCWRL',
-							test_dataset_subset = 'datasetDescription.dat',
-							decoy_ranging_column = 'gdt-ts',
-							suffix = '_sFinal', best_worst=True)
-
 		# plot_test_results(	experiment_name = 'QA_uniform',
 		# 					model_name = 'ranking_model_8',
 		# 					trainig_dataset_name = 'CASP_SCWRL',
-		# 					test_dataset_name = 'CASP11Stage2_SCWRL',
+		# 					test_dataset_name = '3DRobot_set',
 		# 					# test_dataset_name = 'CASP_SCWRL',
 		# 					test_dataset_subset = 'datasetDescription.dat',
 		# 					decoy_ranging_column = 'gdt-ts',
-		# 					suffix = '_sFinal')
+		# 					suffix = '_sFinal', best_worst=True)
+
+		plot_test_results(	experiment_name = 'QA_uniform',
+							model_name = 'ranking_model_8',
+							trainig_dataset_name = 'CASP_SCWRL',
+							test_dataset_name = 'CASP11Stage1_SCWRL',
+							# test_dataset_name = 'CASP_SCWRL',
+							test_dataset_subset = 'datasetDescription.dat',
+							decoy_ranging_column = 'gdt-ts',
+							suffix = '_sFinal')
 
 		# plot_test_results(	experiment_name = 'RWPlus',
 		# 					model_name = None,
