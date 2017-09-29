@@ -406,11 +406,13 @@ with a learning rate of $0.0003$ and a learning rate decay of $0.01$.
   representative decoys from the CASP11 test set stage~2.
 %
   For each target, decoys are divided into four GDT\_TS binds of equal
-  width, and one decoy is selected from each bin. The Grad-CAM output
+  width, and one decoy is selected from each bin. The rightmost column shows the native structure.
+  The Grad-CAM output
   map of each decoy is generated from 30 inputs rotated and translated
   at random. The 30 output maps are projected on the atoms of the
   decoys, and the average values of the projections are plotted using
   Pymol with the ``rainbow'' color scheme.
+  The 3DCNN score is reported as ``average $\pm$ standard deviation'' over the 30 inputs.
 %
 %%% GL: What is going on with targets T0787, T0792, T0797, T0821, and
 %%% T0831 ??? You were saying that some of these were monomers from
