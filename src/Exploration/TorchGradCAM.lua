@@ -101,7 +101,7 @@ atom_type_assigner = 2
 cmd = torch.CmdLine()
 cmd:text()
 cmd:text()
-cmd:text('Testing a network')
+cmd:text('GRAD_CAM')
 cmd:text()
 cmd:text('Options')
 cmd:option('-experiment_name','QA_uniform', 'training experiment name')
@@ -109,7 +109,8 @@ cmd:option('-training_model_name','ranking_model_8', 'cnn model name during trai
 cmd:option('-training_dataset_name','CASP_SCWRL', 'training dataset name')
 
 cmd:option('-test_model_name','ranking_model_8', 'cnn model name during testing')
-cmd:option('-test_dataset_name','CASP11Stage1_SCWRL', 'test dataset name')
+cmd:option('-test_datasets_path','/media/lupoglaz/ProteinsDataset/', 'test dataset name')
+cmd:option('-test_dataset_name','CASP11Stage2_SCWRL', 'test dataset name')
 cmd:option('-test_dataset_subset','datasetDescription.dat', 'test dataset subset')
 cmd:option('-target', 'T0776', 'Target name')
 cmd:option('-decoy', 'BAKER-ROSETTASERVER_TS3', 'Decoy name')
@@ -124,7 +125,7 @@ local input_size = {	model.input_options.num_channels, model.input_options.input
 						model.input_options.input_size, model.input_options.input_size}
 
 local test_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, false, false, model.input_options.resolution)
-test_dataset:load_dataset('/media/lupoglaz/ProteinsDataset/'..params.test_dataset_name..'/Description', params.test_dataset_subset, 'tm-score')
+test_dataset:load_dataset(params.test_datasets_path..params.test_dataset_name..'/Description', params.test_dataset_subset, 'tm-score')
 local test_logger = cSamplingLogger.new(params.experiment_name, params.training_model_name, params.training_dataset_name, 
 										params.test_dataset_name..'_sampling')
 
@@ -224,7 +225,7 @@ end
 
 lfs.mkdir(string.format("GradCAM/%s", params.target))
 for i=1, params.num_samples do
-    outputLocalQualityMap(  string.format('/media/lupoglaz/ProteinsDataset/CASP11Stage2_SCWRL/%s/%s', params.target, params.decoy),
+    outputLocalQualityMap(  string.format(params.test_datasets_path..params.test_dataset_name..'/%s/%s', params.target, params.decoy),
                             model, cnn_gb, 
                             string.format("GradCAM/%s/rs%d_%s.pdb",params.target,i,params.decoy), 0, 0)
 end

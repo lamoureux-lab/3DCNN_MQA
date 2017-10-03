@@ -8,6 +8,11 @@ import sys, time, os
 import pymol
 pymol.finish_launching()
 
+#parameters
+DATASETS_PATH = '/media/lupoglaz/ProteinsDataset/' #slash in the end required
+DATASET_NAME = 'CASP11Stage2_SCWRL'
+DATASET_DESCRIPTION = os.path.join(DATASETS_PATH, DATASET_NAME, 'Description')
+
 def read_dataset_description(dataset_description_dir, dataset_description_filename, decoy_ranging = 'gdt-ts'):
 	description_path= os.path.join(dataset_description_dir,dataset_description_filename)
 	fin = open(description_path, 'r')
@@ -76,7 +81,7 @@ def get_scores(target = 'T0776', decoy = 'BAKER-ROSETTASERVER_TS3', num_samples 
 	return scores
 
 def get_B_factors(target = 'T0776', decoy = 'BAKER-ROSETTASERVER_TS3', num_samples = 30):
-	os.system('th TorchGradCAM.lua -target %s -decoy %s -num_samples %s'%(target, decoy, num_samples))
+	os.system('th TorchGradCAM.lua -test_datasets_path %s -test_dataset_name %s -target %s -decoy %s -num_samples %s'%(DATASETS_PATH, DATASET_NAME, target, decoy, num_samples))
 
 def process_structure(target, decoys = []):
 	
@@ -131,7 +136,7 @@ if __name__=='__main__':
 	process = False
 	make_table = True
 
-	proteins, decoys = read_dataset_description('/media/lupoglaz/ProteinsDataset/CASP11Stage2_SCWRL/Description', 'datasetDescription.dat')
+	proteins, decoys = read_dataset_description(DATASET_DESCRIPTION, 'datasetDescription.dat')
 	if generate:
 		for target in proteins:
 			
