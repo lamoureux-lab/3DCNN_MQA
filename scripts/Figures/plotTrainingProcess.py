@@ -203,8 +203,9 @@ def get_average_loss(proteins, decoys, decoys_scores, subset=None, return_all=Fa
 		return loss/float(len(subset))
 
 def plot_validation_funnels(experiment_name, model_name, dataset_name, epoch_start=0, epoch_end=200,
-							description_dirname = 'Description'):
-	proteins, decoys = read_dataset_description('/media/lupoglaz/ProteinsDataset/%s/%s'%(dataset_name, description_dirname),'validation_set.dat')
+							description_dirname = 'Description',
+							datasets_path = '/home/lupoglaz/ProteinsDataset'):
+	proteins, decoys = read_dataset_description(os.path.join(datasets_path, dataset_name, description_dirname), 'validation_set.dat')
 	
 	for epoch in range(epoch_start, epoch_end+1):
 		#print 'Loading scoring ',epoch
@@ -219,8 +220,9 @@ def plot_validation_correlations(	experiment_name, model_name, dataset_name, epo
 									description_dirname = 'Description',
 									data_subset = 'validation_set.dat',
 									scores_dir = 'validation',
-									output_name = 'kendall_validation'):
-	proteins, decoys = read_dataset_description('/media/lupoglaz/ProteinsDataset/%s/%s'%(dataset_name, description_dirname), data_subset)
+									output_name = 'kendall_validation',
+									datasets_path = '/home/lupoglaz/ProteinsDataset'):
+	proteins, decoys = read_dataset_description(os.path.join(datasets_path, dataset_name, description_dirname), data_subset)
 	epochs = [0]
 	taus = [0]
 	pearsons = [0]
@@ -256,54 +258,13 @@ def plot_validation_correlations(	experiment_name, model_name, dataset_name, epo
 	# plt.savefig('../../models/%s_%s_%s/%s.tif'%(experiment_name, model_name, dataset_name, output_name), format='tif', dpi=600)
 	return taus, pearsons, losses
 
-def plot_training_samples(experiment_name, model_name, dataset_name, epoch_start=0, epoch_end=100):
-	proteins, decoys = read_dataset_description('/home/lupoglaz/ProteinsDataset/%s/Description'%dataset_name,'training_set.dat')
-	epoch = 1
-	loss_function_values, decoys_scores = read_epoch_output('../../models/%s_%s_%s/training/epoch_%d.dat'%
-			(experiment_name, model_name, dataset_name, epoch))
-	tmscores = []
-	for n,protein in enumerate(proteins):
-		for decoy in decoys[protein]:
-			tmscores.append(decoy[1])
-	from matplotlib import pylab as plt
-	import numpy as np
-	fig = plt.figure(figsize=(20,20))
-	plt.hist(tmscores)
-	plt.savefig('../../models/%s_%s_%s/decoy_sampling.png'%(experiment_name, model_name, dataset_name))
-			
-def changeDataPath( decoys_scores_path, dataset_path):
-	"""
-	Changes path to the decoys according to the new directory of the dataset
-	"""
-	initial_file = []
-	with open(decoys_scores_path, 'r') as f:
-		for line in f:
-			initial_file.append(line)
-
-	with open(decoys_scores_path, 'w') as f:
-		for line in initial_file:
-			if line.find("Decoys scores")!=-1 or line.find("Loss function values")!=-1 or line.find("Decoys activations")!=-1:
-				f.write(line)
-				continue 
-			sline = line.split()
-			target_name = sline[0]
-			old_path = sline[1]
-			i0 = old_path.find('/'+target_name+'/')
-			if i0 != -1:
-				i1 = len(old_path)
-				new_path = os.path.join(dataset_path,old_path[i0+1:i1])
-				new_line = target_name + '\t' + new_path + '\t' + sline[2] + '\n'
-			else:
-				new_line = line
-			f.write(new_line)
-	return
 
 if __name__=='__main__':
 	
 	exp_name = 'QA_uniform'
 	dataset_name = 'CASP_SCWRL'
 	model_name = 'ranking_model_8'
-	taus, pears, losses = plot_validation_correlations(exp_name, model_name, dataset_name)
+	taus, pears, losses = plot_validation_correlations(exp_name, model_name, dataset_name, datasets_path='/home/lupoglaz/ProteinsDataset')
 	print 'Validation result %s: '%exp_name, taus[-1], pears[-1], losses[-1]
 	taus_10 = [ t for n, t in enumerate(taus) if n%10==0]
 	pears_10 = [ t for n, t in enumerate(pears) if n%10==0]
@@ -311,10 +272,5 @@ if __name__=='__main__':
 	candidate_epochs = [np.argmin(taus_10), np.argmin(pears_10), np.argmin(losses_10)]
 	for epoch in candidate_epochs:
 		print 'Epoch %d'%(epoch*10), taus[epoch*10], pears[epoch*10], losses[epoch*10]
-	# print np.max(taus), 5*np.argmax(taus), np.max(pears), 5*np.argmax(pears), np.min(losses), 5*np.argmin(losses)
-	# plot_validation_funnels(exp_name, model_name, dataset_name)
-
-	# taus, pears, losses = plot_validation_correlations(	exp_name, model_name, dataset_name,
-	# 													data_subset = 'training_set.dat',
-	# 													scores_dir = 'train_rescoring',
-	# 													output_name = 'train_rescoring')
+	
+	plot_validation_funnels(exp_name, model_name, dataset_name, datasets_path='/home/lupoglaz/ProteinsDataset')
