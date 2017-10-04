@@ -48,6 +48,21 @@ https://github.com/lupoglaz/3DCNN_MQA/raw/Release/doc/kendall_validation.png
 The script *plotTestResults.py* also outputs the performance measures on the 
 test sets. The example output is:
 
+```
+Test dataset:  CASP11Stage1_SCWRL
+Num targets =  84
+Excluded CAPRI target T0798
+Excluded CAPRI target T0825
+Excluded CAPRI target T0797
+Num included targets =  81
+Correlations:
+Pearson =  -0.535246216884
+Spearman =  -0.424928568326
+Kendall =  -0.325462616687
+Z-score: -1.2194271292
+Loss: 0.0639580246914
+```
+
 ## Grad-CAM analysis
 To replicate the Grad-CAM data from the paper you need to install PyMOL and its
 python bindings. The main script that generates the tables is *src/Exploration/average_B_factors.py*. Before running this script change the parameters in the beginning, specifically *DATASETS_PATH*. Also int the main 
