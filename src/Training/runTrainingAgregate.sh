@@ -3,7 +3,7 @@ CUDA_VISIBLE_DEVICES=0 th TorchTrainRankingHomogeniousDataset.lua \
 -dataset_name CASP_SCWRL \
 -experiment_name QA_uniform \
 -datasets_dir /home/lupoglaz/ProteinsDataset/ \
--learning_rate 0.0003 \
+-learning_rate 0.001 \
 -learning_rate_decay 0.01 \
 -l2_coef 0.0 \
 -tm_score_threshold 0.01 \
