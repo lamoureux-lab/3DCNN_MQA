@@ -38,11 +38,21 @@ the output data is stored. To visualize the results:
 
 
 The outputs will be stored in *models/name_of_experiment*. Examples of figures you will obtain are:
-<img src="https://github.com/lamoureux-lab/3DCNN_MQA/raw/Release/doc/CASP11Stage2_SCWRL_sFinal_funnels.png" width="400">
-CASP11Stage2_SCWRL_sFinal_funnels
+<table style="width:100%">
+  <tr>
+    <th>CASP11Stage2_SCWRL_sFinal_funnels</th>
+    <th>kendall_validation</th>
+  </tr>
+  <tr>
+    <th>
+      <img src="https://github.com/lamoureux-lab/3DCNN_MQA/raw/Release/doc/CASP11Stage2_SCWRL_sFinal_funnels.png" width="400">
+    </th>
+    <th>
+      <img src="https://github.com/lamoureux-lab/3DCNN_MQA/raw/Release/doc/kendall_validation.png" width="400">
+    </th>
+  </tr>
+</table>
 
-<img src="https://github.com/lamoureux-lab/3DCNN_MQA/raw/Release/doc/kendall_validation.png" width="400">
-kendall_validation
 
 The script *plotTestResults.py* also outputs the performance measures on the 
 test sets. Example output:
@@ -71,12 +81,21 @@ python bindings. The main script that generates the tables is *src/Exploration/a
 part change variables *generate*, *process*, and *make_table* to *True*. This script takes approximately 4 hours to finish.
 The generated table can be then included in a LaTeX document and compiled using *pdflatex*. The raw data can be found in the directory *GradCAM* and 
 the figures generated using PyMOL are in the directory *GradCAMOutput*. Here are a few examples:
-
-<img src="https://github.com/lamoureux-lab/3DCNN_MQA/raw/Release/doc/T0762_BhageerathH_TS4.png" width="400">
-T0762_BhageerathH_TS4
-
-<img src="https://github.com/lamoureux-lab/3DCNN_MQA/raw/Release/doc/T0762_MULTICOM-CONSTRUCT_TS1.png" width="400">
-T0762_MULTICOM-CONSTRUCT_TS1
-
-<img src="https://github.com/lamoureux-lab/3DCNN_MQA/raw/Release/doc/T0762_T0762.png" width="400">
-T0762
+<table style="width:100%">
+  <tr>
+    <th>T0762_BhageerathH_TS4</th>
+    <th>T0762_MULTICOM-CONSTRUCT_TS1</th>
+    <th>T0762</th>
+  </tr>
+  <tr>
+    <th>
+      <img src="https://github.com/lamoureux-lab/3DCNN_MQA/raw/Release/doc/T0762_BhageerathH_TS4.png" width="400">
+    </th>
+    <th>
+      <img src="https://github.com/lamoureux-lab/3DCNN_MQA/raw/Release/doc/T0762_MULTICOM-CONSTRUCT_TS1.png" width="400">
+    </th>
+    <th>
+      <img src="https://github.com/lamoureux-lab/3DCNN_MQA/raw/Release/doc/T0762_T0762.png" width="400">
+    </th>
+  </tr>
+</table>
