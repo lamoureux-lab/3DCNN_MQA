@@ -1,7 +1,7 @@
 # 3DCNN_MQA
 Deep convolutional networks for fold recognition.
 This repository has two branches: Release and helios. The Release branch
-contains the code to replicate the main result of the publication. The 
+contains the code to replicate the main results of the publication. The 
 helios branch contains complete code to replicate all the plots and tables in the publication, however it is sparsely documented.
 
 ## Preparation
