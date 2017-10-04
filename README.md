@@ -38,6 +38,11 @@ the output data is stored. To visualize the results:
 
 The outputs will be stored in *models/name_of_experiment*. Examples of figures you will obtains are:
 
+![alt text](https://github.com/lupoglaz/3DCNN_MQA/raw/Release/doc/CASP11Stage2_SCWRL_sFinal_funnels.png"CASP11Stage2_SCWRL_sFinal_funnels")
+
+![alt text](
+https://github.com/lupoglaz/3DCNN_MQA/raw/Release/doc/kendall_validation.png
+"kendall_validation")
 
 The script *plotTestResults.py* also outputs the performance measures on the 
 test sets. The example output is:
@@ -48,3 +53,15 @@ python bindings. The main script that generates the tables is *src/Exploration/a
 part change variables *generate*, *process*, *make_table* to *True*. This script takes approximately 4 hours to finish.
 The generated table can be then included in a tex document and compiled using *pdflatex*. The raw data can be found in the directory *GradCAM* and 
 the figures generated using PyMOL in in the directory *GradCAMOutput*. The few examples are:
+
+![alt text](
+https://github.com/lupoglaz/3DCNN_MQA/raw/Release/doc/T0762_BhageerathH_TS4.png
+"T0762_BhageerathH_TS4")
+
+![alt text](
+https://github.com/lupoglaz/3DCNN_MQA/raw/Release/doc/T0762_MULTICOM-CONSTRUCT_TS1.png
+"T0762_MULTICOM-CONSTRUCT_TS1")
+
+![alt text](
+https://github.com/lupoglaz/3DCNN_MQA/raw/Release/doc/T0762_T0762.png
+"T0762")
