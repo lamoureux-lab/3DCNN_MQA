@@ -1,8 +1,8 @@
-CUDA_VISIBLE_DEVICES=0 th TorchTrainRankingHomogeniousDataset.lua \
+th TorchTrainRankingHomogeniousDataset.lua \
 -model_name ranking_model_8 \
 -dataset_name CASP_SCWRL \
 -experiment_name QA_uniform \
--datasets_dir /home/lupoglaz/ProteinsDataset/ \
+-datasets_dir /home/lupoglaz/TMP_DATASETS/ \
 -learning_rate 0.001 \
 -learning_rate_decay 0.01 \
 -l2_coef 0.0 \
@@ -10,8 +10,6 @@ CUDA_VISIBLE_DEVICES=0 th TorchTrainRankingHomogeniousDataset.lua \
 -gap_weight 0.1 \
 -validation_period 1 \
 -model_save_period 10 \
--max_epoch 150 \
+-max_epoch 50 \
 -decoys_ranking_mode gdt-ts \
--gpu_num 1 \
--restart \
--restart_epoch 40
+-gpu_num 1 

@@ -5,8 +5,8 @@ set(CMAKE_BUILD_TYPE Release)
 
 find_package(OpenMP)
 if (OPENMP_FOUND)
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS} -fopenmp")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -fopenmp")
 endif()
 
 FIND_PACKAGE(Torch REQUIRED)
@@ -43,10 +43,6 @@ add_subdirectory(CppProteinLoader)
 # library for loading protein structure from torch
 ADD_LIBRARY(load_protein SHARED CppProteinLoader/loadProtein.cpp)
 TARGET_LINK_LIBRARIES(load_protein TH PROTEINLOADER)
-
-#Test tensor math library
-add_executable(Test_TensorMathUtils Math/Test_TensorMathUtils.cpp)
-target_link_libraries (Test_TensorMathUtils TH TH_MATH)
 
 CUDA_ADD_LIBRARY(load_protein_cuda SHARED CppProteinLoader/loadProteinCUDA.cu)
 TARGET_LINK_LIBRARIES(load_protein_cuda TH THC PROTEINLOADER)
