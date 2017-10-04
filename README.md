@@ -5,7 +5,7 @@ contains the code to replicate the main results of the publication. The
 helios branch contains complete code to replicate all the plots and tables in the publication, however it is sparsely documented.
 
 ## Preparation
-1. Download the CASP_SCWRL and CASP11Stage1_SCWRL and CASP11Stage2_SCWRL datasets, upack them to some location.
+1. Download the [CASP_SCWRL](http://proteinfoldingproject.com/static/datasets/CASP_SCWRL.tar.gz) and [CASP11Stage1_SCWRL](http://proteinfoldingproject.com/static/datasets/CASP11Stage1_SCWRL.tar.gz) and [CASP11Stage2_SCWRL](http://proteinfoldingproject.com/static/datasets/CASP11Stage2_SCWRL.tar.gz) datasets, upack them to some location.
 
 2. Run the script *scripts/Datasets/heliosChangePrefix.py*. This script 
 changes location of the datasets in the description files.
@@ -38,12 +38,11 @@ the output data is stored. To visualize the results:
 
 
 The outputs will be stored in *models/name_of_experiment*. Examples of figures you will obtain are:
-![alt text](https://github.com/lamoureux-lab/3DCNN_MQA/raw/Release/doc/CASP11Stage2_SCWRL_sFinal_funnels.png
-"CASP11Stage2_SCWRL_sFinal_funnels")
+<img src="https://github.com/lamoureux-lab/3DCNN_MQA/raw/Release/doc/CASP11Stage2_SCWRL_sFinal_funnels.png" width="400">
+CASP11Stage2_SCWRL_sFinal_funnels
 
-![alt text](
-https://github.com/lamoureux-lab/3DCNN_MQA/raw/Release/doc/kendall_validation.png
-"kendall_validation")
+<img src="https://github.com/lamoureux-lab/3DCNN_MQA/raw/Release/doc/kendall_validation.png" width="400">
+kendall_validation
 
 The script *plotTestResults.py* also outputs the performance measures on the 
 test sets. Example output:
@@ -63,6 +62,9 @@ Z-score: -1.2194271292
 Loss: 0.0639580246914
 ```
 
+## Pretrained model
+You can download [pretrained model](http://proteinfoldingproject.com/static/datasets/models.tar.gz) as well as the output of RWPlus, ProQ# and VoroMQA algorithms.
+
 ## Grad-CAM analysis
 To replicate the Grad-CAM data from the paper you need to install PyMOL and its
 python bindings. The main script that generates the tables is *src/Exploration/average_B_factors.py*. Before running this script change the parameters in the beginning, specifically *DATASETS_PATH*. Also in the main 
@@ -70,14 +72,11 @@ part change variables *generate*, *process*, and *make_table* to *True*. This sc
 The generated table can be then included in a LaTeX document and compiled using *pdflatex*. The raw data can be found in the directory *GradCAM* and 
 the figures generated using PyMOL are in the directory *GradCAMOutput*. Here are a few examples:
 
-![alt text](
-https://github.com/lamoureux-lab/3DCNN_MQA/raw/Release/doc/T0762_BhageerathH_TS4.png
-"T0762_BhageerathH_TS4")
+<img src="https://github.com/lamoureux-lab/3DCNN_MQA/raw/Release/doc/T0762_BhageerathH_TS4.png" width="400">
+T0762_BhageerathH_TS4
 
-![alt text](
-https://github.com/lamoureux-lab/3DCNN_MQA/raw/Release/doc/T0762_MULTICOM-CONSTRUCT_TS1.png
-"T0762_MULTICOM-CONSTRUCT_TS1")
+<img src="https://github.com/lamoureux-lab/3DCNN_MQA/raw/Release/doc/T0762_MULTICOM-CONSTRUCT_TS1.png" width="400">
+T0762_MULTICOM-CONSTRUCT_TS1
 
-![alt text](
-https://github.com/lamoureux-lab/3DCNN_MQA/raw/Release/doc/T0762_T0762.png
-"T0762")
+<img src="https://github.com/lamoureux-lab/3DCNN_MQA/raw/Release/doc/T0762_T0762.png" width="400">
+T0762
