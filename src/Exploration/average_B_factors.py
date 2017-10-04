@@ -132,6 +132,15 @@ def sort_into_bins(decoys, n_bins = 4):
 	return bins
 
 if __name__=='__main__':
+	try:
+		os.mkdir("GradCAMOutput")
+	except:
+		pass
+	try:
+		os.mkdir("GradCAM")
+	except:
+		pass
+
 	generate = False
 	process = False
 	make_table = True
