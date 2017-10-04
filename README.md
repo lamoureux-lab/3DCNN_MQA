@@ -38,7 +38,8 @@ the output data is stored. To visualize the results:
 
 The outputs will be stored in *models/name_of_experiment*. Examples of figures you will obtains are:
 
-![alt text](https://github.com/lupoglaz/3DCNN_MQA/raw/Release/doc/CASP11Stage2_SCWRL_sFinal_funnels.png"CASP11Stage2_SCWRL_sFinal_funnels")
+![alt text](https://github.com/lupoglaz/3DCNN_MQA/raw/Release/doc/CASP11Stage2_SCWRL_sFinal_funnels.png
+"CASP11Stage2_SCWRL_sFinal_funnels")
 
 ![alt text](
 https://github.com/lupoglaz/3DCNN_MQA/raw/Release/doc/kendall_validation.png
