@@ -37,7 +37,7 @@ the output data is stored. To visualize the results:
   and launch them.
 
 
-The outputs will be stored in *models/name_of_experiment*. Examples of figures you will obtains are:
+The outputs will be stored in *models/name_of_experiment*. Examples of figures you will obtain are:
 ![alt text](https://github.com/lamoureux-lab/3DCNN_MQA/raw/Release/doc/CASP11Stage2_SCWRL_sFinal_funnels.png
 "CASP11Stage2_SCWRL_sFinal_funnels")
 
