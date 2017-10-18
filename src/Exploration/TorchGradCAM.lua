@@ -104,7 +104,7 @@ cmd:text()
 cmd:text('GRAD_CAM')
 cmd:text()
 cmd:text('Options')
-cmd:option('-experiment_name','QA_uniform', 'training experiment name')
+cmd:option('-experiment_name','QA', 'training experiment name')
 cmd:option('-training_model_name','ranking_model_8', 'cnn model name during training')
 cmd:option('-training_dataset_name','CASP_SCWRL', 'training dataset name')
 

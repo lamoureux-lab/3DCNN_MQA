@@ -4,7 +4,6 @@ import numpy as np
 from plotTrainingProcess import read_dataset_description, read_epoch_output, plotFunnels
 
 from matplotlib import pylab as plt
-from proteinProperties import getPDBBoundingBox
 import cPickle as pkl
 import operator
 
@@ -233,12 +232,12 @@ def plot_test_results(	experiment_name = 'QA',
 	
 if __name__=='__main__':
 	
-	plot_test_results(	experiment_name = 'QA_uniform',
+	plot_test_results(	experiment_name = 'QA',
 						model_name = 'ranking_model_8',
 						trainig_dataset_name = 'CASP_SCWRL',
-						test_dataset_name = 'CASP11Stage1_SCWRL',
+						test_dataset_name = 'CASP11Stage2_SCWRL',
 						# test_dataset_name = 'CASP_SCWRL',
 						test_dataset_subset = 'datasetDescription.dat',
 						decoy_ranging_column = 'gdt-ts',
 						suffix = '_sFinal',
-						datasets_path = '/home/lupoglaz/ProteinsDataset')
+						datasets_path = '/home/lupoglaz/TMP_DATASETS')

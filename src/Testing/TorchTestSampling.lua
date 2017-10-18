@@ -71,6 +71,7 @@ cmd:option('-test_dataset_name','CASP11Stage1_SCWRL', 'test dataset name')
 cmd:option('-test_dataset_subset','datasetDescription.dat', 'test dataset subset')
 cmd:option('-sample_num_batches', 10, 'num batches to sample')
 
+cmd:option('-epoch', 66, 'model epoch to load')
 cmd:option('-datasets_dir', '/home/lupoglaz/ProteinsDataset/', 'Directory with the datasets')
 
 cmd:text()
@@ -85,25 +86,28 @@ local input_size = {	model.input_options.num_channels, model.input_options.input
 local test_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, true, true, model.input_options.resolution)
 test_dataset:load_dataset(params.datasets_dir..params.test_dataset_name..'/Description', params.test_dataset_subset, 'tm-score')
 local test_logger = cSamplingLogger.new(params.experiment_name, params.training_model_name, params.training_dataset_name, 
-										params.test_dataset_name..'_sFinal')
+										params.test_dataset_name)
 
 --Get the last model
 local model_backup_dir = test_logger.global_dir..'models/'
 local start_epoch = 1
-for i=40, 1, -1 do 
-	local epoch_model_backup_dir = model_backup_dir..'epoch'..tostring(i)
-	if file_exists(epoch_model_backup_dir) then 
-		model:load_model(epoch_model_backup_dir)
-		print('Loading model from epoch ',i)
-		start_epoch = i + 1
-		break
-	end
+
+local epoch_model_backup_dir = model_backup_dir..'epoch'..tostring(params.epoch)
+if file_exists(epoch_model_backup_dir) then 
+
+    model:load_model(epoch_model_backup_dir)
+    print('Loading model from epoch ', params.epoch, ' Dir: ', epoch_model_backup_dir)
+
+    model:initialize_cuda(1)
+    math.randomseed( 42 )
+
+    test_logger:allocate_sampling_epoch(test_dataset)
+    test(test_dataset, model, test_logger, adamConfig, params.sample_num_batches)
+    test_logger:save_epoch(0)
+
+else
+    print('Cant load model from epoch ', params.epoch, ' Dir: ', epoch_model_backup_dir)
 end
 
-model:initialize_cuda(1)
-math.randomseed( 42 )
 
-test_logger:allocate_sampling_epoch(test_dataset)
-test(test_dataset, model, test_logger, adamConfig, params.sample_num_batches)
-test_logger:save_epoch(0)
 

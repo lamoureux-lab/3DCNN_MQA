@@ -19,7 +19,7 @@ function cTrainingLogger.new(experiment_name, model_name, dataset_name, log_name
 	return self
 end
 function cTrainingLogger.init_dirs(self, experiment_name, model_name, dataset_name, log_name)
-	self.global_dir = '../../models/'..experiment_name..'_'..model_name..'_'..dataset_name..'/'
+	self.global_dir = '/media/lupoglaz/3DCNN_MAQ_models/'..experiment_name..'_'..model_name..'_'..dataset_name..'/'
 	os.execute("mkdir " .. self.global_dir)
 	self.dir = self.global_dir..log_name..'/'
 	os.execute("mkdir " .. self.dir)

@@ -9,9 +9,10 @@ import pymol
 pymol.finish_launching()
 
 #parameters
-DATASETS_PATH = '/media/lupoglaz/ProteinsDataset/' #slash in the end required
+DATASETS_PATH = '/home/lupoglaz/TMP_DATASETS/' #slash in the end required
 DATASET_NAME = 'CASP11Stage2_SCWRL'
 DATASET_DESCRIPTION = os.path.join(DATASETS_PATH, DATASET_NAME, 'Description')
+EXPERIMENT_NAME = 'QA'
 
 def read_dataset_description(dataset_description_dir, dataset_description_filename, decoy_ranging = 'gdt-ts'):
 	description_path= os.path.join(dataset_description_dir,dataset_description_filename)
@@ -81,7 +82,8 @@ def get_scores(target = 'T0776', decoy = 'BAKER-ROSETTASERVER_TS3', num_samples 
 	return scores
 
 def get_B_factors(target = 'T0776', decoy = 'BAKER-ROSETTASERVER_TS3', num_samples = 30):
-	os.system('th TorchGradCAM.lua -test_datasets_path %s -test_dataset_name %s -target %s -decoy %s -num_samples %s'%(DATASETS_PATH, DATASET_NAME, target, decoy, num_samples))
+	os.system('th TorchGradCAM.lua -experiment_name %s \
+	-test_datasets_path %s -test_dataset_name %s -target %s -decoy %s -num_samples %s'%(EXPERIMENT_NAME, DATASETS_PATH, DATASET_NAME, target, decoy, num_samples))
 
 def process_structure(target, decoys = []):
 	
@@ -141,8 +143,8 @@ if __name__=='__main__':
 	except:
 		pass
 
-	generate = False
-	process = False
+	generate = True
+	process = True
 	make_table = True
 
 	proteins, decoys = read_dataset_description(DATASET_DESCRIPTION, 'datasetDescription.dat')

@@ -173,11 +173,11 @@ local batchRankingLoss = cBatchRankingLoss.new(params.gap_weight, params.tm_scor
 
 --Initializing datasets
 local training_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, true, true, model.input_options.resolution)
-training_dataset:load_dataset(params.datasets_dir..params.dataset_name..'/DescriptionClean','training_set.dat', params.decoys_ranking_mode)
+training_dataset:load_dataset(params.datasets_dir..params.dataset_name..'/Description','training_set.dat', params.decoys_ranking_mode)
 local training_logger = cTrainingLogger.new(params.experiment_name, modelName, params.dataset_name, 'training')
 
 local validation_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, false, false, model.input_options.resolution)
-validation_dataset:load_dataset(params.datasets_dir..params.dataset_name..'/DescriptionClean','validation_set.dat')
+validation_dataset:load_dataset(params.datasets_dir..params.dataset_name..'/Description','validation_set.dat')
 local validation_logger = cTrainingLogger.new(params.experiment_name, modelName, params.dataset_name, 'validation')
 
 local model_backup_dir = training_logger.global_dir..'models/'
