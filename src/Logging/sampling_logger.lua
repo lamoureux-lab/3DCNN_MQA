@@ -13,10 +13,10 @@ requireRel('../Library/DataProcessing/utils.lua')
 cSamplingLogger = {}
 setmetatable( cSamplingLogger, {__index=cTrainingLogger})
 
-function cSamplingLogger.new(experiment_name, model_name, dataset_name, log_name)
+function cSamplingLogger.new(models_dir, experiment_name, model_name, dataset_name, log_name)
 	local self = {}
 	setmetatable(self, {__index = cSamplingLogger})
-	self:init_dirs(experiment_name, model_name, dataset_name, log_name)
+	self:init_dirs(models_dir, experiment_name, model_name, dataset_name, log_name)
 	return self
 end
 

@@ -13,13 +13,13 @@ requireRel('../Library/DataProcessing/utils.lua')
 cTrainingLogger = {}
 cTrainingLogger.__index = cTrainingLogger
 
-function cTrainingLogger.new(experiment_name, model_name, dataset_name, log_name)
+function cTrainingLogger.new(models_dir, experiment_name, model_name, dataset_name, log_name)
 	local self = setmetatable({}, cTrainingLogger)
-	self:init_dirs(experiment_name, model_name, dataset_name, log_name)
+	self:init_dirs(models_dir, experiment_name, model_name, dataset_name, log_name)
 	return self
 end
-function cTrainingLogger.init_dirs(self, experiment_name, model_name, dataset_name, log_name)
-	self.global_dir = '/media/lupoglaz/3DCNN_MAQ_models/'..experiment_name..'_'..model_name..'_'..dataset_name..'/'
+function cTrainingLogger.init_dirs(self, models_dir, experiment_name, model_name, dataset_name, log_name)
+	self.global_dir = models_dir..experiment_name..'_'..model_name..'_'..dataset_name..'/'
 	os.execute("mkdir " .. self.global_dir)
 	self.dir = self.global_dir..log_name..'/'
 	os.execute("mkdir " .. self.dir)

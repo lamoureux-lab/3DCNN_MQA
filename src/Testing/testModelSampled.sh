@@ -1,6 +1,7 @@
 th TorchTestSampling.lua \
 -training_model_name ranking_model_8 \
 -training_dataset_name CASP_SCWRL \
+-models_dir /media/lupoglaz/3DCNN_MAQ_models/ \
 -experiment_name QA4 \
 -epoch 66 \
 -test_model_name ranking_model_8 \
@@ -12,6 +13,7 @@ th TorchTestSampling.lua \
 th TorchTestSampling.lua \
 -training_model_name ranking_model_8 \
 -training_dataset_name CASP_SCWRL \
+-models_dir /media/lupoglaz/3DCNN_MAQ_models/ \
 -experiment_name QA4 \
 -epoch 66 \
 -test_model_name ranking_model_8 \

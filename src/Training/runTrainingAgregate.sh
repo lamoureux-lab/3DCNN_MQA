@@ -1,6 +1,7 @@
 th TorchTrainRankingHomogeniousDataset.lua \
 -model_name ranking_model_8 \
 -dataset_name CASP_SCWRL \
+-models_dir /media/lupoglaz/3DCNN_MAQ_models/ \
 -experiment_name QA4 \
 -datasets_dir /home/lupoglaz/TMP_DATASETS/ \
 -learning_rate 0.001 \

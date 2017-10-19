@@ -10,9 +10,11 @@ pymol.finish_launching()
 
 #parameters
 DATASETS_PATH = '/home/lupoglaz/TMP_DATASETS/' #slash in the end required
+MODELS_DIR = '/media/lupoglaz/3DCNN_MAQ_models/'
+EPOCH = 66
 DATASET_NAME = 'CASP11Stage2_SCWRL'
 DATASET_DESCRIPTION = os.path.join(DATASETS_PATH, DATASET_NAME, 'Description')
-EXPERIMENT_NAME = 'QA'
+EXPERIMENT_NAME = 'QA4'
 
 def read_dataset_description(dataset_description_dir, dataset_description_filename, decoy_ranging = 'gdt-ts'):
 	description_path= os.path.join(dataset_description_dir,dataset_description_filename)
@@ -82,8 +84,8 @@ def get_scores(target = 'T0776', decoy = 'BAKER-ROSETTASERVER_TS3', num_samples 
 	return scores
 
 def get_B_factors(target = 'T0776', decoy = 'BAKER-ROSETTASERVER_TS3', num_samples = 30):
-	os.system('th TorchGradCAM.lua -experiment_name %s \
-	-test_datasets_path %s -test_dataset_name %s -target %s -decoy %s -num_samples %s'%(EXPERIMENT_NAME, DATASETS_PATH, DATASET_NAME, target, decoy, num_samples))
+	os.system('th TorchGradCAM.lua -models_dir %s -epoch %d -experiment_name %s \
+	-test_datasets_path %s -test_dataset_name %s -target %s -decoy %s -num_samples %s'%(MODELS_DIR, EPOCH, EXPERIMENT_NAME, DATASETS_PATH, DATASET_NAME, target, decoy, num_samples))
 
 def process_structure(target, decoys = []):
 	

@@ -176,7 +176,8 @@ def plot_test_results(	experiment_name = 'QA',
 						suffix = '',
 						descending=True,
 						best_worst=False,
-						datasets_path = '/home/lupoglaz/ProteinsDataset'):
+						datasets_path = '/home/lupoglaz/ProteinsDataset',
+						models_dir = '/media/lupoglaz/3DCNN_MAQ_models'):
 	"""
 	Outputs:
 	pearson, spearman, kendall correlations 
@@ -188,10 +189,10 @@ def plot_test_results(	experiment_name = 'QA',
 	proteins, decoys = read_dataset_description(os.path.join(datasets_path, test_dataset_name, 'Description'),
 												test_dataset_subset, decoy_ranging=decoy_ranging_column)
 	if (not model_name is None) and (not trainig_dataset_name is None):
-		input_path = '../../models/%s_%s_%s/%s/epoch_0.dat'%(	experiment_name, model_name, trainig_dataset_name,
+		input_path = '%s/%s_%s_%s/%s/epoch_0.dat'%(models_dir, experiment_name, model_name, trainig_dataset_name,
 																test_dataset_name+suffix)
 	else:
-		input_path = '../../models/%s/%s/epoch_0.dat'%(	experiment_name, test_dataset_name+suffix)
+		input_path = '%s/models/%s/%s/epoch_0.dat'%(models_dir, experiment_name, test_dataset_name+suffix)
 
 	loss_function_values, decoys_scores = read_epoch_output(input_path)
 	print 'Num targets = ', len(proteins)
@@ -215,9 +216,9 @@ def plot_test_results(	experiment_name = 'QA',
 	print 'Loss:',loss
 	
 	if (not model_name is None) and (not trainig_dataset_name is None):
-		output_path = '../../models/%s_%s_%s/%s_funnels.png'%(experiment_name, model_name, trainig_dataset_name, test_dataset_name+suffix)
+		output_path = '%s/%s_%s_%s/%s_funnels.png'%(models_dir, experiment_name, model_name, trainig_dataset_name, test_dataset_name+suffix)
 	else:
-		output_path = '../../models/%s/%s_funnels.png'%(	experiment_name, test_dataset_name+suffix)
+		output_path = '%s/%s/%s_funnels.png'%(models_dir, experiment_name, test_dataset_name+suffix)
 	if best_worst:
 		from collections import OrderedDict
 		correlations_all = get_correlations(proteins, decoys, decoys_scores, subset, return_all=True)
@@ -232,12 +233,10 @@ def plot_test_results(	experiment_name = 'QA',
 	
 if __name__=='__main__':
 	
-	plot_test_results(	experiment_name = 'QA',
+	plot_test_results(	experiment_name = 'QA4',
 						model_name = 'ranking_model_8',
 						trainig_dataset_name = 'CASP_SCWRL',
 						test_dataset_name = 'CASP11Stage2_SCWRL',
-						# test_dataset_name = 'CASP_SCWRL',
 						test_dataset_subset = 'datasetDescription.dat',
 						decoy_ranging_column = 'gdt-ts',
-						suffix = '_sFinal',
 						datasets_path = '/home/lupoglaz/TMP_DATASETS')

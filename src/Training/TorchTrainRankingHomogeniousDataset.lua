@@ -130,6 +130,7 @@ cmd:text('Options')
 cmd:option('-model_name','ranking_model_8', 'cnn model name')
 cmd:option('-dataset_name','CASP_SCWRL', 'dataset name')
 cmd:option('-datasets_dir','/home/lupoglaz/TMP_DATASETS/', 'Directory containing all the datasets. Should end with /')
+cmd:option('-models_dir','/media/lupoglaz/3DCNN_MAQ_models/', 'Directory with the saved models and results')
 cmd:option('-experiment_name','QA', 'experiment name')
 
 cmd:option('-learning_rate', 0.0003, 'adam optimizer learning rate')
@@ -174,11 +175,11 @@ local batchRankingLoss = cBatchRankingLoss.new(params.gap_weight, params.tm_scor
 --Initializing datasets
 local training_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, true, true, model.input_options.resolution)
 training_dataset:load_dataset(params.datasets_dir..params.dataset_name..'/Description','training_set.dat', params.decoys_ranking_mode)
-local training_logger = cTrainingLogger.new(params.experiment_name, modelName, params.dataset_name, 'training')
+local training_logger = cTrainingLogger.new(params.models_dir, params.experiment_name, modelName, params.dataset_name, 'training')
 
 local validation_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, false, false, model.input_options.resolution)
 validation_dataset:load_dataset(params.datasets_dir..params.dataset_name..'/Description','validation_set.dat')
-local validation_logger = cTrainingLogger.new(params.experiment_name, modelName, params.dataset_name, 'validation')
+local validation_logger = cTrainingLogger.new(params.models_dir, params.experiment_name, modelName, params.dataset_name, 'validation')
 
 local model_backup_dir = training_logger.global_dir..'models/'
 os.execute("mkdir " .. model_backup_dir)

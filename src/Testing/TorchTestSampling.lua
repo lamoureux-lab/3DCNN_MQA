@@ -65,6 +65,7 @@ cmd:text('Options')
 cmd:option('-experiment_name','QA_uniform', 'training experiment name')
 cmd:option('-training_model_name','ranking_model_8', 'cnn model name during training')
 cmd:option('-training_dataset_name','CASP_SCWRL', 'training dataset name')
+cmd:option('-models_dir','/media/lupoglaz/3DCNN_MAQ_models/', 'Directory with the saved models and results')
 
 cmd:option('-test_model_name','ranking_model_8', 'cnn model name during testing')
 cmd:option('-test_dataset_name','CASP11Stage1_SCWRL', 'test dataset name')
@@ -85,7 +86,7 @@ local input_size = {	model.input_options.num_channels, model.input_options.input
 
 local test_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, true, true, model.input_options.resolution)
 test_dataset:load_dataset(params.datasets_dir..params.test_dataset_name..'/Description', params.test_dataset_subset, 'tm-score')
-local test_logger = cSamplingLogger.new(params.experiment_name, params.training_model_name, params.training_dataset_name, 
+local test_logger = cSamplingLogger.new(params.models_dir, params.experiment_name, params.training_model_name, params.training_dataset_name, 
 										params.test_dataset_name)
 
 --Get the last model

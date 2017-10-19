@@ -107,8 +107,9 @@ cmd:text('Options')
 cmd:option('-experiment_name','QA', 'training experiment name')
 cmd:option('-training_model_name','ranking_model_8', 'cnn model name during training')
 cmd:option('-training_dataset_name','CASP_SCWRL', 'training dataset name')
-
+cmd:option('-models_dir','/media/lupoglaz/3DCNN_MAQ_models/', 'Directory with the saved models and results')
 cmd:option('-test_model_name','ranking_model_8', 'cnn model name during testing')
+cmd:option('-epoch', 66, 'model epoch to load')
 cmd:option('-test_datasets_path','/media/lupoglaz/ProteinsDataset/', 'test dataset name')
 cmd:option('-test_dataset_name','CASP11Stage2_SCWRL', 'test dataset name')
 cmd:option('-test_dataset_subset','datasetDescription.dat', 'test dataset subset')
@@ -126,21 +127,14 @@ local input_size = {	model.input_options.num_channels, model.input_options.input
 
 local test_dataset = cDatasetHomo.new(optimization_parameters.batch_size, input_size, false, false, model.input_options.resolution)
 test_dataset:load_dataset(params.test_datasets_path..params.test_dataset_name..'/Description', params.test_dataset_subset, 'tm-score')
-local test_logger = cSamplingLogger.new(params.experiment_name, params.training_model_name, params.training_dataset_name, 
+local test_logger = cSamplingLogger.new(params.models_dir, params.experiment_name, params.training_model_name, params.training_dataset_name, 
 										params.test_dataset_name..'_sampling')
 
 --Get the last model
 local model_backup_dir = test_logger.global_dir..'models/'
-local start_epoch = 1
-for i=40, 1, -1 do 
-	local epoch_model_backup_dir = model_backup_dir..'epoch'..tostring(i)
-	if file_exists(epoch_model_backup_dir) then 
-		model:load_model(epoch_model_backup_dir)
-		print('Loading model from epoch ',i)
-		start_epoch = i + 1
-		break
-	end
-end
+local epoch_model_backup_dir = model_backup_dir..'epoch'..tostring(params.epoch)
+print('Loading model from epoch ', params.epoch, ' Dir: ', epoch_model_backup_dir)
+model:load_model(epoch_model_backup_dir)
 
 
 

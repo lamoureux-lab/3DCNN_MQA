@@ -20,7 +20,7 @@ changes location of the datasets in the description files.
 ## Training and Test
 
 1. Launch training. The training takes approximatelly 2-3 days on TitanX Maxwell.
-  * create directory *models* in the root of the repository
+  * create directory *models* in the root of the repository (or somwhere else) and set *-models_dir* parameter everywhere accordingly
   * cd src/Training
   * change the *datasets_dir* parameter in the script *runTrainingAgregate.sh*
   and launch it
@@ -36,6 +36,14 @@ the output data is stored. To visualize the results:
   * change the *datasets_path* parameters in the scripts *plotTrainingProcess.py* and *plotTestResults.py*
   and launch them.
 
+The script output should look like this:
+```
+Last validation result QA4:  -0.364180809477 -0.639459024499 0.0843657142857
+Epoch 66 -0.403769280154 -0.676949232063 0.0836771428571
+Epoch 42 -0.394173258982 -0.680343481073 0.112994285714
+Epoch 22 -0.383505056489 -0.6535814553 0.0762371428571
+...
+```
 
 The outputs will be stored in *models/name_of_experiment*. Examples of figures you will obtain are:
 <table style="width:100%">
@@ -52,7 +60,6 @@ The outputs will be stored in *models/name_of_experiment*. Examples of figures y
     </th>
   </tr>
 </table>
-
 
 The script *plotTestResults.py* also outputs the performance measures on the 
 test sets. Example output:
@@ -71,6 +78,8 @@ Kendall =  -0.325462616687
 Z-score: -1.2194271292
 Loss: 0.0639580246914
 ```
+
+The scipts *plotTestResults.py* and *plotTrainingProcess.py* also have the parameter *models_dir*, pointing to the directory with the saved experiments.
 
 ## Pretrained model
 You can download [pretrained model](http://proteinfoldingproject.com/static/datasets/models.tar.gz) as well as the output of RWPlus, ProQ# and VoroMQA algorithms.

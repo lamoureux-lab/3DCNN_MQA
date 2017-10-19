@@ -204,13 +204,14 @@ def get_average_loss(proteins, decoys, decoys_scores, subset=None, return_all=Fa
 
 def plot_validation_funnels(experiment_name, model_name, dataset_name, epoch_start=0, epoch_end=200,
 							description_dirname = 'Description',
-							datasets_path = '/home/lupoglaz/ProteinsDataset'):
+							datasets_path = '/home/lupoglaz/ProteinsDataset',
+							models_dir = '/media/lupoglaz/3DCNN_MAQ_models'):
 	proteins, decoys = read_dataset_description(os.path.join(datasets_path, dataset_name, description_dirname), 'validation_set.dat')
 	
 	for epoch in range(epoch_start, epoch_end+1):
 		#print 'Loading scoring ',epoch
-		input_path = '/media/lupoglaz/3DCNN_MAQ_models/%s_%s_%s/validation/epoch_%d.dat'%(experiment_name, model_name, dataset_name, epoch)
-		output_path = '/media/lupoglaz/3DCNN_MAQ_models/%s_%s_%s/epoch%d_funnels.png'%(experiment_name, model_name, dataset_name, epoch)
+		input_path = '%s/%s_%s_%s/validation/epoch_%d.dat'%(models_dir,experiment_name, model_name, dataset_name, epoch)
+		output_path = '%s/%s_%s_%s/epoch%d_funnels.png'%(models_dir,experiment_name, model_name, dataset_name, epoch)
 		if os.path.exists(input_path) and (not os.path.exists(output_path)):
 			loss_function_values, decoys_scores = read_epoch_output(input_path)
 			print 'Plotting funnels ',epoch
@@ -221,7 +222,8 @@ def plot_validation_correlations(	experiment_name, model_name, dataset_name, epo
 									data_subset = 'validation_set.dat',
 									scores_dir = 'validation',
 									output_name = 'kendall_validation',
-									datasets_path = '/home/lupoglaz/ProteinsDataset'):
+									datasets_path = '/home/lupoglaz/ProteinsDataset',
+									models_dir = '/media/lupoglaz/3DCNN_MAQ_models'):
 	proteins, decoys = read_dataset_description(os.path.join(datasets_path, dataset_name, description_dirname), data_subset)
 	epochs = [0]
 	taus = [0]
@@ -229,7 +231,7 @@ def plot_validation_correlations(	experiment_name, model_name, dataset_name, epo
 	losses = [1.0]
 	for epoch in range(epoch_start, epoch_end+1):
 		#print 'Loading scoring ',epoch
-		input_path = '/media/lupoglaz/3DCNN_MAQ_models/%s_%s_%s/%s/epoch_%d.dat'%(experiment_name, model_name, dataset_name, scores_dir, epoch)
+		input_path = '%s/%s_%s_%s/%s/epoch_%d.dat'%(models_dir, experiment_name, model_name, dataset_name, scores_dir, epoch)
 		if os.path.exists(input_path):
 			loss_function_values, decoys_scores = read_epoch_output(input_path)
 			taus.append(get_kendall(proteins, decoys, decoys_scores))
@@ -245,9 +247,9 @@ def plot_validation_correlations(	experiment_name, model_name, dataset_name, epo
 	plt.plot(epochs,pearsons, '--',color = 'grey', label ='Pearson R')
 	plt.plot(epochs,losses, '-', color='black', label ='Loss')
 
-	ax.annotate('Selected model', xy=(40, losses[40]), xytext=(30, losses[40] + 0.4),
-            arrowprops=dict(facecolor='black', shrink=0.05, width=2, headwidth = 5)
-            )
+	# ax.annotate('Selected model', xy=(40, losses[40]), xytext=(30, losses[40] + 0.4),
+    #         arrowprops=dict(facecolor='black', shrink=0.05, width=2, headwidth = 5)
+    #         )
 	plt.ylabel('Validation loss and correlations',fontsize=16)
 	plt.xlabel('Epoch',fontsize=14)
 	plt.legend(prop={'size':10})
@@ -255,7 +257,6 @@ def plot_validation_correlations(	experiment_name, model_name, dataset_name, epo
 	plt.tick_params(axis='y', which='major', labelsize=10)
 	plt.tight_layout()
 	plt.savefig('/media/lupoglaz/3DCNN_MAQ_models/%s_%s_%s/%s.png'%(experiment_name, model_name, dataset_name, output_name), format='png', dpi=1200)
-	# plt.savefig('../../models/%s_%s_%s/%s.tif'%(experiment_name, model_name, dataset_name, output_name), format='tif', dpi=600)
 	return taus, pearsons, losses
 
 
@@ -265,10 +266,7 @@ if __name__=='__main__':
 	dataset_name = 'CASP_SCWRL'
 	model_name = 'ranking_model_8'
 	taus, pears, losses = plot_validation_correlations(exp_name, model_name, dataset_name, description_dirname = 'Description', datasets_path='/home/lupoglaz/TMP_DATASETS')
-	print 'Validation result %s: '%exp_name, taus[-1], pears[-1], losses[-1]
-	# taus_10 = [ t for n, t in enumerate(taus) if n%10==0]
-	# pears_10 = [ t for n, t in enumerate(pears) if n%10==0]
-	# losses_10 = [ t for n, t in enumerate(losses) if n%10==0]
+	print 'Last validation result %s: '%exp_name, taus[-1], pears[-1], losses[-1]
 	candidate_epochs = [np.argmin(taus), np.argmin(pears), np.argmin(losses)]
 	for epoch in candidate_epochs:
 		print 'Epoch %d'%(epoch), taus[epoch], pears[epoch], losses[epoch]
