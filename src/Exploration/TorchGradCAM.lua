@@ -116,6 +116,7 @@ cmd:option('-test_dataset_subset','datasetDescription.dat', 'test dataset subset
 cmd:option('-target', 'T0776', 'Target name')
 cmd:option('-decoy', 'BAKER-ROSETTASERVER_TS3', 'Decoy name')
 cmd:option('-num_samples', 30, 'Number of samples to take')
+cmd:option('-output_dir', 'GradCAM', 'Directory where the output is stored')
 cmd:text()
 
 params = cmd:parse(arg)
@@ -217,9 +218,9 @@ function outputLocalQualityMap(decoy_path, model, cnn_gb, output_path, dens, gra
 end
 
 
-lfs.mkdir(string.format("GradCAM/%s", params.target))
+lfs.mkdir(string.format("%s/%s", params.output_dir, params.target))
 for i=1, params.num_samples do
     outputLocalQualityMap(  string.format(params.test_datasets_path..params.test_dataset_name..'/%s/%s', params.target, params.decoy),
                             model, cnn_gb, 
-                            string.format("GradCAM/%s/rs%d_%s.pdb",params.target,i,params.decoy), 0, 0)
+                            string.format("%s/%s/rs%d_%s.pdb",params.output_dir,params.target,i,params.decoy), 0, 0)
 end

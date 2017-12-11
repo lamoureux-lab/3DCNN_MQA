@@ -166,6 +166,53 @@ def plotFunnelsSpecial(proteins, correlations, decoys, decoys_scores, outputFile
 	outputFile = outputFile[:outputFile.rfind('.')]+'.png'
 	plt.savefig(outputFile, format='png', dpi=1200)
 
+def plotFunnelsStd(proteins, decoys, decoys_scores, outputFile):
+	from matplotlib import pylab as plt
+	import numpy as np
+	fig = plt.figure(figsize=(12,12))
+
+	N = len(proteins)
+	sqrt_n = int(np.sqrt(N))
+	if N==sqrt_n*sqrt_n:
+		nrows = int(np.sqrt(N))
+		ncols = int(N/nrows)	
+	else:
+		nrows = int(np.sqrt(N))+1
+		ncols = int(N/nrows)
+	if nrows*ncols<N: ncols+=1
+
+	from mpl_toolkits.axes_grid1 import Grid
+	grid = Grid(fig, rect=111, nrows_ncols=(nrows,ncols),
+	            axes_pad=0.25, label_mode='L',share_x=False,share_y=False)
+	
+	num_proteins = [ (s,int(s[1:])) for s in proteins]
+	num_proteins = sorted(num_proteins, key=lambda x: x[1])
+	proteins, num_proteins = zip(*num_proteins)
+	
+	for n,protein in enumerate(proteins):
+		tmscores = []
+		scores = []
+		stds = []
+		for decoy in decoys[protein]:
+			tmscores.append(decoy[1])
+			scores.append(decoys_scores[protein][decoy[0]][0])
+			stds.append(decoys_scores[protein][decoy[0]][1])
+			
+		grid[n].errorbar(tmscores,scores,yerr=stds,fmt='.', ecolor='r')
+		
+		plt.xlim(-0.1, max(tmscores)+0.1)
+		plt.ylim(min(scores)-1, max(scores)+1)
+		
+		grid[n].set_title(protein)
+	
+	#plt.tight_layout()
+	# plt.savefig(outputFile)
+	# plt.tick_params(axis='both', which='minor', labelsize=8)
+	# plt.savefig(outputFile, format='png', dpi=600)
+	plt.tight_layout()
+	plt.savefig(outputFile, format='png', dpi=600)
+
+
 def plot_test_results(	experiment_name = 'QA',
 						model_name = 'ranking_model_11atomTypes',
 						trainig_dataset_name = 'CASP',
@@ -229,14 +276,17 @@ def plot_test_results(	experiment_name = 'QA',
 		selected_proteins = best+worst
 		plotFunnelsSpecial(selected_proteins, correlations_all, decoys, decoys_scores, output_path)
 	else:
-		plotFunnels(included_proteins, decoys, decoys_scores, output_path)
+		loss_function_values, decoys_scores = read_epoch_output(input_path, average=True, std=True)
+		plotFunnelsStd(included_proteins, decoys, decoys_scores, output_path)
 	
 if __name__=='__main__':
 	
-	plot_test_results(	experiment_name = 'QA4',
+	plot_test_results(	experiment_name = 'QA_uniform',
 						model_name = 'ranking_model_8',
 						trainig_dataset_name = 'CASP_SCWRL',
-						test_dataset_name = 'CASP11Stage2_SCWRL',
+						test_dataset_name = 'CASP11Stage1_SCWRL',
 						test_dataset_subset = 'datasetDescription.dat',
 						decoy_ranging_column = 'gdt-ts',
-						datasets_path = '/home/lupoglaz/TMP_DATASETS')
+						datasets_path = '/home/lupoglaz/ProteinsDataset',
+						suffix = '_sFinal',
+						models_dir='/home/lupoglaz/Projects/MILA/deep_folder/models')

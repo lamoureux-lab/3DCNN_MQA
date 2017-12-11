@@ -36,7 +36,7 @@ def read_dataset_description(dataset_description_dir, dataset_description_filena
 		fin.close()
 	return proteins, decoys
 
-def read_epoch_output(filename, average = True):
+def read_epoch_output(filename, average = True, std = False):
 	loss_function_values = []
 	decoys_scores = {}
 	f = open(filename, 'r')
@@ -62,7 +62,10 @@ def read_epoch_output(filename, average = True):
 		for proteinName in decoys_scores.keys():
 			output_decoys_scores[proteinName] = {}
 			for decoy_path in decoys_scores[proteinName]:
-				output_decoys_scores[proteinName][decoy_path] = np.average(decoys_scores[proteinName][decoy_path])
+				if not std:
+					output_decoys_scores[proteinName][decoy_path] = np.average(decoys_scores[proteinName][decoy_path])
+				else:
+					output_decoys_scores[proteinName][decoy_path] = (np.average(decoys_scores[proteinName][decoy_path]), np.std(decoys_scores[proteinName][decoy_path]))
 	else:
 		output_decoys_scores = decoys_scores
 	
