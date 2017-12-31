@@ -150,16 +150,18 @@ def get_average_B_factors(target = 'T0776', decoy = 'BAKER-ROSETTASERVER_TS3', n
 def get_correlation(target, decoy):
 	path_decoy = '/media/lupoglaz/ProteinsDataset/CASP11Stage2_SCWRL/%s/%s'%(target, decoy)
 	path_native = '/media/lupoglaz/ProteinsDataset/CASP11Stage2_SCWRL/%s/%s.pdb'%(target, target)
-	run_TMAlign_superimpose( (path_decoy, path_native, 'tmp.dat'))
-	distances = process_output('tmp.dat')
-
+	
 	# get_B_factors(target = target, decoy = decoy, num_samples = 30)
 	bfactors = get_average_B_factors(target = target, decoy = decoy, num_samples = 30)
+
+	rmsd_raw_file = 'RMSDvsGradCAM/%s/%s_rmsd.dat'%(target, decoy)
+	# run_TMAlign_superimpose( (path_decoy, path_native, rmsd_raw_file))
+	distances = process_output(rmsd_raw_file)
 
 	corr_x = []
 	corr_y = []
 	for i in range(min(bfactors.keys()[0],distances.keys()[0]), max(bfactors.keys()[-1],distances.keys()[-1]) + 1):
-		if i in bfactors.keys() and i in distances.keys():
+		if i in bfactors.keys() and i in distances.keys() and distances[i]<10.0:
 			corr_x.append(bfactors[i])
 			corr_y.append(distances[i])
 
@@ -172,6 +174,7 @@ if __name__=='__main__':
 	proteins, decoys = read_dataset_description(DATASET_DESCRIPTION, 'datasetDescription.dat')
 	N = 0
 	for target in proteins:
+		target = 'T0760'
 		for decoy in tqdm(decoys[target]):
 			decoy_name = decoy[0].split('/')[-1]
 			p_corr_x, p_corr_y = get_correlation(target, decoy_name)
@@ -190,10 +193,11 @@ if __name__=='__main__':
 			if not np.isnan(pearson_prot):
 				av_pearson += pearson_prot
 				N+=1
+			
 		break
 
 	# pearson_prot = stat.pearsonr(corr_x, corr_y)[0]	
 	print av_pearson/N
 	plt.scatter(corr_x, corr_y)
-	plt.show()
+	plt.savefig("corr_T0760_lr10A.png")
 	
