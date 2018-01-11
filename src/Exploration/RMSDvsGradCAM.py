@@ -195,9 +195,10 @@ if __name__=='__main__':
 				N+=1
 			
 		break
-
+	from matplotlib.colors import LogNorm
 	# pearson_prot = stat.pearsonr(corr_x, corr_y)[0]	
 	print av_pearson/N
-	plt.scatter(corr_x, corr_y)
+	plt.hist2d(corr_x, corr_y, bins=100, range=np.array([(0.1, 5), (0, 10)]), norm=LogNorm())
+	plt.colorbar()
 	plt.savefig("corr_T0760_lr10A.png")
 	
