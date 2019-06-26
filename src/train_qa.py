@@ -3,16 +3,16 @@ import sys
 import torch
 import argparse
 from Training import QATrainer
-from Dataset import get_seq_stream, get_homo_stream
-from Models import DeepQAModel
+from Dataset import get_sequential_stream, get_balanced_stream
+from Models import DeepQAModel, BatchRankingLoss
 from tqdm import tqdm
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-from src import LOG_DIR_QA, MODELS_DIR_QA, DATA_DIR_QA
+from src import LOG_DIR, MODELS_DIR, DATA_DIR
 
 if __name__=='__main__':
 	parser = argparse.ArgumentParser(description='Train deep qa')	
-	parser.add_argument('-experiment', default='QA', help='Experiment name')
+	parser.add_argument('-experiment', default='Debug', help='Experiment name')
 	parser.add_argument('-dataset', default='CASP_SCWRL', help='Dataset name')
 	
 	parser.add_argument('-lr', default=0.001 , help='Learning rate', type=float)
@@ -25,9 +25,9 @@ if __name__=='__main__':
 	args = parser.parse_args()
 
 	torch.cuda.set_device(0)
-	data_dir = os.path.join(DATA_DIR_QA, args.dataset)
-	stream_train = get_homo_stream(data_dir, subset='training_set.dat', batch_size=10, shuffle=True)
-	stream_valid = get_seq_stream(data_dir, subset='validation_set.dat', batch_size=10, shuffle=False)
+	data_dir = os.path.join(DATA_DIR, args.dataset)
+	stream_train = get_balanced_stream(data_dir, subset='training_set.dat', batch_size=10, shuffle=True)
+	stream_valid = get_sequential_stream(data_dir, subset='validation_set.dat', batch_size=10, shuffle=False)
 
 	
 	model = DeepQAModel().cuda()
@@ -35,8 +35,8 @@ if __name__=='__main__':
 
 	trainer = QATrainer(lr = args.lr, weight_decay=args.wd, lr_decay=args.lrd, batch_size=10, dataset_name=args.dataset)
 
-	EXP_DIR = os.path.join(LOG_DIR_QA, args.experiment)
-	MDL_DIR = os.path.join(MODELS_DIR_QA, args.experiment)
+	EXP_DIR = os.path.join(LOG_DIR, args.experiment)
+	MDL_DIR = os.path.join(MODELS_DIR, args.experiment)
 	try:
 		os.mkdir(EXP_DIR)
 	except:
@@ -55,9 +55,9 @@ if __name__=='__main__':
 			av_loss += loss
 		
 		av_loss/=len(stream_train)
-		print 'Loss training = ', av_loss
+		print('Loss training = ', av_loss)
 		
-		trainer.save_models(epoch, MDL_DIR)
+		model.save(epoch, MDL_DIR)
 		
 		trainer.new_log(os.path.join(EXP_DIR,"validation_epoch%d.dat"%epoch))
 		av_loss = 0.0
@@ -67,7 +67,7 @@ if __name__=='__main__':
 			av_loss += loss
 		
 		av_loss/=len(stream_valid)
-		print 'Loss validation = ', av_loss
+		print('Loss validation = ', av_loss)
 
 
 		

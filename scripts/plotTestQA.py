@@ -9,7 +9,7 @@ from utils import read_dataset_description, plotFunnels, get_kendall, get_pearso
 from plotTrainingQA import read_epoch_output
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-from src import LOG_DIR_QA, RESULTS_DIR, DATA_DIR_QA
+from src import LOG_DIR, RESULTS_DIR, DATA_DIR
 
 
 def get_correlations(	experiment_name = 'QA2',
@@ -18,8 +18,8 @@ def get_correlations(	experiment_name = 'QA2',
 						dataset_subset = 'validation_set.dat',
 						name_prefix = 'validation_epoch'
 					):
-	proteins, decoys = read_dataset_description(os.path.join(DATA_DIR_QA, dataset_name, dataset_description_dir), dataset_subset)
-	input_path = os.path.join(LOG_DIR_QA, experiment_name, name_prefix)
+	proteins, decoys = read_dataset_description(os.path.join(DATA_DIR, dataset_name, dataset_description_dir), dataset_subset)
+	input_path = os.path.join(LOG_DIR, experiment_name, name_prefix)
 	if not os.path.exists(input_path):
 		raise(Exception("File not found", input_path))
 	

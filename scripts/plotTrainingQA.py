@@ -8,7 +8,7 @@ sea.set_style("whitegrid")
 from utils import plotFunnels, get_kendall, get_pearson, get_average_loss
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-from src import LOG_DIR_QA, RESULTS_DIR, DATA_DIR_QA
+from src import LOG_DIR, RESULTS_DIR, DATA_DIR
 
 from utils import read_dataset_description, plotFunnels, get_kendall, get_pearson, get_average_loss
 
@@ -51,10 +51,10 @@ def plot_funnels(	dataset_name = 'CASP',
 					epoch_range = (0, 1),
 					name_prefix = 'validation_epoch'
 				):
-	proteins, decoys = read_dataset_description(os.path.join(DATA_DIR_QA, dataset_name, dataset_description_dir), dataset_subset)
+	proteins, decoys = read_dataset_description(os.path.join(DATA_DIR, dataset_name, dataset_description_dir), dataset_subset)
 	
 	for epoch in range(epoch_range[0], epoch_range[1]):
-		input_path = os.path.join(LOG_DIR_QA, name_prefix+'%d.dat'%epoch)
+		input_path = os.path.join(LOG_DIR, name_prefix+'%d.dat'%epoch)
 		output_path = os.path.join(RESULTS_DIR, 'epoch%d_funnels.png'%epoch)
 		if os.path.exists(input_path) and (not os.path.exists(output_path)):
 			decoys_scores = read_epoch_output(input_path)
@@ -68,7 +68,7 @@ def plot_correlations(	experiment_name = 'QA2',
 						epoch_range = (0, 1),
 						name_prefix = 'validation_epoch'
 					):
-	proteins, decoys = read_dataset_description(os.path.join(DATA_DIR_QA, dataset_name, dataset_description_dir), dataset_subset)
+	proteins, decoys = read_dataset_description(os.path.join(DATA_DIR, dataset_name, dataset_description_dir), dataset_subset)
 	
 	epochs = [0]
 	taus = [-0.0089]
@@ -76,7 +76,7 @@ def plot_correlations(	experiment_name = 'QA2',
 	losses = [0.39333]
 	for epoch in range(epoch_range[0], epoch_range[1]):
 		
-		input_path = os.path.join(LOG_DIR_QA, experiment_name, name_prefix+'%d.dat'%epoch)
+		input_path = os.path.join(LOG_DIR, experiment_name, name_prefix+'%d.dat'%epoch)
 		if os.path.exists(input_path):
 			decoys_scores = read_epoch_output(input_path)
 			taus.append(get_kendall(proteins, decoys, decoys_scores))

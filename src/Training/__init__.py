@@ -1,2 +1,1 @@
-from QATrainer import QATrainer
-from LocalQATrainer import LocalQATrainer
+from .QATrainer import QATrainer

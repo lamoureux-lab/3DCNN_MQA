@@ -124,3 +124,10 @@ class DeepQAModel(nn.Module):
 				module._parameters['weight'].data.copy_(weights)
 				module._parameters['bias'].data.copy_(bias)
 				print n, name, torch.sum(weights), torch.sum(bias)
+
+
+	def save(self, epoch, directory):
+		torch.save(self.state_dict(), os.path.join(directory, 'DeepQAModel_epoch%d.th'%epoch))
+	
+	def load(self, epoch, directory):
+		self.load_state_dict(torch.load(os.path.join(directory, 'DeepQAModel_epoch%d.th'%epoch)))
