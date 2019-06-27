@@ -4,26 +4,38 @@ import torch
 import torch.optim as optim
 import atexit
 from torch.optim.lr_scheduler import LambdaLR
-from TorchProteinLibrary.Volume import PDB2Volume
-from TorchProteinLibrary.FullAtomModel import PDB2Coords, Coords2CenteredCoords, Coords2TypedCoords, TypedCoords2Volume
+from TorchProteinLibrary.Volume import TypedCoords2Volume
+from TorchProteinLibrary.FullAtomModel import PDB2CoordsUnordered, Coords2TypedCoords
+from TorchProteinLibrary.FullAtomModel import getRandomRotation, getRandomTranslation, CoordsRotate, CoordsTranslate, getBBox
 
 
 class QATrainer:
-	def __init__(self, model, loss, lr=0.001, weight_decay=0.0, lr_decay=0.0001, batch_size=10):
+	def __init__(self, model, loss, 
+					lr=0.001, weight_decay=0.0, lr_decay=0.0001, 
+					resolution=1.0, box_size=120, projection='gauss',
+					rnd_rotate=True, rnd_translate=True):		
+		self.model = model.to(device='cuda')
+		self.loss = loss.to(device='cuda')
+
 		self.wd = weight_decay
 		self.lr = lr
 		self.lr_decay = lr_decay
-		self.batch_size = batch_size
-		self.model = model
-		self.loss = loss
+
 		self.optimizer = optim.Adam(self.model.parameters(), lr=self.lr, weight_decay=self.wd)
 		self.log = None
 		self.lr_scheduler = LambdaLR(self.optimizer, lambda epoch: 1.0/(1.0+epoch*self.lr_decay))
 
-		self.pdb2coords = PDB2Coords()
-		self.center = Coords2CenteredCoords(volume_size=120, rotate=True, translate=True)
-		self.coords2types = Coords2TypedCoords()
-		self.types2volume = TypedCoords2Volume(box_size = 120, resolution = 1.0)
+		self.rnd_rotate = rnd_rotate
+		self.rnd_translate = rnd_translate
+
+		self.resolution = resolution
+		self.box_size = box_size
+				
+		self.pdb2coords = PDB2CoordsUnordered()
+		self.assignTypes = Coords2TypedCoords()
+		self.translate = CoordsTranslate()
+		self.rotate = CoordsRotate()
+		self.project = TypedCoords2Volume(self.box_size, self.resolution, mode=projection)
 		
 		atexit.register(self.cleanup)
 	
@@ -39,13 +51,25 @@ class QATrainer:
 
 	def load_batch(self, path_list):
 		with torch.no_grad():
-			coords, res_names, atom_names, num_atoms = self.pdb2coords(path_list)
-			c_coords = self.center(rotate=True, translate=True)
-			typed_coords, num_atoms_of_type, offsets = self.coords2type(c_coords, res_names, atom_names, num_atoms)
-			volume = self.types2volume(	typed_coords.to(device='cuda', dtype=torch.float32), 
-										num_atoms_of_type.to(device='cuda'), 
-										offsets.to(device='cuda')
-									)
+			batch_size = len(path_list)
+			coords, _, resnames, _, atomnames, num_atoms = self.pdb2coords(path_list)
+			a,b = getBBox(coords, num_atoms)
+			protein_center = (a+b)*0.5
+			coords = self.translate(coords, -protein_center, num_atoms)
+			
+			if self.rnd_rotate:
+				random_rotations = getRandomRotation(batch_size)
+				coords = self.rotate(coords, random_rotations, num_atoms)
+			
+			box_center = torch.zeros(batch_size, 3, dtype=torch.double, device='cpu').fill_(self.resolution*self.box_size/2.0)
+			coords = self.translate(coords, box_center, num_atoms)
+
+			if self.rnd_translate:
+				random_translations = getRandomTranslation(a, b, self.resolution*self.box_size)
+				coords = self.translate(coords, random_translations, num_atoms)
+			
+			coords, num_atoms_of_type, offsets = self.assignTypes(coords, resnames, atomnames, num_atoms)
+			volume = self.project(coords.cuda(), num_atoms_of_type.cuda(), offsets.cuda())
 
 		return volume
 		

@@ -34,7 +34,7 @@ if __name__=='__main__':
  		
 	tester.new_log(os.path.join(EXP_DIR, args.test_dataset+"_new.dat"))
 	for data in tqdm(stream_test):
-		volume, gdt, paths = data
-		output = tester.score(volume, paths)
+		paths, gdt = data
+		output = tester.score(paths, gdt)
 
 		

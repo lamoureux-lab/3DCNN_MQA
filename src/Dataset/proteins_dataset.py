@@ -9,6 +9,7 @@ import torch
 from torch.utils.data import Dataset
 import atexit
 import math
+import random
 
 class ProteinsDataset(Dataset):
 	"""
@@ -112,7 +113,7 @@ class BatchSamplerBalanced(object):
 	def shuffle_data(self):
 		for target in self.dataset.targets:
 			for decoy in self.dataset.decoys[target]:
-				random.shuffle(self.decoys[target])
+				random.shuffle(self.dataset.decoys[target])
 
 	def select_batch(self, decoys_list):
 		"""

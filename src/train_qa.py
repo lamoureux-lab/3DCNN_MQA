@@ -27,13 +27,13 @@ if __name__=='__main__':
 	torch.cuda.set_device(0)
 	data_dir = os.path.join(DATA_DIR, args.dataset)
 	stream_train = get_balanced_stream(data_dir, subset='training_set.dat', batch_size=10, shuffle=True)
-	stream_valid = get_sequential_stream(data_dir, subset='validation_set.dat', batch_size=10, shuffle=False)
+	stream_valid = get_balanced_stream(data_dir, subset='validation_set.dat', batch_size=10, shuffle=True)
 
 	
 	model = DeepQAModel().cuda()
 	loss = BatchRankingLoss(threshold=args.tm_score_threshold).cuda()
 
-	trainer = QATrainer(lr = args.lr, weight_decay=args.wd, lr_decay=args.lrd, batch_size=10, dataset_name=args.dataset)
+	trainer = QATrainer(model, loss, lr = args.lr, weight_decay=args.wd, lr_decay=args.lrd)
 
 	EXP_DIR = os.path.join(LOG_DIR, args.experiment)
 	MDL_DIR = os.path.join(MODELS_DIR, args.experiment)
@@ -46,7 +46,7 @@ if __name__=='__main__':
 	except:
 		pass
 
-	for epoch in xrange(args.max_epoch):
+	for epoch in range(args.max_epoch):
 		
 		trainer.new_log(os.path.join(EXP_DIR,"training_epoch%d.dat"%epoch))
 		av_loss = 0.0
@@ -62,8 +62,8 @@ if __name__=='__main__':
 		trainer.new_log(os.path.join(EXP_DIR,"validation_epoch%d.dat"%epoch))
 		av_loss = 0.0
 		for data in tqdm(stream_valid):
-			volume, gdt, paths = data
-			output, loss = trainer.score(volume, paths, gdt)
+			paths, gdt = data
+			output, loss = trainer.score(paths, gdt)
 			av_loss += loss
 		
 		av_loss/=len(stream_valid)

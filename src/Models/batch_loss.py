@@ -1,57 +1,51 @@
 import torch
-from torch.autograd import Variable, Function
+from torch.autograd import Function
 import torch.nn as nn
 import numpy as np
 
 
 class BatchRankingLossFunction(Function):
-	def __init__(self, gap=1.0, threshold=0.1):
-		super(BatchRankingLossFunction, self).__init__()
-		self.gap = gap
-		self.threshold = threshold
-	
-	
-	def forward(self, net_output, gdt_ts):
+		
+	@staticmethod
+	def forward(ctx, net_output, labels, gap, threshold):
 		net_output = torch.squeeze(net_output)
 		batch_size = net_output.size(0)
 		
-		loss = torch.FloatTensor(1).cuda().fill_(0.0)
-		self.dfdo = torch.FloatTensor(batch_size).cuda().fill_(0.0)
+		loss = torch.zeros(1, dtype=torch.float, device='cuda')
+		ctx.dfdo = torch.zeros(batch_size, 1, dtype=torch.float, device='cuda')
 		N = 0
-		for i in xrange(batch_size):
-			for j in xrange(batch_size):
+		for i in range(batch_size):
+			for j in range(batch_size):
 				if i==j: continue
 				N += 1
-				tm_i = gdt_ts[i]
-				tm_j = gdt_ts[j]
+				tm_i = labels[i]
+				tm_j = labels[j]
 				
 				if tm_i<tm_j:
 					y_ij = -1
 				else:
 					y_ij = 1
 				
-				if np.abs(tm_i-tm_j) > self.threshold:
+				if torch.abs(tm_i-tm_j) > threshold:
 					example_weight = 1.0
 				else:
 					example_weight = 0.0
 				
-				dL = example_weight*max(0, self.gap + y_ij*(net_output[i] - net_output[j]))
+				dL = example_weight*max(0, gap + y_ij*(net_output[i] - net_output[j]))
 				if dL>0:
-					self.dfdo[i] += example_weight*y_ij
-					self.dfdo[j] -= example_weight*y_ij
+					ctx.dfdo[i] += example_weight*y_ij
+					ctx.dfdo[j] -= example_weight*y_ij
 
 				loss[0] += dL
 
 		loss /= float(N)
-		self.dfdo /= float(N)
+		ctx.dfdo /= float(N)
 
 		return loss
 	
-	
-	def backward(self, input):
-		return self.dfdo, None
-		# return torch.unsqueeze(self.dfdo, dim=1), None
-
+	@staticmethod
+	def backward(ctx, input):
+		return ctx.dfdo, None, None, None
 
 class BatchRankingLoss(nn.Module):
 	def __init__(self, gap=1.0, threshold=0.1):
@@ -60,16 +54,16 @@ class BatchRankingLoss(nn.Module):
 		self.threshold = threshold
 
 	def forward(self, input, gdt_ts):
-		return BatchRankingLossFunction(self.gap, self.threshold)(input, gdt_ts)
+		return BatchRankingLossFunction.apply(input, gdt_ts, self.gap, self.threshold)
 
 
 
 
 if __name__=='__main__':
-	outputs = Variable(torch.randn(10).cuda(), requires_grad=True)
-	gdts = Variable(torch.randn(10).cuda())
+	outputs = torch.randn(10, device='cuda', dtype=torch.float32)
+	gdts = torch.randn(10, device='cuda', dtype=torch.float32)
 
 	loss = BatchRankingLoss()
 	y = loss(outputs, gdts)
 	y.backward()
-	print y, outputs.grad
+	print(y, outputs.grad)

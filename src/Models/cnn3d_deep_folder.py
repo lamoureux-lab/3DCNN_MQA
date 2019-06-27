@@ -5,7 +5,7 @@ import torch.utils.model_zoo as model_zoo
 import torch.nn.functional as F
 import torch
 import numpy as np
-from torch.utils.serialization import load_lua
+# from torch.utils.serialization import load_lua
 
 def weight_init(m): 
 	if isinstance(m, nn.Conv3d):
@@ -115,7 +115,7 @@ class DeepQAModel(nn.Module):
 			module = self.fc._modules[key]
 			n = int(key) + n_conv
 			name = module.__class__.__name__
-			print n, name
+			print(n, name)
 			if name == 'Linear':
 				weights_file = os.path.join(dirpath, 'FC%dW.dat'%(n+1))
 				bias_file = os.path.join(dirpath, 'FC%dB.dat'%(n+1))
@@ -123,7 +123,7 @@ class DeepQAModel(nn.Module):
 				bias = load_lua(bias_file)
 				module._parameters['weight'].data.copy_(weights)
 				module._parameters['bias'].data.copy_(bias)
-				print n, name, torch.sum(weights), torch.sum(bias)
+				print (n, name, torch.sum(weights), torch.sum(bias))
 
 
 	def save(self, epoch, directory):
