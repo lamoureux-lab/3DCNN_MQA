@@ -1,3 +1,6 @@
+# Pytorch 1.0, python 3.0
+Branch pytorch1.0 contains the updated code for this paper.
+
 # 3DCNN_MQA
 Deep convolutional networks for fold recognition.
 This repository has two branches: Release and helios. The Release branch
