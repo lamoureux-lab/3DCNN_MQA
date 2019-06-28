@@ -58,7 +58,7 @@ def plot_funnels(	dataset_name = 'CASP',
 		output_path = os.path.join(RESULTS_DIR, 'epoch%d_funnels.png'%epoch)
 		if os.path.exists(input_path) and (not os.path.exists(output_path)):
 			decoys_scores = read_epoch_output(input_path)
-			print 'Plotting funnels ',epoch
+			print('Plotting funnels ',epoch)
 			plotFunnels(proteins, decoys, decoys_scores, output_path)
 
 def plot_correlations(	experiment_name = 'QA2',
@@ -105,15 +105,15 @@ def plot_correlations(	experiment_name = 'QA2',
 
 if __name__=='__main__':
 	
-	taus, pears, losses = plot_correlations(experiment_name = 'QA',
-											dataset_name = 'CASP',
+	taus, pears, losses = plot_correlations(experiment_name = 'Debug',
+											dataset_name = 'CASP_SCWRL',
 											dataset_description_dir = 'Description',
-											dataset_subset = 'validation_set.dat',
-											epoch_range = (0, 29),
-											name_prefix = 'validation_epoch')
-	print losses
-	print 'Last validation result: ', taus[-1], pears[-1], losses[-1]
+											dataset_subset = 'training_set.dat',
+											epoch_range = (0, 99),
+											name_prefix = 'training_epoch')
+	print(losses)
+	print('Last validation result: ', taus[-1], pears[-1], losses[-1])
 	candidate_epochs = [np.argmin(taus), np.argmin(pears), np.argmin(losses)]
 	for epoch in candidate_epochs:
-		print 'Epoch %d'%(epoch), taus[epoch], pears[epoch], losses[epoch]
+		print('Epoch %d'%(epoch), taus[epoch], pears[epoch], losses[epoch])
 	

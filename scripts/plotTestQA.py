@@ -34,11 +34,23 @@ def get_correlations(	experiment_name = 'QA2',
 
 if __name__=='__main__':
 	
-	tau, pear, loss = get_correlations(experiment_name = 'LocalQA_3DCNN_BiLSTM',
+	tau, pear, loss = get_correlations(experiment_name = 'Debug',
 										dataset_name = 'CASP11Stage1_SCWRL',
 										dataset_description_dir = 'Description',
 										dataset_subset = 'datasetDescription.dat',
-										name_prefix = 'CASP11Stage2_SCWRL.dat')
-	print 'Tau = ', tau
-	print 'Pearson = ', pear
-	print 'Loss = ', loss
+										name_prefix = 'CASP11Stage1_SCWRL')
+	print("CASP11Stage1:")
+	print('Tau = ', tau)
+	print('Pearson = ', pear)
+	print('Loss = ', loss)
+
+
+	tau, pear, loss = get_correlations(experiment_name = 'Debug',
+										dataset_name = 'CASP11Stage2_SCWRL',
+										dataset_description_dir = 'Description',
+										dataset_subset = 'datasetDescription.dat',
+										name_prefix = 'CASP11Stage2_SCWRL')
+	print("CASP11Stage2:")
+	print('Tau = ', tau)
+	print('Pearson = ', pear)
+	print('Loss = ', loss)

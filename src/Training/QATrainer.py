@@ -15,7 +15,8 @@ class QATrainer:
 					resolution=1.0, box_size=120, projection='gauss',
 					rnd_rotate=True, rnd_translate=True):		
 		self.model = model.to(device='cuda')
-		self.loss = loss.to(device='cuda')
+		if not loss is None:
+			self.loss = loss.to(device='cuda')
 
 		self.wd = weight_decay
 		self.lr = lr

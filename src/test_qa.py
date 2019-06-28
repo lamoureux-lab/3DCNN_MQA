@@ -12,19 +12,22 @@ from src import LOG_DIR, MODELS_DIR, DATA_DIR
 
 if __name__=='__main__':
 	parser = argparse.ArgumentParser(description='Train deep qa')	
-	parser.add_argument('-experiment', default='Test', help='Experiment name')
-	parser.add_argument('-test_dataset', default='CASP11Stage2_SCWRL', help='Dataset name')
-	parser.add_argument('-model_path', default='/data/milatmp1/derevyag/3DCNN_MAQ_models/test', help='Path to the model we testing')
+	parser.add_argument('-experiment', default='Debug', help='Experiment name')
+	parser.add_argument('-test_dataset', default='CASP11Stage1_SCWRL', help='Dataset name')
+	parser.add_argument('-load_epoch', default=98, help='Epoch of the model we are testing', type=int)
+	parser.add_argument('-mult', default=2, help='Number of rotations and translations sampled', type=int)
 	
 	args = parser.parse_args()
 
 	torch.cuda.set_device(0)
 	data_dir = os.path.join(DATA_DIR, args.test_dataset)
 	stream_test = get_sequential_stream(data_dir, subset='datasetDescription.dat', batch_size=10)
-		
+	
+	MDL_DIR = os.path.join(MODELS_DIR, args.experiment)
+
 	model = DeepQAModel()
-	model.load_from_torch(args.model_path)
-	model = model.cuda()
+	model.load(args.load_epoch, MDL_DIR)
+	model = model.to(device='cuda')
 
 	tester = QATrainer(model=model, loss=None)
 
@@ -32,9 +35,11 @@ if __name__=='__main__':
 	if not os.path.exists(EXP_DIR):
 		raise(Exception("Experiment directory not found", EXP_DIR))
  		
-	tester.new_log(os.path.join(EXP_DIR, args.test_dataset+"_new.dat"))
+	tester.new_log(os.path.join(EXP_DIR, args.test_dataset))
 	for data in tqdm(stream_test):
 		paths, gdt = data
-		output = tester.score(paths, gdt)
+		with torch.no_grad():
+			for i in range(args.mult):
+				output = tester.score(paths)
 
 		

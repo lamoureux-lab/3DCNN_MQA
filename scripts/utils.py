@@ -24,11 +24,11 @@ def read_dataset_description(dataset_description_dir, dataset_description_filena
 			elif name==decoy_ranging:
 				decoy_range_idx = n
 
-		decoys[protein]=[]
+		decoys[protein]={}
 		for line in fin:
 			sline = line.split()
 			decoy_name = sline[decoy_path_idx].split('/')[-1]
-			decoys[protein].append((decoy_name, float(sline[decoy_range_idx])))
+			decoys[protein][decoy_name] = float(sline[decoy_range_idx])
 		fin.close()
 	return proteins, decoys
 
@@ -75,13 +75,13 @@ def plotFunnels(proteins, decoys, decoys_scores, outputFile):
 def get_kendall(proteins, decoys, decoys_scores):
 	import scipy
 	tau_av = 0.0
-	for n,protein in enumerate(proteins):
+	for n, protein in enumerate(proteins):
 		tmscores = []
 		scores = []
-		for decoy in decoys[protein]:
-			tmscores.append(decoy[1])
-			# print protein, decoy[0], decoy[1], decoys_scores[protein][decoy[0]]
-			scores.append(decoys_scores[protein][decoy[0]])
+		for decoy_name in decoys_scores[protein].keys():
+			tmscores.append(decoys[protein][decoy_name])
+			# print(protein, decoy, decoys_scores[protein][decoy_name])
+			scores.append(decoys_scores[protein][decoy_name])
 			
 		tau_prot = scipy.stats.kendalltau(tmscores, scores)[0]
 		if tau_prot!=tau_prot:
@@ -95,10 +95,10 @@ def get_pearson(proteins, decoys, decoys_scores):
 	for n,protein in enumerate(proteins):
 		tmscores = []
 		scores = []
-		for decoy in decoys[protein]:
-			tmscores.append(decoy[1])
-			# print protein, decoy[0], decoy[1], decoys_scores[protein][decoy[0]]
-			scores.append(decoys_scores[protein][decoy[0]])
+		for decoy_name in decoys_scores[protein].keys():
+			tmscores.append(decoys[protein][decoy_name])
+			# print(protein, decoy, decoys_scores[protein][decoy_name])
+			scores.append(decoys_scores[protein][decoy_name])
 			
 		pearson_prot = scipy.stats.pearsonr(tmscores, scores)[0]
 		pearson_av += pearson_prot
@@ -106,26 +106,26 @@ def get_pearson(proteins, decoys, decoys_scores):
 
 def get_best_decoy(protein, decoys, decoys_scores, negative = True):
 	max_tmscore = 0.0
-	for decoy in decoys[protein]:
-		tmscore = decoy[1]
-		score = decoys_scores[protein][decoy[0]]
+	for decoy_name in decoys_scores[protein].keys():
+		tmscore = decoys[protein][decoy_name]
+		score = decoys_scores[protein][decoy_name]
 		if max_tmscore<tmscore:
 			max_tmscore = tmscore
-			best_decoy = decoy
+			best_decoy = decoys[protein][decoy_name]
 	return best_decoy
 
 def get_top1_decoy(protein, decoys, decoys_scores, negative = True):
 	min_score = float('inf')
 	max_score = float('-inf')
-	for decoy in decoys[protein]:
-		tmscore = decoy[1]
-		score = decoys_scores[protein][decoy[0]]
+	for decoy_name in decoys_scores[protein].keys():
+		tmscore = decoys[protein][decoy_name]
+		score = decoys_scores[protein][decoy_name]
 		if min_score>score:
 			min_score = score
-			top1_decoy_neg = decoy
+			top1_decoy_neg = decoys[protein][decoy_name]
 		if max_score<score:
 			max_score = score
-			top1_decoy_pos = decoy
+			top1_decoy_pos = decoys[protein][decoy_name]
 	if negative:
 		return top1_decoy_neg
 	else:
@@ -141,8 +141,8 @@ def get_average_loss(proteins, decoys, decoys_scores, subset=None, return_all=Fa
 				continue
 		top1_decoy = get_top1_decoy(protein, decoys, decoys_scores, negative=True)
 		best_decoy = get_best_decoy(protein, decoys, decoys_scores)
-		loss = loss + np.abs(top1_decoy[1] - best_decoy[1])
-		loss_all[protein] = np.abs(top1_decoy[1] - best_decoy[1])
+		loss = loss + np.abs(top1_decoy - best_decoy)
+		loss_all[protein] = np.abs(top1_decoy - best_decoy)
 		decoys_info[protein] = (top1_decoy, best_decoy)
 	if return_all:
 		return loss_all, decoys_info
