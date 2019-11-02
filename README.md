@@ -8,7 +8,7 @@ contains the code to replicate the main results of the publication. The
 helios branch contains complete code to replicate all the plots and tables in the publication, however it is sparsely documented.
 
 ## Preparation
-1. Download the [CASP_SCWRL](http://proteinfoldingproject.com/static/datasets/CASP_SCWRL.tar.gz) and [CASP11Stage1_SCWRL](http://proteinfoldingproject.com/static/datasets/CASP11Stage1_SCWRL.tar.gz) and [CASP11Stage2_SCWRL](http://proteinfoldingproject.com/static/datasets/CASP11Stage2_SCWRL.tar.gz) datasets, upack them to some location.
+1. Download the [CASP_SCWRL](https://drive.google.com/open?id=18cgfyStwa47qZzVGmgfM8lAUhyU_z9Hn) and [CASP11Stage1_SCWRL](https://drive.google.com/open?id=1bCZYmdf9del6XpB1tDwAfk9v7-M7BMVd) and [CASP11Stage2_SCWRL](https://drive.google.com/open?id=1WFddGJhpUG84ScXMAHtM8WxosyJvs3R2) datasets, upack them to some location.
 
 2. Run the script *scripts/Datasets/heliosChangePrefix.py*. This script 
 changes location of the datasets in the description files.
