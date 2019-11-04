@@ -85,7 +85,7 @@ Loss: 0.0639580246914
 The scipts *plotTestResults.py* and *plotTrainingProcess.py* also have the parameter *models_dir*, pointing to the directory with the saved experiments.
 
 ## Pretrained model
-You can download [pretrained model](http://proteinfoldingproject.com/static/datasets/models.tar.gz) as well as the output of RWPlus, ProQ# and VoroMQA algorithms.
+You can download [pretrained model](https://drive.google.com/open?id=1WpEujbJ2lmiTEgeaRybl0C4hABxd2IVJ) as well as the output of RWPlus, ProQ# and VoroMQA algorithms.
 
 ## Grad-CAM analysis
 To replicate the Grad-CAM data from the paper you need to install PyMOL and its
