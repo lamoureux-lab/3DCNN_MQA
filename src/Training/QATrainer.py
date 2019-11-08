@@ -12,7 +12,7 @@ from TorchProteinLibrary.FullAtomModel import getRandomRotation, getRandomTransl
 class QATrainer:
 	def __init__(self, model, loss, 
 					lr=0.001, weight_decay=0.0, lr_decay=0.0001, 
-					resolution=1.0, box_size=120, projection='gauss',
+					resolution=1.0, box_size=120,
 					rnd_rotate=True, rnd_translate=True):		
 		self.model = model.to(device='cuda')
 		if not loss is None:
@@ -36,7 +36,7 @@ class QATrainer:
 		self.assignTypes = Coords2TypedCoords()
 		self.translate = CoordsTranslate()
 		self.rotate = CoordsRotate()
-		self.project = TypedCoords2Volume(self.box_size, self.resolution, mode=projection)
+		self.project = TypedCoords2Volume(self.box_size, self.resolution)
 		
 		atexit.register(self.cleanup)
 	
@@ -69,7 +69,7 @@ class QATrainer:
 				random_translations = getRandomTranslation(a, b, self.resolution*self.box_size)
 				coords = self.translate(coords, random_translations, num_atoms)
 			
-			coords, num_atoms_of_type, offsets = self.assignTypes(coords, resnames, atomnames, num_atoms)
+			coords, num_atoms_of_type, offsets = self.assignTypes(coords.to(dtype=torch.float32), resnames, atomnames, num_atoms)
 			volume = self.project(coords.cuda(), num_atoms_of_type.cuda(), offsets.cuda())
 
 		return volume

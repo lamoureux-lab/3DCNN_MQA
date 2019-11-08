@@ -7,7 +7,7 @@ This branch reproduces main results of the paper in pytorch 1.0
 
 2. Change paths in <Dataset>/Description/*.dat to your locations
 
-3. Install TorchProteinLibrary "dev" branch(d9ebec8cb17141f6c784e1c38b40db19d9d18dc1)
+3. Install TorchProteinLibrary v0.15 https://github.com/lupoglaz/TorchProteinLibrary
 
 
 ## Training and Test

@@ -55,7 +55,7 @@ if __name__=='__main__':
 			av_loss += loss
 		
 		av_loss/=len(stream_train)
-		print('Epoch ', epoch, Loss training = ', av_loss)
+		print('Epoch ', epoch, 'Loss training = ', av_loss)
 		
 		model.save(epoch, MDL_DIR)
 		

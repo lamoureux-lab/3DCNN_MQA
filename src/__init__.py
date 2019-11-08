@@ -14,13 +14,13 @@ logging.info("Autodiscovery repository dir: " + REPOSITORY_DIR)
 if os.path.exists("/media/lupoglaz"):
 	logging.info("Server detected")
 	storage_dir = "/media/lupoglaz"
-	DATA_DIR = os.path.join(storage_dir, "ProteinsDataset")
+	DATA_DIR = os.path.join(storage_dir, "ProteinsDataset/QA")
 
-	MODELS_DIR = os.path.join(storage_dir, "3DCNN_MAQ_models")
+	MODELS_DIR = os.path.join(storage_dir, "LocalQA", "Models")
 	if not os.path.exists(MODELS_DIR):
 		os.mkdir(MODELS_DIR)
 
-	LOG_DIR = os.path.join(storage_dir, "3DCNN_MAQ_experiments")
+	LOG_DIR = os.path.join(storage_dir, "LocalQA", "Experiments")
 	if not os.path.exists(LOG_DIR):
 		os.mkdir(LOG_DIR)
 	
